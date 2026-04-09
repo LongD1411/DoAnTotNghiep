@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Đăng Nhập Hệ Thống AgroShop</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#38b30f",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#152210",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+        .bg-gradient-soft {
+            background: radial-gradient(circle at center, #ffffff 0%, #eaf3e7 100%);
+        }
+        .dark .bg-gradient-soft {
+            background: radial-gradient(circle at center, #1a2e14 0%, #0d140a 100%);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex items-center justify-center font-display p-4 bg-gradient-soft">
+<div class="w-full max-w-[480px] flex flex-col items-center">
+<!-- Logo Area -->
+<div class="flex items-center gap-3 mb-8">
+<div class="bg-primary p-2 rounded-lg text-white">
+<span class="material-symbols-outlined text-3xl">agriculture</span>
+</div>
+<h2 class="text-[#111b0d] dark:text-white text-3xl font-extrabold leading-tight tracking-[-0.015em]">AgroAdmin</h2>
+</div>
+<!-- Login Card -->
+<div class="w-full bg-white dark:bg-[#1c2d16] rounded-xl shadow-xl border border-[#eaf3e7] dark:border-white/10 p-8 md:p-10">
+<div class="mb-8 text-center">
+<h1 class="text-[#111b0d] dark:text-white text-2xl font-bold leading-tight mb-2">Đăng Nhập Hệ Thống AgroShop</h1>
+<p class="text-[#5f9a4c] dark:text-primary/80 text-base font-normal">Chào mừng trở lại! Vui lòng nhập thông tin của bạn.</p>
+</div>
+<form action="#" class="space-y-5" method="POST">
+<!-- Username/Email Field -->
+<div class="flex flex-col gap-2">
+<label class="text-[#111b0d] dark:text-white text-sm font-semibold">Tên đăng nhập hoặc Email</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#5f9a4c] text-xl">person</span>
+<input class="w-full pl-12 pr-4 py-3.5 rounded-lg border border-[#d5e7cf] dark:border-white/10 bg-[#f9fcf8] dark:bg-[#152210] text-[#111b0d] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-[#5f9a4c]/60" placeholder="example@agroshop.vn" type="text"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="flex flex-col gap-2">
+<label class="text-[#111b0d] dark:text-white text-sm font-semibold">Mật khẩu</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#5f9a4c] text-xl">lock</span>
+<input class="w-full pl-12 pr-12 py-3.5 rounded-lg border border-[#d5e7cf] dark:border-white/10 bg-[#f9fcf8] dark:bg-[#152210] text-[#111b0d] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-[#5f9a4c]/60" placeholder="••••••••" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-[#5f9a4c] hover:text-primary" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Remember & Forgot -->
+<div class="flex items-center justify-between py-1">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-5 h-5 rounded border-[#d5e7cf] text-primary focus:ring-primary bg-[#f9fcf8]" type="checkbox"/>
+<span class="text-sm text-[#111b0d] dark:text-white/80 font-medium group-hover:text-primary transition-colors">Ghi nhớ đăng nhập</span>
+</label>
+<a class="text-sm font-bold text-primary hover:underline" href="#">Quên mật khẩu?</a>
+</div>
+<!-- Login Button -->
+<button class="w-full bg-primary hover:bg-[#2e940c] text-white py-4 rounded-lg font-bold text-lg shadow-lg shadow-primary/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0" type="submit">
+                    Đăng nhập
+                </button>
+</form>
+<!-- Social Login Divider -->
+<div class="relative my-8">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-[#eaf3e7] dark:border-white/10"></div>
+</div>
+<div class="relative flex justify-center text-xs uppercase">
+<span class="bg-white dark:bg-[#1c2d16] px-2 text-[#5f9a4c]">Hoặc tiếp tục với</span>
+</div>
+</div>
+<!-- Social Buttons -->
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-2 py-2.5 px-4 border border-[#d5e7cf] dark:border-white/10 rounded-lg hover:bg-[#f9fcf8] dark:hover:bg-white/5 transition-all">
+<img alt="Google Logo" class="w-5 h-5" data-alt="Google colorful logo icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmo7YQ6nwc0JYVZenniH2qAXX4vvxgIgO3drMwAIS3XMf8IuxNrHMkgbO2h1cB1jB3XywdwaWPg7drPAqkLHdLVdiYKd62UH9_it1Qtm5UKp5ra_aaefdPw9u163ER5qFLPCF7gAQO9JKMgJy5zoCaX4PSi95ysnXR0rnIFYndRUcihhxnstzVRNLgZLZhmTsqg8zV20bf5KXxCRyy9ZjIge7_aITITNL5V4DGkldRtDrtpJTw7VwWTHgXWMLZcvDlIOuLj_abZ5E"/>
+<span class="text-sm font-semibold text-[#111b0d] dark:text-white">Google</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-2.5 px-4 border border-[#d5e7cf] dark:border-white/10 rounded-lg hover:bg-[#f9fcf8] dark:hover:bg-white/5 transition-all">
+<span class="material-symbols-outlined text-[#1877F2]">social_leaderboard</span>
+<span class="text-sm font-semibold text-[#111b0d] dark:text-white">Facebook</span>
+</button>
+</div>
+<!-- Register Link -->
+<div class="mt-8 text-center border-t border-[#eaf3e7] dark:border-white/10 pt-6">
+<p class="text-[#111b0d] dark:text-white/80 text-sm font-medium">
+                    Bạn chưa có tài khoản? 
+                    <a class="text-primary font-bold hover:underline ml-1" href="#">Đăng ký ngay</a>
+</p>
+</div>
+</div>
+<!-- Footer Help -->
+<div class="mt-8 flex gap-6 text-[#5f9a4c] text-sm font-medium">
+<a class="hover:text-primary transition-colors" href="#">Điều khoản</a>
+<a class="hover:text-primary transition-colors" href="#">Bảo mật</a>
+<a class="hover:text-primary transition-colors" href="#">Hỗ trợ</a>
+</div>
+</div>
+</body></html>

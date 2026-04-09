@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Secure Checkout - AgroMarket</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#36cf17", // Bright Green
+                        "primary-dark": "#2aa611", // Slightly darker for hover/active
+                        "background-light": "#f9fcf8",
+                        "background-dark": "#142111",
+                        "text-main": "#101b0e",
+                        "text-muted": "#5a974e",
+                        "border-color": "#e9f3e7",
+                        "input-border": "#d4e7d0",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main font-display antialiased">
+<!-- Main Wrapper -->
+<div class="flex min-h-screen flex-col">
+<!-- Header -->
+<header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-color bg-background-light/95 backdrop-blur-sm px-6 py-3 dark:bg-background-dark/95 dark:border-white/10">
+<div class="flex items-center gap-4 text-text-main dark:text-white">
+<div class="size-8 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-size: 32px;">eco</span>
+</div>
+<h2 class="text-text-main dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">AgroMarket</h2>
+</div>
+<div class="flex items-center gap-4 md:gap-8">
+<div class="hidden md:flex items-center gap-6">
+<a class="text-text-main dark:text-gray-200 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Shop</a>
+<a class="text-text-main dark:text-gray-200 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Community</a>
+<a class="text-text-main dark:text-gray-200 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Orders</a>
+</div>
+<div class="flex gap-2">
+<button class="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary/10 hover:bg-primary/20 text-text-main dark:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+</button>
+<button class="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary/10 hover:bg-primary/20 text-text-main dark:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 w-full max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 py-8">
+<!-- Progress Stepper (Breadcrumbs) -->
+<div class="mb-8 flex justify-center">
+<nav class="flex items-center gap-2 md:gap-4 text-sm font-medium">
+<a class="flex items-center gap-2 text-primary hover:text-primary-dark" href="#">
+<span class="flex items-center justify-center size-6 rounded-full bg-primary/20 text-primary text-xs">✓</span>
+                        Cart
+                    </a>
+<span class="text-text-muted">/</span>
+<span class="flex items-center gap-2 text-text-main dark:text-white">
+<span class="flex items-center justify-center size-6 rounded-full bg-primary text-white text-xs shadow-md shadow-primary/30">2</span>
+                        Shipping &amp; Payment
+                    </span>
+<span class="text-text-muted">/</span>
+<span class="flex items-center gap-2 text-text-muted">
+<span class="flex items-center justify-center size-6 rounded-full border border-input-border text-text-muted text-xs">3</span>
+                        Review
+                    </span>
+</nav>
+</div>
+<!-- Page Title -->
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary text-3xl">lock</span>
+<h1 class="text-text-main dark:text-white text-2xl md:text-3xl font-bold tracking-tight">Secure Checkout</h1>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Left Column: Forms -->
+<div class="lg:col-span-7 xl:col-span-8 flex flex-col gap-8">
+<!-- Section 1: Contact Info -->
+<section class="bg-white dark:bg-white/5 rounded-xl border border-border-color dark:border-white/10 p-6 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-text-main dark:text-white text-lg font-bold">1. Contact Information</h3>
+<div class="text-text-muted text-sm">
+                                Already have an account? <a class="text-primary hover:underline" href="#">Log in</a>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<label class="flex flex-col flex-1">
+<p class="text-text-main dark:text-gray-300 text-sm font-medium pb-2">Email Address</p>
+<input class="form-input w-full rounded-lg border border-input-border bg-background-light dark:bg-background-dark focus:border-primary focus:ring-1 focus:ring-primary h-12 px-4 text-text-main dark:text-white placeholder:text-text-muted" placeholder="Enter your email" type="email"/>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input checked="" class="form-checkbox rounded text-primary border-input-border focus:ring-primary h-5 w-5 bg-background-light dark:bg-background-dark" type="checkbox"/>
+<span class="text-text-main dark:text-gray-300 text-sm">Email me with news and offers</span>
+</label>
+</div>
+</section>
+<!-- Section 2: Shipping Address -->
+<section class="bg-white dark:bg-white/5 rounded-xl border border-border-color dark:border-white/10 p-6 shadow-sm">
+<h3 class="text-text-main dark:text-white text-lg font-bold mb-6">2. Shipping Address</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<label class="flex flex-col">
+<p class="text-text-main dark:text-gray-300 text-sm font-medium pb-2">First Name</p>
+<input class="form-input w-full rounded-lg border border-input-border bg-background-light dark:bg-background-dark focus:border-primary focus:ring-1 focus:ring-primary h-12 px-4 text-text-main dark:text-white" placeholder="First Name" type="text"/>
+</label>
+<label class="flex flex-col">
+<p class="text-text-main dark:text-gray-300 text-sm font-medium pb-2">Last Name</p>
+<input class="form-input w-full rounded-lg border border-input-border bg-background-light dark:bg-background-dark focus:border-primary focus:ring-1 focus:ring-primary h-12 px-4 text-text-main dark:text-white" placeholder="Last Name" type="text"/>
+</label>
+<label class="flex flex-col md:col-span-2">
+<p class="text-text-main dark:text-gray-300 text-sm font-medium pb-2">Address</p>
+<input class="form-input w-full rounded-lg border border-input-border bg-background-light dark:bg-background-dark focus:border-primary focus:ring-1 focus:ring-primary h-12 px-4 text-text-main dark:text-white" placeholder="Street Address" type="text"/>
+</label>
+<label class="flex flex-col">
+<p class="text-text-main dark:text-gray-300 text-sm font-medium pb-2">Apartment, suite, etc.</p>
+<input class="form-input w-full rounded-lg border border-input-border bg-background-light dark:bg-background-dark focus:border-primary focus:ring-1 focus:ring-primary h-12 px-4 text-text-main dark:text-white" placeholder="Optional" type="text"/>
+</label>
+<label class="flex flex-col">
+<p class="text-text-main dark:text-gray-300 text-sm font-medium pb-2">City</p>
+<input class="form-input w-full rounded-lg border border-input-border bg-background-light dark:bg-background-dark focus:border-primary focus:ring-1 focus:ring-primary h-12 px-4 text-text-main dark:text-white" placeholder="City" type="text"/>
+</label>
+<label class="flex flex-col">
+<p class="text-text-main dark:text-gray-300 text-sm font-medium pb-2">Country/Region</p>
+<select class="form-select w-full rounded-lg border border-input-border bg-background-light dark:bg-background-dark focus:border-primary focus:ring-1 focus:ring-primary h-12 px-4 text-text-main dark:text-white">
+<option>United States</option>
+<option>Canada</option>
+<option>Mexico</option>
+</select>
+</label>
+<label class="flex flex-col">
+<p class="text-text-main dark:text-gray-300 text-sm font-medium pb-2">Postal Code</p>
+<input class="form-input w-full rounded-lg border border-input-border bg-background-light dark:bg-background-dark focus:border-primary focus:ring-1 focus:ring-primary h-12 px-4 text-text-main dark:text-white" placeholder="ZIP Code" type="text"/>
+</label>
+<label class="flex flex-col md:col-span-2">
+<p class="text-text-main dark:text-gray-300 text-sm font-medium pb-2">Phone</p>
+<div class="relative">
+<input class="form-input w-full rounded-lg border border-input-border bg-background-light dark:bg-background-dark focus:border-primary focus:ring-1 focus:ring-primary h-12 px-4 text-text-main dark:text-white" placeholder="(555) 555-5555" type="tel"/>
+<div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-text-muted">
+<span class="material-symbols-outlined text-sm">help</span>
+</div>
+</div>
+</label>
+</div>
+</section>
+<!-- Section 3: Payment Method -->
+<section class="bg-white dark:bg-white/5 rounded-xl border border-border-color dark:border-white/10 p-6 shadow-sm">
+<h3 class="text-text-main dark:text-white text-lg font-bold mb-6">3. Payment Method</h3>
+<div class="space-y-4">
+<!-- Option 1: Online Payment -->
+<label class="relative flex cursor-pointer rounded-lg border border-primary bg-primary/5 p-4 shadow-sm focus:outline-none">
+<input aria-describedby="payment-online-description-0 payment-online-description-1" aria-labelledby="payment-online-label" checked="" class="sr-only" name="payment-method" type="radio" value="online"/>
+<span class="flex flex-1">
+<span class="flex flex-col">
+<span class="block text-sm font-bold text-text-main dark:text-white" id="payment-online-label">Online Payment</span>
+<span class="mt-1 flex items-center text-sm text-text-muted" id="payment-online-description-0">Safe money transfer using your bank account or credit card.</span>
+<span class="mt-3 flex gap-2">
+<span class="bg-white dark:bg-background-dark border border-input-border rounded h-6 w-10 flex items-center justify-center" data-alt="Visa Card Icon">
+<span class="text-[10px] font-bold text-gray-500">VISA</span>
+</span>
+<span class="bg-white dark:bg-background-dark border border-input-border rounded h-6 w-10 flex items-center justify-center" data-alt="Mastercard Icon">
+<span class="text-[10px] font-bold text-gray-500">MC</span>
+</span>
+</span>
+</span>
+</span>
+<span aria-hidden="true" class="material-symbols-outlined text-primary">check_circle</span>
+<span aria-hidden="true" class="pointer-events-none absolute -inset-px rounded-lg border-2 border-primary"></span>
+</label>
+<!-- Option 2: Bank Transfer -->
+<label class="relative flex cursor-pointer rounded-lg border border-input-border bg-white dark:bg-white/5 p-4 shadow-sm focus:outline-none hover:border-gray-300 dark:hover:border-white/20">
+<input aria-labelledby="payment-bank-label" class="sr-only" name="payment-method" type="radio" value="bank"/>
+<span class="flex flex-1">
+<span class="flex flex-col">
+<span class="block text-sm font-bold text-text-main dark:text-white" id="payment-bank-label">Direct Bank Transfer</span>
+<span class="mt-1 flex items-center text-sm text-text-muted">Make your payment directly into our bank account.</span>
+</span>
+</span>
+<span aria-hidden="true" class="material-symbols-outlined text-gray-300">radio_button_unchecked</span>
+</label>
+<!-- Option 3: COD -->
+<label class="relative flex cursor-pointer rounded-lg border border-input-border bg-white dark:bg-white/5 p-4 shadow-sm focus:outline-none hover:border-gray-300 dark:hover:border-white/20">
+<input aria-labelledby="payment-cod-label" class="sr-only" name="payment-method" type="radio" value="cod"/>
+<span class="flex flex-1">
+<span class="flex flex-col">
+<span class="block text-sm font-bold text-text-main dark:text-white" id="payment-cod-label">Cash on Delivery (COD)</span>
+<span class="mt-1 flex items-center text-sm text-text-muted">Pay with cash upon delivery.</span>
+</span>
+</span>
+<span aria-hidden="true" class="material-symbols-outlined text-gray-300">radio_button_unchecked</span>
+</label>
+</div>
+</section>
+</div>
+<!-- Right Column: Order Summary -->
+<div class="lg:col-span-5 xl:col-span-4 relative">
+<div class="sticky top-24 space-y-6">
+<div class="bg-white dark:bg-white/5 rounded-xl border border-border-color dark:border-white/10 p-6 shadow-lg">
+<h3 class="text-text-main dark:text-white text-lg font-bold mb-4 pb-4 border-b border-border-color dark:border-white/10">Order Summary</h3>
+<!-- Product Items -->
+<div class="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+<div class="flex gap-4">
+<div class="h-16 w-16 shrink-0 overflow-hidden rounded-md border border-input-border bg-gray-100 dark:bg-white/10">
+<div class="h-full w-full bg-cover bg-center" data-alt="Bag of EcoGrow Fertilizer" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBp1buyRVksWQAdhPKmXAAXVhiLg9jFA1CZW4pPeapsGFJgWCAqlprYcfgOqH_AdHM6nz3dtHJuwIVVaemRteR5p5cCnV-f7GolmlFonHjM2GZiQ9ecjj0S99X6LHZc7V3czI7-ZW4vmN_G06cXGuLSTc2C7MRob52nfZZTsmvPjefkHIu77LJLjExajgeppNYtGv7zUaR3M0rMJM20vjVvi62oNYHbAhG_Rpn6zKTSug1fKlWlPiFTpOipwRHQQ7Z4tJFiCG8CZyg');"></div>
+</div>
+<div class="flex flex-1 flex-col justify-center">
+<div class="flex justify-between">
+<h4 class="text-sm font-bold text-text-main dark:text-white">EcoGrow Fertilizer 20kg</h4>
+<p class="text-sm font-bold text-text-main dark:text-white">$45.00</p>
+</div>
+<p class="text-xs text-text-muted mt-1">Qty: 2</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="h-16 w-16 shrink-0 overflow-hidden rounded-md border border-input-border bg-gray-100 dark:bg-white/10">
+<div class="h-full w-full bg-cover bg-center" data-alt="Bottle of PestControl Pro" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAOTsg3z0irPMbURtx7wG2VC5QWfJTbP_Ceidc3qKRVQEHxHBEEMIZaSPn_sBpyibdxcBZXZ7GwEFf0l3Za923f6nCJBNxDLyGCDzZMNp96QbVcUwoBQWlyUlInZLLRhPQsvtLH3Q87tD-z7JEERhcMqswUmq81fmMie0O8bdpqF5eGEl2Xo9fAVshrY11RiEtHi5Mg6pHVsfETosyedkrOBJE3X-CE3-APZIYDTSGVCUOER5FIpIhCIHpWAhrSKC5q1J3MYO-VvZ8');"></div>
+</div>
+<div class="flex flex-1 flex-col justify-center">
+<div class="flex justify-between">
+<h4 class="text-sm font-bold text-text-main dark:text-white">PestControl Pro 500ml</h4>
+<p class="text-sm font-bold text-text-main dark:text-white">$22.50</p>
+</div>
+<p class="text-xs text-text-muted mt-1">Qty: 1</p>
+</div>
+</div>
+</div>
+<!-- Discount Code -->
+<div class="flex gap-2 mb-6">
+<input class="form-input flex-1 rounded-lg border border-input-border bg-background-light dark:bg-background-dark px-3 py-2 text-sm text-text-main dark:text-white focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Discount code" type="text"/>
+<button class="rounded-lg bg-background-light border border-input-border px-4 py-2 text-sm font-bold text-text-muted hover:bg-gray-100 hover:text-text-main transition-colors dark:bg-white/5 dark:hover:bg-white/10 dark:text-gray-300">Apply</button>
+</div>
+<!-- Calculations -->
+<div class="space-y-3 border-t border-border-color dark:border-white/10 pt-4">
+<div class="flex justify-between text-sm">
+<span class="text-text-muted">Subtotal</span>
+<span class="text-text-main dark:text-white font-medium">$112.50</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-text-muted">Shipping</span>
+<span class="text-text-main dark:text-white font-medium">$15.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-text-muted">Taxes (Est.)</span>
+<span class="text-text-main dark:text-white font-medium">$8.40</span>
+</div>
+</div>
+<!-- Total -->
+<div class="flex justify-between border-t border-border-color dark:border-white/10 pt-4 mt-4 mb-6">
+<span class="text-base font-bold text-text-main dark:text-white">Total</span>
+<div class="flex items-baseline gap-1">
+<span class="text-xs text-text-muted">USD</span>
+<span class="text-2xl font-bold text-primary">$135.90</span>
+</div>
+</div>
+<!-- CTA Button -->
+<button class="w-full rounded-lg bg-primary hover:bg-primary-dark text-white font-bold h-14 text-lg shadow-lg shadow-primary/30 transition-all flex items-center justify-center gap-2 group">
+                                Place Order
+                                <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+<!-- Trust Badges -->
+<div class="mt-4 flex justify-center gap-4 text-text-muted opacity-80">
+<div class="flex items-center gap-1 text-[10px]">
+<span class="material-symbols-outlined text-base">lock</span>
+                                    SSL Secure
+                                </div>
+<div class="flex items-center gap-1 text-[10px]">
+<span class="material-symbols-outlined text-base">verified_user</span>
+                                    Money Back Guarantee
+                                </div>
+</div>
+</div>
+<!-- Help Card -->
+<div class="bg-primary/5 rounded-xl p-4 border border-primary/10 flex items-start gap-3">
+<span class="material-symbols-outlined text-primary mt-1">support_agent</span>
+<div>
+<h4 class="text-sm font-bold text-text-main dark:text-white">Need Help?</h4>
+<p class="text-xs text-text-muted mt-1">Contact our support team at <a class="underline hover:text-primary" href="#">support@agromarket.com</a> or call +1 (800) 123-4567.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Simple Footer -->
+<footer class="mt-auto border-t border-border-color dark:border-white/10 bg-white dark:bg-background-dark py-8">
+<div class="max-w-[1200px] mx-auto px-6 text-center text-sm text-text-muted">
+<p>© 2023 AgroMarket. All rights reserved.</p>
+<div class="flex justify-center gap-4 mt-2">
+<a class="hover:underline" href="#">Privacy Policy</a>
+<a class="hover:underline" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

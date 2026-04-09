@@ -1,0 +1,25 @@
+Tổng quan dự án: Hệ thống của nhà nông
+Phase 1: Hệ thống bán hàng. (2 tháng)
+Phase 2: Diễn đàn trao đổi. (1 tháng)
+Phase 3: AI nhận diện bệnh, đưa ra giải pháp (1 tháng)
+
+Chi tiết phase 1:
+Mô tả nghiệp vụ:
+- Khách hàng có thể xem, tìm kiếm sản phẩm, thêm sản phẩm vào giỏ hàng, đặt hàng.
+- Mod có thể duyệt hoặc hủy đơn hàng.
+- Admin có thể chỉnh sửa sản phẩm, danh mục. ...
+
+Phương thức đăng nhập:
+- Sử dụng Oauth (jwt) hoặc google, facebook
+
+Công nghệ sử dụng
+Frontend (FE)
+    - Next.js (hoặc React)
+    - Tailwind CSS
+    - Axios
+    - React Query
+    - Zustand
+Backend (BE)
+    - Node.js + Express
+    - MySQL
+    - Prisma

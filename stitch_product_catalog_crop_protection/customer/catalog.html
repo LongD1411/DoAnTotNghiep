@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Product Catalog - Crop Protection</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4bee2b",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#132210",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for sidebar if needed */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#101b0d] dark:text-[#f0f5ef] font-display min-h-screen flex flex-col overflow-x-hidden">
+<!-- Navbar -->
+<header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-[#e9f3e7] dark:border-[#2a3e25] bg-background-light dark:bg-[#132210] px-4 md:px-10 py-3">
+<div class="flex items-center gap-4 md:gap-8">
+<div class="flex items-center gap-2 md:gap-4 text-[#101b0d] dark:text-white">
+<div class="size-8 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">eco</span>
+</div>
+<h2 class="text-lg md:text-xl font-bold leading-tight tracking-[-0.015em]">AgroStore</h2>
+</div>
+<div class="hidden md:flex flex-col min-w-40 h-10 w-64 lg:w-96">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-[#599a4c] flex border-none bg-[#e9f3e7] dark:bg-[#1e331b] items-center justify-center pl-4 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#101b0d] dark:text-white focus:outline-0 focus:ring-0 border-none bg-[#e9f3e7] dark:bg-[#1e331b] focus:border-none h-full placeholder:text-[#599a4c] px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Search for products..."/>
+</div>
+</div>
+</div>
+<div class="flex flex-1 justify-end gap-4 md:gap-8">
+<div class="hidden lg:flex items-center gap-6">
+<a class="text-[#101b0d] dark:text-[#e0e7df] text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Store</a>
+<a class="text-[#101b0d] dark:text-[#e0e7df] text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Community</a>
+<a class="text-[#101b0d] dark:text-[#e0e7df] text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Orders</a>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-[#e9f3e7] dark:bg-[#1e331b] text-[#101b0d] dark:text-white hover:bg-primary hover:text-black transition-colors">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+</button>
+<button class="flex items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-[#e9f3e7] dark:bg-[#1e331b] text-[#101b0d] dark:text-white hover:bg-primary hover:text-black transition-colors">
+<span class="material-symbols-outlined text-[20px]">account_circle</span>
+</button>
+<!-- Mobile Menu Button -->
+<button class="lg:hidden flex items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-[#e9f3e7] dark:bg-[#1e331b] text-[#101b0d] dark:text-white">
+<span class="material-symbols-outlined text-[20px]">menu</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Wrapper -->
+<div class="layout-container flex flex-col flex-grow px-4 md:px-10 lg:px-20 py-6 max-w-[1440px] mx-auto w-full">
+<!-- Breadcrumbs -->
+<nav class="flex flex-wrap gap-2 pb-4">
+<a class="text-[#599a4c] dark:text-primary text-sm font-medium leading-normal hover:underline" href="#">Home</a>
+<span class="text-[#599a4c] dark:text-[#8dbf84] text-sm font-medium leading-normal">/</span>
+<a class="text-[#599a4c] dark:text-primary text-sm font-medium leading-normal hover:underline" href="#">Store</a>
+<span class="text-[#599a4c] dark:text-[#8dbf84] text-sm font-medium leading-normal">/</span>
+<span class="text-[#101b0d] dark:text-white text-sm font-medium leading-normal">Crop Protection</span>
+</nav>
+<!-- Page Heading -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+<div class="flex flex-col gap-2">
+<h1 class="text-[#101b0d] dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">Crop Protection Solutions</h1>
+<p class="text-[#599a4c] dark:text-[#a3d49b] text-base font-normal leading-normal max-w-2xl">
+                    High-quality fungicides, herbicides, and insecticides for optimal yield. Ensure your harvest is protected with our premium selection.
+                </p>
+</div>
+</div>
+<div class="flex flex-col lg:flex-row gap-8 relative">
+<!-- Sidebar Filters -->
+<aside class="w-full lg:w-72 flex-shrink-0 flex flex-col gap-6">
+<!-- Mobile Filter Toggle (Visible only on small screens) -->
+<div class="lg:hidden flex justify-between items-center bg-white dark:bg-[#1a2e16] p-4 rounded-xl border border-[#d3e7cf] dark:border-[#2f4b26] shadow-sm cursor-pointer">
+<span class="font-bold">Filters</span>
+<span class="material-symbols-outlined">filter_list</span>
+</div>
+<!-- Desktop Filters Container -->
+<div class="hidden lg:flex flex-col gap-4">
+<!-- Selected Filters (Active) -->
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-primary text-[#101b0d]">
+                            Fungicides <span class="material-symbols-outlined text-[14px] cursor-pointer">close</span>
+</span>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-[#e9f3e7] dark:bg-[#2a3e25] text-[#101b0d] dark:text-white">
+                            Clear All
+                        </span>
+</div>
+<!-- Category Filter -->
+<details class="flex flex-col rounded-xl border border-[#d3e7cf] dark:border-[#2f4b26] bg-white dark:bg-[#1a2e16] px-4 py-2 group overflow-hidden" open="">
+<summary class="flex cursor-pointer items-center justify-between py-3 select-none">
+<p class="text-[#101b0d] dark:text-white text-sm font-bold leading-normal">Category</p>
+<span class="material-symbols-outlined text-[#101b0d] dark:text-white group-open:rotate-180 transition-transform text-[20px]">keyboard_arrow_down</span>
+</summary>
+<div class="pb-4 pt-1 flex flex-col gap-3">
+<label class="flex items-center gap-3 cursor-pointer group/item">
+<input checked="" class="form-checkbox h-4 w-4 rounded border-[#d3e7cf] dark:border-[#4a6b42] text-primary focus:ring-primary dark:bg-[#2f4b26]" type="checkbox"/>
+<span class="text-sm text-[#101b0d] dark:text-[#e0e7df] group-hover/item:text-primary transition-colors">Fungicides</span>
+<span class="ml-auto text-xs text-gray-400">12</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/item">
+<input class="form-checkbox h-4 w-4 rounded border-[#d3e7cf] dark:border-[#4a6b42] text-primary focus:ring-primary dark:bg-[#2f4b26]" type="checkbox"/>
+<span class="text-sm text-[#101b0d] dark:text-[#e0e7df] group-hover/item:text-primary transition-colors">Herbicides</span>
+<span class="ml-auto text-xs text-gray-400">24</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/item">
+<input class="form-checkbox h-4 w-4 rounded border-[#d3e7cf] dark:border-[#4a6b42] text-primary focus:ring-primary dark:bg-[#2f4b26]" type="checkbox"/>
+<span class="text-sm text-[#101b0d] dark:text-[#e0e7df] group-hover/item:text-primary transition-colors">Insecticides</span>
+<span class="ml-auto text-xs text-gray-400">8</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/item">
+<input class="form-checkbox h-4 w-4 rounded border-[#d3e7cf] dark:border-[#4a6b42] text-primary focus:ring-primary dark:bg-[#2f4b26]" type="checkbox"/>
+<span class="text-sm text-[#101b0d] dark:text-[#e0e7df] group-hover/item:text-primary transition-colors">Growth Regulators</span>
+<span class="ml-auto text-xs text-gray-400">5</span>
+</label>
+</div>
+</details>
+<!-- Price Range Filter -->
+<details class="flex flex-col rounded-xl border border-[#d3e7cf] dark:border-[#2f4b26] bg-white dark:bg-[#1a2e16] px-4 py-2 group overflow-hidden" open="">
+<summary class="flex cursor-pointer items-center justify-between py-3 select-none">
+<p class="text-[#101b0d] dark:text-white text-sm font-bold leading-normal">Price Range</p>
+<span class="material-symbols-outlined text-[#101b0d] dark:text-white group-open:rotate-180 transition-transform text-[20px]">keyboard_arrow_down</span>
+</summary>
+<div class="pb-4 pt-1 flex flex-col gap-4">
+<div class="relative h-1.5 w-full rounded-full bg-[#e9f3e7] dark:bg-[#2a3e25] mt-2">
+<div class="absolute left-1/4 right-1/4 h-full rounded-full bg-primary"></div>
+<div class="absolute left-1/4 top-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 rounded-full border-2 border-primary bg-white cursor-pointer shadow-sm"></div>
+<div class="absolute right-1/4 top-1/2 translate-x-1/2 -translate-y-1/2 h-4 w-4 rounded-full border-2 border-primary bg-white cursor-pointer shadow-sm"></div>
+</div>
+<div class="flex justify-between items-center text-sm font-medium">
+<div class="px-3 py-1 rounded bg-[#f6f8f6] dark:bg-[#132210] border border-[#d3e7cf] dark:border-[#2f4b26] text-[#101b0d] dark:text-white">$25</div>
+<span class="text-gray-400">-</span>
+<div class="px-3 py-1 rounded bg-[#f6f8f6] dark:bg-[#132210] border border-[#d3e7cf] dark:border-[#2f4b26] text-[#101b0d] dark:text-white">$150</div>
+</div>
+</div>
+</details>
+<!-- Brand Filter -->
+<details class="flex flex-col rounded-xl border border-[#d3e7cf] dark:border-[#2f4b26] bg-white dark:bg-[#1a2e16] px-4 py-2 group overflow-hidden">
+<summary class="flex cursor-pointer items-center justify-between py-3 select-none">
+<p class="text-[#101b0d] dark:text-white text-sm font-bold leading-normal">Brand</p>
+<span class="material-symbols-outlined text-[#101b0d] dark:text-white group-open:rotate-180 transition-transform text-[20px]">keyboard_arrow_down</span>
+</summary>
+<div class="pb-4 pt-1 flex flex-col gap-3">
+<label class="flex items-center gap-3 cursor-pointer group/item">
+<input class="form-checkbox h-4 w-4 rounded border-[#d3e7cf] dark:border-[#4a6b42] text-primary focus:ring-primary dark:bg-[#2f4b26]" type="checkbox"/>
+<span class="text-sm text-[#101b0d] dark:text-[#e0e7df] group-hover/item:text-primary transition-colors">Bayer</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/item">
+<input class="form-checkbox h-4 w-4 rounded border-[#d3e7cf] dark:border-[#4a6b42] text-primary focus:ring-primary dark:bg-[#2f4b26]" type="checkbox"/>
+<span class="text-sm text-[#101b0d] dark:text-[#e0e7df] group-hover/item:text-primary transition-colors">Syngenta</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/item">
+<input class="form-checkbox h-4 w-4 rounded border-[#d3e7cf] dark:border-[#4a6b42] text-primary focus:ring-primary dark:bg-[#2f4b26]" type="checkbox"/>
+<span class="text-sm text-[#101b0d] dark:text-[#e0e7df] group-hover/item:text-primary transition-colors">BASF</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/item">
+<input class="form-checkbox h-4 w-4 rounded border-[#d3e7cf] dark:border-[#4a6b42] text-primary focus:ring-primary dark:bg-[#2f4b26]" type="checkbox"/>
+<span class="text-sm text-[#101b0d] dark:text-[#e0e7df] group-hover/item:text-primary transition-colors">Local Generics</span>
+</label>
+</div>
+</details>
+</div>
+</aside>
+<!-- Product Grid Area -->
+<main class="flex-1 flex flex-col gap-6">
+<!-- Toolbar -->
+<div class="flex flex-wrap justify-between items-center gap-4 bg-white dark:bg-[#1a2e16] p-4 rounded-xl border border-[#d3e7cf] dark:border-[#2f4b26] shadow-sm">
+<p class="text-sm text-[#599a4c] dark:text-[#a3d49b] font-medium">Showing <span class="text-[#101b0d] dark:text-white font-bold">12</span> of <span class="text-[#101b0d] dark:text-white font-bold">48</span> products</p>
+<div class="flex items-center gap-3">
+<label class="text-sm text-[#101b0d] dark:text-[#e0e7df] font-medium hidden sm:block" for="sort">Sort by:</label>
+<div class="relative min-w-[160px]">
+<select class="w-full appearance-none rounded-lg border border-[#d3e7cf] dark:border-[#4a6b42] bg-[#f9fcf8] dark:bg-[#1e331b] text-[#101b0d] dark:text-white py-2 pl-3 pr-8 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" id="sort">
+<option>Relevance</option>
+<option>Price: Low to High</option>
+<option>Price: High to Low</option>
+<option>Newest Arrivals</option>
+</select>
+<span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 material-symbols-outlined text-[20px] text-[#599a4c]">keyboard_arrow_down</span>
+</div>
+</div>
+</div>
+<!-- Products Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+<!-- Product Card 1 -->
+<div class="group flex flex-col rounded-xl border border-[#d3e7cf] dark:border-[#2f4b26] bg-white dark:bg-[#1a2e16] overflow-hidden hover:shadow-lg transition-all duration-300">
+<div class="relative aspect-[4/3] bg-[#f6f8f6] dark:bg-[#2a3e25] overflow-hidden">
+<img alt="Green fertilizer bottle" class="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500" data-alt="Bottle of green liquid fertilizer on a wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIYf7tANWcVcaj7SrZ6DIDtdogrcozfNfGjt_SosorWNBhohQS8M-BxRr4VgsVKyKFu-8L0RC8a9RVmgO2kYi2L0twGgb7HZ6PpwHUggnG-yr-cTtGmTybw_XgahWkzAowr3ebzW8YWZ2EzolBFf7EkpKAY5bavsknTNXQb94_YaCDUhNKGTmDcFvobz90bcdf-ziBZw7qnkckwpGPdDp0ykzY19eOKuprrWexu535FsKw2e46xpf5NX7piROrQ8_XDJ10NbBK-EY"/>
+<span class="absolute top-3 left-3 bg-[#e0f2fe] text-[#0369a1] text-xs font-bold px-2.5 py-1 rounded">Best Seller</span>
+<button aria-label="Quick view" class="absolute top-3 right-3 p-2 rounded-full bg-white/90 text-[#101b0d] hover:bg-primary hover:text-[#101b0d] transition-colors shadow-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-2 flex-grow">
+<div class="flex flex-col gap-1">
+<h3 class="text-lg font-bold text-[#101b0d] dark:text-white group-hover:text-primary transition-colors cursor-pointer">Roundup Ultra</h3>
+<p class="text-xs text-[#599a4c] dark:text-[#a3d49b] font-medium">Glyphosate 360g/L</p>
+<p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">Powerful systemic herbicide for total weed control in agricultural fields.</p>
+</div>
+<div class="mt-auto pt-4 flex items-center justify-between gap-3">
+<span class="text-xl font-black text-[#101b0d] dark:text-white">$45.00</span>
+<button class="flex-1 bg-primary hover:bg-[#3cd620] text-[#101b0d] text-sm font-bold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                                    Add
+                                </button>
+</div>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group flex flex-col rounded-xl border border-[#d3e7cf] dark:border-[#2f4b26] bg-white dark:bg-[#1a2e16] overflow-hidden hover:shadow-lg transition-all duration-300">
+<div class="relative aspect-[4/3] bg-[#f6f8f6] dark:bg-[#2a3e25] overflow-hidden">
+<img alt="Chemical spray bottles" class="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500" data-alt="Industrial chemical spray bottles in a row" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdKckf0dYCN5RVcX177l86fmBiWXhZT1ME2qCErkF36Dvdtv8IS_KV60DmMaoAaAyhRTX7e8gM6Hhn5sZcLvsfmwvrBa0utQUsUAq6tONTGZ__VTAFsMxBkmbSNT_mSusXH-R7LTsikwmzBMgeaFID_dlqKc004-JPsbrimxPm6jjAinNK0JsWzSm2yJ4qK2-IR7BuVxkYCPW7FEWLuLl2OBsyid_UZGN4TwKtI4BAmWb3Fz6VQPrBWEXiQvXXlA5Hff1FERpXIJ0"/>
+<button aria-label="Quick view" class="absolute top-3 right-3 p-2 rounded-full bg-white/90 text-[#101b0d] hover:bg-primary hover:text-[#101b0d] transition-colors shadow-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-2 flex-grow">
+<div class="flex flex-col gap-1">
+<h3 class="text-lg font-bold text-[#101b0d] dark:text-white group-hover:text-primary transition-colors cursor-pointer">Amistar Top</h3>
+<p class="text-xs text-[#599a4c] dark:text-[#a3d49b] font-medium">Azoxystrobin + Difenoconazole</p>
+<p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">Broad-spectrum fungicide ensuring healthy crops and high quality yields.</p>
+</div>
+<div class="mt-auto pt-4 flex items-center justify-between gap-3">
+<span class="text-xl font-black text-[#101b0d] dark:text-white">$32.50</span>
+<button class="flex-1 bg-primary hover:bg-[#3cd620] text-[#101b0d] text-sm font-bold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                                    Add
+                                </button>
+</div>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group flex flex-col rounded-xl border border-[#d3e7cf] dark:border-[#2f4b26] bg-white dark:bg-[#1a2e16] overflow-hidden hover:shadow-lg transition-all duration-300">
+<div class="relative aspect-[4/3] bg-[#f6f8f6] dark:bg-[#2a3e25] overflow-hidden">
+<img alt="Plant protection detail" class="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500" data-alt="Close up of a green plant with water droplets" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCd751S7gMzFJdmWR88VJU9ZPmmO_846fVFVD7FpS81QSdQkGzJ7GaydxphrjFs5YobXIn-mUdDNm_estLdpI0DjtJpHng9VkRlePW1F5Xig1Xy1lo7yjpajAYtkyhu1YS6O267IIJnBqZQEZu_c-HPoJyJlVJYrUzyct4J_-R6oCjBEZMIAz28MsjIJHqFV5dYJ8LwXARqGAt-3vyzX39kkLfVBb4nsqHuad8eO-UOxsoSNZWdEYsqO8UIY7xEO_UOrMDCVoioK40"/>
+<span class="absolute top-3 left-3 bg-primary text-[#101b0d] text-xs font-bold px-2.5 py-1 rounded">New</span>
+<button aria-label="Quick view" class="absolute top-3 right-3 p-2 rounded-full bg-white/90 text-[#101b0d] hover:bg-primary hover:text-[#101b0d] transition-colors shadow-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-2 flex-grow">
+<div class="flex flex-col gap-1">
+<h3 class="text-lg font-bold text-[#101b0d] dark:text-white group-hover:text-primary transition-colors cursor-pointer">Bayer Confidor</h3>
+<p class="text-xs text-[#599a4c] dark:text-[#a3d49b] font-medium">Imidacloprid 200 SL</p>
+<p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">Systemic insecticide for effective control of sucking pests.</p>
+</div>
+<div class="mt-auto pt-4 flex items-center justify-between gap-3">
+<span class="text-xl font-black text-[#101b0d] dark:text-white">$28.99</span>
+<button class="flex-1 bg-primary hover:bg-[#3cd620] text-[#101b0d] text-sm font-bold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                                    Add
+                                </button>
+</div>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="group flex flex-col rounded-xl border border-[#d3e7cf] dark:border-[#2f4b26] bg-white dark:bg-[#1a2e16] overflow-hidden hover:shadow-lg transition-all duration-300">
+<div class="relative aspect-[4/3] bg-[#f6f8f6] dark:bg-[#2a3e25] overflow-hidden">
+<img alt="Corn crops" class="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500" data-alt="Field of corn crops under sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCW13VvayGims0NWZ-HJt85hcKozV3IR1tvNeFdkCtJW5V0AeIc1ReSO4MbkWAHNKGdqd4cTljgGVEp9UbjSth15f_kmBDhU2Id73bWL5oKDtFYJs7rflwdVfI26LgkKluNIH9EhcJVazIMtpIpl9nsfeozB2rhq7911LgYVthbjn4ZM4nrPHIKggXPuJDrbOE_6OB2d5Fd4H65S7yX_BLTZDnywXXcoL4VxV0H5fZQDL-GVER0mJEnhZwsRARhdlzesBBCf5Ebz5A"/>
+<button aria-label="Quick view" class="absolute top-3 right-3 p-2 rounded-full bg-white/90 text-[#101b0d] hover:bg-primary hover:text-[#101b0d] transition-colors shadow-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-2 flex-grow">
+<div class="flex flex-col gap-1">
+<h3 class="text-lg font-bold text-[#101b0d] dark:text-white group-hover:text-primary transition-colors cursor-pointer">Nativo 75 WG</h3>
+<p class="text-xs text-[#599a4c] dark:text-[#a3d49b] font-medium">Tebuconazole + Trifloxystrobin</p>
+<p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">Fungicide for control of sheath blight &amp; dirty panicle in rice.</p>
+</div>
+<div class="mt-auto pt-4 flex items-center justify-between gap-3">
+<span class="text-xl font-black text-[#101b0d] dark:text-white">$52.00</span>
+<button class="flex-1 bg-primary hover:bg-[#3cd620] text-[#101b0d] text-sm font-bold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                                    Add
+                                </button>
+</div>
+</div>
+</div>
+<!-- Product Card 5 -->
+<div class="group flex flex-col rounded-xl border border-[#d3e7cf] dark:border-[#2f4b26] bg-white dark:bg-[#1a2e16] overflow-hidden hover:shadow-lg transition-all duration-300">
+<div class="relative aspect-[4/3] bg-[#f6f8f6] dark:bg-[#2a3e25] overflow-hidden">
+<img alt="Wheat field protection" class="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500" data-alt="Close up of wheat stalks in a field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4QOpk2CHE_-MzTV-TZX-E2So3_xKZY25-26RN7FuVFx08mqrHHgUIbSym4779YiUNwZ9Gx_vjJBhm_Taa8btqonK5DrsjIWErk9xTqxCKUIGmbYTTiLou8eZT7Ug8mrJmcqRY11I-2TsqLGVw6MBNXFUjaPtoV0n4n0VjZzWCnLcT02n40imSpwcW1qds77ebYGE57lHAmN9Gfm8giMswelZ1UJxoWI_ZtESADGuDXA1eqjOPe4ejSN4XA6r6ZEZHaSdivAfmvsQ"/>
+<button aria-label="Quick view" class="absolute top-3 right-3 p-2 rounded-full bg-white/90 text-[#101b0d] hover:bg-primary hover:text-[#101b0d] transition-colors shadow-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-2 flex-grow">
+<div class="flex flex-col gap-1">
+<h3 class="text-lg font-bold text-[#101b0d] dark:text-white group-hover:text-primary transition-colors cursor-pointer">Axial 100 EC</h3>
+<p class="text-xs text-[#599a4c] dark:text-[#a3d49b] font-medium">Pinoxaden</p>
+<p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">Selective herbicide for grass weed control in wheat and barley.</p>
+</div>
+<div class="mt-auto pt-4 flex items-center justify-between gap-3">
+<span class="text-xl font-black text-[#101b0d] dark:text-white">$38.50</span>
+<button class="flex-1 bg-primary hover:bg-[#3cd620] text-[#101b0d] text-sm font-bold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                                    Add
+                                </button>
+</div>
+</div>
+</div>
+<!-- Product Card 6 -->
+<div class="group flex flex-col rounded-xl border border-[#d3e7cf] dark:border-[#2f4b26] bg-white dark:bg-[#1a2e16] overflow-hidden hover:shadow-lg transition-all duration-300">
+<div class="relative aspect-[4/3] bg-[#f6f8f6] dark:bg-[#2a3e25] overflow-hidden">
+<img alt="Tractor spraying" class="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500" data-alt="Tractor spraying field with pesticide" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzmS9twshIC0x2LpzNKiyI90HWxIlnnTOCy3oapitee4mqLKDaBGAEEijOg-Mv9VWUnkznhNNg2BFnPBK_5sRDtzxUbnLsIAqtpVCJU7sqF4t7f-DMGWxla6AOeFvrMfjCNADpJNKS0mlvuzl0TjllQb8fb7jAN3ZxegiaRDzwgbPL-Xk6bnNeDbtrTsro0WIHVderwAROjMsFeOVHExJ_fWycmm3CIKRVEPSD6ytYCiCIUABO88RkWnGI5zT3-V4FHStyAKfuFH4"/>
+<button aria-label="Quick view" class="absolute top-3 right-3 p-2 rounded-full bg-white/90 text-[#101b0d] hover:bg-primary hover:text-[#101b0d] transition-colors shadow-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-2 flex-grow">
+<div class="flex flex-col gap-1">
+<h3 class="text-lg font-bold text-[#101b0d] dark:text-white group-hover:text-primary transition-colors cursor-pointer">Gramoxone</h3>
+<p class="text-xs text-[#599a4c] dark:text-[#a3d49b] font-medium">Paraquat Dichloride</p>
+<p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">Non-selective contact herbicide for broad-spectrum weed control.</p>
+</div>
+<div class="mt-auto pt-4 flex items-center justify-between gap-3">
+<span class="text-xl font-black text-[#101b0d] dark:text-white">$22.00</span>
+<button class="flex-1 bg-primary hover:bg-[#3cd620] text-[#101b0d] text-sm font-bold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                                    Add
+                                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="flex justify-center mt-8 gap-2">
+<button class="flex items-center justify-center h-10 w-10 rounded-lg border border-[#d3e7cf] dark:border-[#2f4b26] bg-white dark:bg-[#1a2e16] text-[#101b0d] dark:text-white hover:bg-[#e9f3e7] dark:hover:bg-[#2a3e25] transition-colors disabled:opacity-50">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<button class="flex items-center justify-center h-10 w-10 rounded-lg bg-primary text-[#101b0d] font-bold">1</button>
+<button class="flex items-center justify-center h-10 w-10 rounded-lg border border-[#d3e7cf] dark:border-[#2f4b26] bg-white dark:bg-[#1a2e16] text-[#101b0d] dark:text-white hover:bg-[#e9f3e7] dark:hover:bg-[#2a3e25] transition-colors font-medium">2</button>
+<button class="flex items-center justify-center h-10 w-10 rounded-lg border border-[#d3e7cf] dark:border-[#2f4b26] bg-white dark:bg-[#1a2e16] text-[#101b0d] dark:text-white hover:bg-[#e9f3e7] dark:hover:bg-[#2a3e25] transition-colors font-medium">3</button>
+<span class="flex items-center justify-center h-10 w-10 text-gray-400">...</span>
+<button class="flex items-center justify-center h-10 w-10 rounded-lg border border-[#d3e7cf] dark:border-[#2f4b26] bg-white dark:bg-[#1a2e16] text-[#101b0d] dark:text-white hover:bg-[#e9f3e7] dark:hover:bg-[#2a3e25] transition-colors font-medium">8</button>
+<button class="flex items-center justify-center h-10 w-10 rounded-lg border border-[#d3e7cf] dark:border-[#2f4b26] bg-white dark:bg-[#1a2e16] text-[#101b0d] dark:text-white hover:bg-[#e9f3e7] dark:hover:bg-[#2a3e25] transition-colors">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</main>
+</div>
+</div>
+</body></html>

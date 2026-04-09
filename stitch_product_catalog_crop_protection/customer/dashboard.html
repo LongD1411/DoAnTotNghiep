@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Dashboard &amp; Order History - AgroStore</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#36cf17",
+              "primary-dark": "#2ab011",
+              "background-light": "#f9fcf8",
+              "background-dark": "#142111",
+              "surface-light": "#ffffff",
+              "surface-dark": "#1c2e18",
+              "text-main": "#101b0e",
+              "text-secondary": "#5a974e",
+              "border-light": "#e9f3e7",
+              "border-dark": "#2a4225",
+            },
+            fontFamily: {
+              "display": ["Manrope", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-main dark:text-gray-100 antialiased overflow-hidden">
+<div class="flex h-screen w-full flex-col">
+<!-- Top Navbar -->
+<header class="flex flex-shrink-0 items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-6 lg:px-10 py-3 z-20">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-text-main dark:text-white">
+<div class="size-8 text-primary">
+<svg class="size-8" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M39.5563 34.1455V13.8546C39.5563 15.708 36.8773 17.3437 32.7927 18.3189C30.2914 18.916 27.263 19.2655 24 19.2655C20.737 19.2655 17.7086 18.916 15.2073 18.3189C11.1227 17.3437 8.44365 15.708 8.44365 13.8546V34.1455C8.44365 35.9988 11.1227 37.6346 15.2073 38.6098C17.7086 39.2069 20.737 39.5564 24 39.5564C27.263 39.5564 30.2914 39.2069 32.7927 38.6098C36.8773 37.6346 39.5563 35.9988 39.5563 34.1455Z" fill="currentColor"></path>
+<path clip-rule="evenodd" d="M10.4485 13.8519C10.4749 13.9271 10.6203 14.246 11.379 14.7361C12.298 15.3298 13.7492 15.9145 15.6717 16.3735C18.0007 16.9296 20.8712 17.2655 24 17.2655C27.1288 17.2655 29.9993 16.9296 32.3283 16.3735C34.2508 15.9145 35.702 15.3298 36.621 14.7361C37.3796 14.246 37.5251 13.9271 37.5515 13.8519C37.5287 13.7876 37.4333 13.5973 37.0635 13.2931C36.5266 12.8516 35.6288 12.3647 34.343 11.9175C31.79 11.0295 28.1333 10.4437 24 10.4437C19.8667 10.4437 16.2099 11.0295 13.657 11.9175C12.3712 12.3647 11.4734 12.8516 10.9365 13.2931C10.5667 13.5973 10.4713 13.7876 10.4485 13.8519ZM37.5563 18.7877C36.3176 19.3925 34.8502 19.8839 33.2571 20.2642C30.5836 20.9025 27.3973 21.2655 24 21.2655C20.6027 21.2655 17.4164 20.9025 14.7429 20.2642C13.1498 19.8839 11.6824 19.3925 10.4436 18.7877V34.1275C10.4515 34.1545 10.5427 34.4867 11.379 35.027C12.298 35.6207 13.7492 36.2054 15.6717 36.6644C18.0007 37.2205 20.8712 37.5564 24 37.5564C27.1288 37.5564 29.9993 37.2205 32.3283 36.6644C34.2508 36.2054 35.702 35.6207 36.621 35.027C37.4573 34.4867 37.5485 34.1546 37.5563 34.1275V18.7877ZM41.5563 13.8546V34.1455C41.5563 36.1078 40.158 37.5042 38.7915 38.3869C37.3498 39.3182 35.4192 40.0389 33.2571 40.5551C30.5836 41.1934 27.3973 41.5564 24 41.5564C20.6027 41.5564 17.4164 41.1934 14.7429 40.5551C12.5808 40.0389 10.6502 39.3182 9.20848 38.3869C7.84205 37.5042 6.44365 36.1078 6.44365 34.1455L6.44365 13.8546C6.44365 12.2684 7.37223 11.0454 8.39581 10.2036C9.43325 9.3505 10.8137 8.67141 12.343 8.13948C15.4203 7.06909 19.5418 6.44366 24 6.44366C28.4582 6.44366 32.5797 7.06909 35.657 8.13948C37.1863 8.67141 38.5667 9.3505 39.6042 10.2036C40.6278 11.0454 41.5563 12.2684 41.5563 13.8546Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-tight">AgroStore</h2>
+</div>
+<label class="flex flex-col min-w-40 !h-10 max-w-64 hidden md:flex">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full ring-1 ring-border-light dark:ring-border-dark focus-within:ring-2 focus-within:ring-primary">
+<div class="text-text-secondary dark:text-gray-400 flex border-none bg-background-light dark:bg-surface-dark items-center justify-center pl-3 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-main dark:text-white focus:outline-0 focus:ring-0 border-none bg-background-light dark:bg-surface-dark focus:border-none h-full placeholder:text-text-secondary dark:placeholder:text-gray-500 px-2 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Find products or topics..." value=""/>
+</div>
+</label>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<div class="flex gap-2">
+<button class="relative flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-background-light dark:bg-surface-dark hover:bg-border-light dark:hover:bg-border-dark text-text-main dark:text-white transition-colors">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="absolute top-2 right-2 size-2 rounded-full bg-primary border-2 border-background-light dark:border-surface-dark"></span>
+</button>
+<button class="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-background-light dark:bg-surface-dark hover:bg-border-light dark:hover:bg-border-dark text-text-main dark:text-white transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+<div class="flex items-center gap-2 cursor-pointer">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 ring-2 ring-border-light dark:ring-border-dark" data-alt="Portrait of Alex Doe, a smiling user" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD-eVXhkxquosyMuZyMoBHKHAANrX5rkXNhMLpqQ3vR9u9Jgk3aRJp38uzrbeaKJ7YyTxhC28nXshJuRnxweV-NvC77c4Oa6CWDI98-fqY6zv_Q7FSttF-m9kNgp7o07JzqT-LGONoS3208cXuJtQ4VnEnJ1Xt9FbTlPSKhtQr0qpobFImoXz_0io3MdTgfc13ELLhhatyBrmJUus1v7sUL70rKFuyyigrSPx3Mv_dBxP26VgdhP7W8Iu8QxUehOrmHmw2kKFZjPXc");'></div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Side Navigation -->
+<aside class="hidden lg:flex w-72 flex-col justify-between border-r border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark p-6 overflow-y-auto">
+<div class="flex flex-col gap-8">
+<!-- User Profile Snippet -->
+<div class="flex items-center gap-4 p-2">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 ring-2 ring-primary/20" data-alt="Portrait of Alex Doe, a smiling user" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuABYkpsKEpUj2Dr8HStoO_I8Qn_-uE6UdE4ImdulCvoXHV1xNqysWqxjv3aZq9GiHrfkvcJyRwquK8Q6DN7_VszTo0rhdZXqV7CnEphqZs93D1bXKQ_SuJQ2iqPnfl7v4rR5ANtDBo8CzOOqDHOkW-so2NkVvRlG1a450wnyCVKZqUyHOdHnU0FFCl1o_7ChcJI4ozGEGDGCElQ1STQGIr9nBd9CHtiUGtHnV2Jn--aDjp6r_m4N_n57r2PxehxNHWZhZsc13vnJp0");'></div>
+<div class="flex flex-col">
+<h1 class="text-text-main dark:text-white text-base font-bold leading-normal">Alex Doe</h1>
+<p class="text-primary text-xs font-medium uppercase tracking-wider">Gold Member</p>
+</div>
+</div>
+<!-- Menu Items -->
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-main dark:text-gray-300 hover:bg-background-light dark:hover:bg-background-dark group transition-colors" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">dashboard</span>
+<p class="text-sm font-semibold leading-normal">Account Overview</p>
+</a>
+<!-- Active State -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary border-l-4 border-primary" href="#">
+<span class="material-symbols-outlined filled">shopping_bag</span>
+<p class="text-sm font-bold leading-normal">My Orders</p>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-main dark:text-gray-300 hover:bg-background-light dark:hover:bg-background-dark group transition-colors" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">forum</span>
+<p class="text-sm font-semibold leading-normal">Forum Activity</p>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-main dark:text-gray-300 hover:bg-background-light dark:hover:bg-background-dark group transition-colors" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">location_on</span>
+<p class="text-sm font-semibold leading-normal">Addresses</p>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-main dark:text-gray-300 hover:bg-background-light dark:hover:bg-background-dark group transition-colors" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+<p class="text-sm font-semibold leading-normal">Settings</p>
+</a>
+</nav>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 cursor-pointer transition-colors mt-auto">
+<span class="material-symbols-outlined">logout</span>
+<p class="text-sm font-semibold leading-normal">Log Out</p>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark p-6 lg:p-10">
+<div class="max-w-[1200px] mx-auto flex flex-col gap-8">
+<!-- Page Heading -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div class="flex flex-col gap-2">
+<h1 class="text-text-main dark:text-white text-3xl md:text-4xl font-extrabold tracking-tight">Welcome back, Alex</h1>
+<p class="text-text-secondary dark:text-gray-400 text-base">Here is an overview of your recent commercial activity.</p>
+</div>
+<button class="bg-primary hover:bg-primary-dark text-white font-bold py-2.5 px-5 rounded-lg text-sm shadow-md shadow-primary/20 transition-all flex items-center gap-2 w-fit">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                            New Order
+                        </button>
+</div>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+<div class="flex flex-col justify-between rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-sm border border-border-light dark:border-border-dark">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-1">
+<p class="text-text-secondary dark:text-gray-400 text-sm font-semibold uppercase tracking-wide">Active Orders</p>
+<p class="text-text-main dark:text-white text-3xl font-bold">2</p>
+</div>
+<div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600 dark:text-blue-400">
+<span class="material-symbols-outlined">local_shipping</span>
+</div>
+</div>
+<div class="mt-4 text-xs text-text-secondary dark:text-gray-500 font-medium">1 Shipped, 1 Processing</div>
+</div>
+<div class="flex flex-col justify-between rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-sm border border-border-light dark:border-border-dark">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-1">
+<p class="text-text-secondary dark:text-gray-400 text-sm font-semibold uppercase tracking-wide">Loyalty Points</p>
+<p class="text-text-main dark:text-white text-3xl font-bold">350</p>
+</div>
+<div class="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg text-primary">
+<span class="material-symbols-outlined">loyalty</span>
+</div>
+</div>
+<div class="mt-4 text-xs text-text-secondary dark:text-gray-500 font-medium">Equivalent to $35.00 discount</div>
+</div>
+<div class="flex flex-col justify-between rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-sm border border-border-light dark:border-border-dark">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-1">
+<p class="text-text-secondary dark:text-gray-400 text-sm font-semibold uppercase tracking-wide">Forum Rep</p>
+<p class="text-text-main dark:text-white text-3xl font-bold">Level 4</p>
+</div>
+<div class="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-purple-600 dark:text-purple-400">
+<span class="material-symbols-outlined">forum</span>
+</div>
+</div>
+<div class="mt-4 text-xs text-text-secondary dark:text-gray-500 font-medium">Top contributor in "Fertilizers"</div>
+</div>
+</div>
+<!-- Split View: Orders & Forum -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
+<!-- Recent Orders (Takes up 2 cols on XL) -->
+<div class="xl:col-span-2 flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h2 class="text-text-main dark:text-white text-xl font-bold">Recent Orders</h2>
+<a class="text-primary text-sm font-bold hover:underline" href="#">View All</a>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark/50">
+<th class="p-4 text-sm font-bold text-text-secondary dark:text-gray-400">Order ID</th>
+<th class="p-4 text-sm font-bold text-text-secondary dark:text-gray-400">Date</th>
+<th class="p-4 text-sm font-bold text-text-secondary dark:text-gray-400">Status</th>
+<th class="p-4 text-sm font-bold text-text-secondary dark:text-gray-400 text-right">Total</th>
+<th class="p-4 text-sm font-bold text-text-secondary dark:text-gray-400"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-light dark:divide-border-dark">
+<tr class="group hover:bg-background-light dark:hover:bg-background-dark/30 transition-colors">
+<td class="p-4 text-sm font-bold text-text-main dark:text-white">
+<a class="text-primary hover:underline" href="#">#ORD-24-089</a>
+</td>
+<td class="p-4 text-sm text-text-main dark:text-gray-300">Oct 24, 2023</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+<span class="size-1.5 rounded-full bg-green-500"></span>
+                                                        Delivered
+                                                    </span>
+</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white text-right">$450.00</td>
+<td class="p-4 text-right">
+<button class="text-text-secondary dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-semibold">Details</button>
+</td>
+</tr>
+<tr class="group hover:bg-background-light dark:hover:bg-background-dark/30 transition-colors">
+<td class="p-4 text-sm font-bold text-text-main dark:text-white">
+<a class="text-primary hover:underline" href="#">#ORD-24-112</a>
+</td>
+<td class="p-4 text-sm text-text-main dark:text-gray-300">Nov 02, 2023</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
+<span class="size-1.5 rounded-full bg-blue-500"></span>
+                                                        Shipped
+                                                    </span>
+</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white text-right">$125.50</td>
+<td class="p-4 text-right">
+<button class="text-text-secondary dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-semibold">Details</button>
+</td>
+</tr>
+<tr class="group hover:bg-background-light dark:hover:bg-background-dark/30 transition-colors">
+<td class="p-4 text-sm font-bold text-text-main dark:text-white">
+<a class="text-primary hover:underline" href="#">#ORD-24-115</a>
+</td>
+<td class="p-4 text-sm text-text-main dark:text-gray-300">Nov 05, 2023</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+<span class="size-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                                        Processing
+                                                    </span>
+</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white text-right">$89.99</td>
+<td class="p-4 text-right">
+<button class="text-text-secondary dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-semibold">Details</button>
+</td>
+</tr>
+<tr class="group hover:bg-background-light dark:hover:bg-background-dark/30 transition-colors">
+<td class="p-4 text-sm font-bold text-text-main dark:text-white">
+<a class="text-primary hover:underline" href="#">#ORD-23-998</a>
+</td>
+<td class="p-4 text-sm text-text-main dark:text-gray-300">Sep 12, 2023</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">
+<span class="size-1.5 rounded-full bg-red-500"></span>
+                                                        Cancelled
+                                                    </span>
+</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white text-right">$320.00</td>
+<td class="p-4 text-right">
+<button class="text-text-secondary dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-semibold">Details</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 bg-background-light dark:bg-background-dark/30 border-t border-border-light dark:border-border-dark flex justify-center">
+<button class="text-sm font-bold text-primary hover:text-primary-dark flex items-center gap-1">
+                                        View All Orders
+                                        <span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Forum Activity Widget -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h2 class="text-text-main dark:text-white text-xl font-bold">Community Pulse</h2>
+<a class="text-primary text-sm font-bold hover:underline" href="#">Go to Forum</a>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-0 flex flex-col h-full">
+<div class="p-5 border-b border-border-light dark:border-border-dark">
+<h3 class="text-sm font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wide">My Recent Activity</h3>
+</div>
+<div class="flex flex-col divide-y divide-border-light dark:divide-border-dark">
+<!-- Post Item 1 -->
+<div class="p-5 hover:bg-background-light dark:hover:bg-background-dark/30 transition-colors cursor-pointer group">
+<div class="flex items-start justify-between mb-2">
+<span class="text-xs font-bold text-primary bg-primary/10 dark:bg-primary/20 px-2 py-0.5 rounded">Question</span>
+<span class="text-xs text-text-secondary dark:text-gray-500">2h ago</span>
+</div>
+<h4 class="text-text-main dark:text-white font-bold mb-2 group-hover:text-primary transition-colors line-clamp-2">Best organic fertilizer schedule for hydroponic tomatoes?</h4>
+<div class="flex items-center gap-4 text-text-secondary dark:text-gray-400 text-xs">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">chat_bubble</span> 3 Replies
+                                            </div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">thumb_up</span> 12 Likes
+                                            </div>
+</div>
+</div>
+<!-- Post Item 2 -->
+<div class="p-5 hover:bg-background-light dark:hover:bg-background-dark/30 transition-colors cursor-pointer group">
+<div class="flex items-start justify-between mb-2">
+<span class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">Discussion</span>
+<span class="text-xs text-text-secondary dark:text-gray-500">1d ago</span>
+</div>
+<h4 class="text-text-main dark:text-white font-bold mb-2 group-hover:text-primary transition-colors line-clamp-2">Review: The new N-P-K 20-20-20 soluble mix</h4>
+<div class="flex items-center gap-4 text-text-secondary dark:text-gray-400 text-xs">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">chat_bubble</span> 15 Replies
+                                            </div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">thumb_up</span> 45 Likes
+                                            </div>
+</div>
+</div>
+<!-- Post Item 3 -->
+<div class="p-5 hover:bg-background-light dark:hover:bg-background-dark/30 transition-colors cursor-pointer group">
+<div class="flex items-start justify-between mb-2">
+<span class="text-xs font-bold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">Reply</span>
+<span class="text-xs text-text-secondary dark:text-gray-500">3d ago</span>
+</div>
+<h4 class="text-text-main dark:text-white font-medium mb-2 group-hover:text-primary transition-colors text-sm italic">"I've had great success using neem oil for that particular pest..."</h4>
+<div class="flex items-center gap-4 text-text-secondary dark:text-gray-400 text-xs">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">arrow_upward</span> In: Pest Control 101
+                                            </div>
+</div>
+</div>
+</div>
+<div class="mt-auto p-4 bg-background-light dark:bg-background-dark/30 border-t border-border-light dark:border-border-dark flex justify-center rounded-b-xl">
+<button class="text-sm font-bold text-primary hover:text-primary-dark flex items-center gap-1">
+                                        View All Activity
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

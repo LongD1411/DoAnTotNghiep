@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AgroShop - Protect Your Harvest</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4bee2b",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#132210",
+                        "brand-dark": "#2E7D32", 
+                        "brand-soft": "#E8F5E9",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#101b0d] dark:text-white font-display flex flex-col min-h-screen overflow-x-hidden">
+<!-- Navigation -->
+<header class="sticky top-0 z-50 w-full border-b border-[#e9f3e7] dark:border-white/10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm">
+<div class="px-4 md:px-10 lg:px-40 py-3 flex items-center justify-between gap-4">
+<div class="flex items-center gap-8">
+<!-- Logo -->
+<a class="flex items-center gap-2 text-[#101b0d] dark:text-white group" href="#">
+<div class="size-8 flex items-center justify-center text-brand-dark dark:text-primary transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined !text-[32px]">spa</span>
+</div>
+<h2 class="text-brand-dark dark:text-white text-xl font-black tracking-tight">AgroShop</h2>
+</a>
+<!-- Desktop Nav -->
+<nav class="hidden lg:flex items-center gap-8">
+<a class="text-[#101b0d] dark:text-gray-200 text-sm font-medium hover:text-brand-dark dark:hover:text-primary transition-colors" href="#">Shop</a>
+<a class="text-[#101b0d] dark:text-gray-200 text-sm font-medium hover:text-brand-dark dark:hover:text-primary transition-colors" href="#">Pests &amp; Diseases</a>
+<a class="text-[#101b0d] dark:text-gray-200 text-sm font-medium hover:text-brand-dark dark:hover:text-primary transition-colors" href="#">Forum</a>
+<a class="text-[#101b0d] dark:text-gray-200 text-sm font-medium hover:text-brand-dark dark:hover:text-primary transition-colors" href="#">About</a>
+</nav>
+</div>
+<!-- Right Actions -->
+<div class="flex flex-1 justify-end gap-4 md:gap-8 items-center">
+<!-- Search -->
+<label class="hidden md:flex flex-col min-w-40 h-10 w-full max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-[#e9f3e7] dark:bg-white/10 border-transparent focus-within:ring-2 focus-within:ring-primary transition-all">
+<div class="flex items-center justify-center pl-4 rounded-l-lg">
+<span class="material-symbols-outlined text-[#599a4c] dark:text-primary/70 text-[20px]">search</span>
+</div>
+<input class="w-full bg-transparent border-none text-sm text-[#101b0d] dark:text-white placeholder:text-[#599a4c] dark:placeholder:text-gray-400 focus:ring-0 px-3 h-full rounded-r-lg" placeholder="Search products..."/>
+</div>
+</label>
+<!-- Icons -->
+<div class="flex gap-3">
+<button class="flex items-center justify-center rounded-full h-10 w-10 bg-[#e9f3e7] dark:bg-white/10 hover:bg-primary hover:text-black dark:hover:bg-primary dark:hover:text-black transition-colors text-[#101b0d] dark:text-white">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+</button>
+<button class="flex items-center justify-center rounded-full h-10 w-10 bg-[#e9f3e7] dark:bg-white/10 hover:bg-primary hover:text-black dark:hover:bg-primary dark:hover:text-black transition-colors text-[#101b0d] dark:text-white">
+<span class="material-symbols-outlined text-[20px]">account_circle</span>
+</button>
+<!-- Mobile Menu Button -->
+<button class="lg:hidden flex items-center justify-center rounded-full h-10 w-10 bg-[#e9f3e7] dark:bg-white/10 text-[#101b0d] dark:text-white">
+<span class="material-symbols-outlined text-[20px]">menu</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- Hero Section -->
+<div class="w-full">
+<div class="px-4 md:px-10 lg:px-40 py-6 md:py-10">
+<div class="relative w-full rounded-2xl overflow-hidden min-h-[480px] flex flex-col justify-end p-8 md:p-16 bg-cover bg-center shadow-lg" data-alt="Wide shot of a lush green soybean field under a bright sunny sky" style='background-image: linear-gradient(to top, rgba(19, 34, 16, 0.8) 0%, rgba(19, 34, 16, 0.2) 50%, rgba(0, 0, 0, 0) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuD9gs9-laJTX5CkUzPMqPbW-ZZL9iOusIHByiPXwngmg5oF1BUV-UUON_25RgZ_YkMo17nUKcYCHdglS1BzQgFtiKb2s2TTrvocvM8LxXYFeT-95TwSzt_LyDDOMiXxegpczRUouskbP8XZEPJJffQzDdutaWSkVt40qLdy6qICWi4FH95k_1uapBYqOFFaa5r54a4KAfH3tB5JkZtHcnExXK2J1YnyoVe4PsA1YT7USc03rcGWdoBSgV49oILm8wl608j8bMqluUQ");'>
+<div class="relative z-10 max-w-2xl flex flex-col gap-4 animate-fade-in-up">
+<span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/90 text-black text-xs font-bold uppercase tracking-wider w-fit backdrop-blur-md">
+<span class="material-symbols-outlined text-[16px]">eco</span>
+                        New Arrivals
+                    </span>
+<h1 class="text-white text-4xl md:text-6xl font-black leading-tight tracking-tight drop-shadow-sm">
+                        Protect Your Harvest<br/>
+<span class="text-primary">Maximize Yield.</span>
+</h1>
+<p class="text-gray-100 text-lg md:text-xl font-medium max-w-[480px] drop-shadow-sm">
+                        Seasonal solutions for pest control and soil nutrition. Approved by experts.
+                    </p>
+<div class="pt-4">
+<button class="group flex items-center gap-2 h-12 px-8 bg-primary hover:bg-[#3ed622] text-[#101b0d] text-base font-bold rounded-lg transition-all transform hover:translate-y-[-2px] shadow-lg shadow-primary/30">
+<span>Shop Seasonal Protection</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content Container -->
+<div class="flex-1 w-full px-4 md:px-10 lg:px-40 pb-20">
+<!-- Quick Filters (Chips) -->
+<div class="flex gap-3 py-4 flex-wrap mb-6 border-b border-[#e9f3e7] dark:border-white/10 pb-6">
+<button class="flex h-10 items-center gap-2 rounded-full bg-brand-dark text-white px-5 hover:bg-brand-dark/90 transition-colors shadow-md">
+<span class="material-symbols-outlined text-[18px]">grid_view</span>
+<span class="text-sm font-semibold">All Products</span>
+</button>
+<button class="flex h-10 items-center gap-2 rounded-full bg-[#e9f3e7] dark:bg-white/10 hover:bg-primary/20 text-[#101b0d] dark:text-gray-200 px-5 transition-colors">
+<span class="material-symbols-outlined text-[18px]">pest_control</span>
+<span class="text-sm font-medium">Herbicides</span>
+</button>
+<button class="flex h-10 items-center gap-2 rounded-full bg-[#e9f3e7] dark:bg-white/10 hover:bg-primary/20 text-[#101b0d] dark:text-gray-200 px-5 transition-colors">
+<span class="material-symbols-outlined text-[18px]">coronavirus</span>
+<span class="text-sm font-medium">Fungicides</span>
+</button>
+<button class="flex h-10 items-center gap-2 rounded-full bg-[#e9f3e7] dark:bg-white/10 hover:bg-primary/20 text-[#101b0d] dark:text-gray-200 px-5 transition-colors">
+<span class="material-symbols-outlined text-[18px]">water_drop</span>
+<span class="text-sm font-medium">Fertilizers</span>
+</button>
+<button class="flex h-10 items-center gap-2 rounded-full bg-[#e9f3e7] dark:bg-white/10 hover:bg-primary/20 text-[#101b0d] dark:text-gray-200 px-5 transition-colors">
+<span class="material-symbols-outlined text-[18px]">construction</span>
+<span class="text-sm font-medium">Tools</span>
+</button>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+<!-- LEFT COLUMN: Featured Products (8 cols) -->
+<div class="xl:col-span-8 flex flex-col gap-8">
+<div class="flex items-center justify-between">
+<h2 class="text-[#101b0d] dark:text-white text-2xl md:text-3xl font-bold tracking-tight">Featured Products</h2>
+<a class="text-brand-dark dark:text-primary font-bold text-sm hover:underline flex items-center gap-1" href="#">
+                        View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<!-- Product Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+<!-- Card 1 -->
+<div class="group flex flex-col rounded-xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-md transition-all overflow-hidden">
+<div class="aspect-video w-full overflow-hidden bg-gray-100 dark:bg-white/5 relative">
+<div class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">-15%</div>
+<div class="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500" data-alt="Bag of nitrogen fertilizer pellets on soil" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDaeC_DsegWyl7Yy95b_x0dh9SvktWCHGH9p2C3gyA4xFnND6aP-WGl88mSyLeS76QuSbGh18Fefwp9Gf2Bk3iddgg0V0ZXR9favWi_-XNL9_235wIT924-fprNEkhtjktJjncgC0bnrowTvH1mMzmfYSyzS9IHLgXRuv4QlTkFOu7BnE_HhN4I9lSnJ8Lajip0Kkb5JcjfTgNJIJwlIvr-Cwao-DfRBLjiHf6d4XP4JpFN1OywUNNnSqCQvRjjDzYdfqoDBMNdCUA");'>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-2 flex-1">
+<div class="flex justify-between items-start">
+<h3 class="text-[#101b0d] dark:text-white text-lg font-bold leading-tight">Nitrogen Boost Fertilizer</h3>
+<div class="flex items-center text-yellow-500 text-xs">
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="ml-1 text-gray-500 font-medium">4.8</span>
+</div>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-sm line-clamp-2">Premium slow-release nitrogen for leafy growth in early stages.</p>
+<div class="mt-auto pt-4 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-gray-400 text-xs line-through">$52.00</span>
+<span class="text-brand-dark dark:text-primary text-xl font-bold">$45.00</span>
+</div>
+<button class="h-9 px-4 rounded-lg bg-primary hover:bg-[#3ed622] text-[#101b0d] text-sm font-bold flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                                    Add
+                                </button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group flex flex-col rounded-xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-md transition-all overflow-hidden">
+<div class="aspect-video w-full overflow-hidden bg-gray-100 dark:bg-white/5 relative">
+<div class="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500" data-alt="Macro shot of healthy green leaf with water droplets" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDvHv7bZg2PByDRJQ-KqIygoT71LU6fNeSKPyDy3uuGTxpEbRZIZxFUfqW1J_bkdZqRVVY1w-CR4Pq-386IgHWTae53oahyRHBKItwKKUQvV5da00ejpq1ntSNbwldoBNCHDkbd8vN3WLoCA9TDEe7o1nRI9IhSUr5WNx6uoO18rDILXB7Wajq3z51-72HxvCqZm_kA7LlAP_ObGyHGWMt77CXDJ36PdGoaI-6aFnxWJcyojQPRTIT8DMT3N1-3zbJusS0Xk65sBm8");'>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-2 flex-1">
+<div class="flex justify-between items-start">
+<h3 class="text-[#101b0d] dark:text-white text-lg font-bold leading-tight">Organic Pest Control</h3>
+<div class="flex items-center text-yellow-500 text-xs">
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="ml-1 text-gray-500 font-medium">4.5</span>
+</div>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-sm line-clamp-2">Safe for pets and humans. Effective against aphids and mites.</p>
+<div class="mt-auto pt-4 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-brand-dark dark:text-primary text-xl font-bold">$28.99</span>
+</div>
+<button class="h-9 px-4 rounded-lg bg-[#e9f3e7] hover:bg-primary hover:text-[#101b0d] text-brand-dark font-bold text-sm flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                                    Add
+                                </button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group flex flex-col rounded-xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-md transition-all overflow-hidden">
+<div class="aspect-video w-full overflow-hidden bg-gray-100 dark:bg-white/5 relative">
+<div class="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500" data-alt="Close up of rice plants in a paddy field" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAVvcPzmK6jid-cCB4ys1rtuKmfvmd8alMvCOKuskSjlSGHsm1G35keWVY5QZIyWhTWbJ9ILaOMH2hsvTdUNzDP166z9_Bj4VKZKSEvwpnHnJtxHzqd6AsjYHAprOTVfVoZ4O7JGl5p9YDDaE_ab9WEm8kJFSCB3Hs_hjJw7-r9vEcknd7oO71llS_oKuKxFAOiTsOBEr1fEM6UBqEmD35CDg_363WoD07GwADCpFZ3ApOz-gZx2E9xyu2Du-Z-MvxBuF07DF9VEtA");'>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-2 flex-1">
+<div class="flex justify-between items-start">
+<h3 class="text-[#101b0d] dark:text-white text-lg font-bold leading-tight">Rice Blast Fungicide</h3>
+<div class="flex items-center text-yellow-500 text-xs">
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="ml-1 text-gray-500 font-medium">4.9</span>
+</div>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-sm line-clamp-2">Systemic fungicide specifically designed for rice blast prevention.</p>
+<div class="mt-auto pt-4 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-brand-dark dark:text-primary text-xl font-bold">$34.50</span>
+</div>
+<button class="h-9 px-4 rounded-lg bg-[#e9f3e7] hover:bg-primary hover:text-[#101b0d] text-brand-dark font-bold text-sm flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                                    Add
+                                </button>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group flex flex-col rounded-xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-md transition-all overflow-hidden">
+<div class="aspect-video w-full overflow-hidden bg-gray-100 dark:bg-white/5 relative">
+<div class="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500" data-alt="Heavy duty garden sprayer on concrete" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBZHBCRVn-xPAxUmqX-WMPeQH0T1d7G-qFZAzZMkG5_45X2Myhogik12lQ4dNF9bPnVDykaRj05CTyVebNLgglJCkG_5zepIHieEJROTgN6L4ngChoFlliobzGkbiI8nflS87S1RnAO4uA21NGcahffOYamlsY2guxL-N72SHYrwW6ao2qdBYxIx9bPS790-62XVR2EU8ht0K5Jh3gXzT9m0oRRlIJ3NhqS1IX0_vLNnw-wDxWSPIv_Bf2vsxXb1gaibmUF3qiI288");'>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-2 flex-1">
+<div class="flex justify-between items-start">
+<h3 class="text-[#101b0d] dark:text-white text-lg font-bold leading-tight">Pro-Grade Sprayer</h3>
+<div class="flex items-center text-yellow-500 text-xs">
+<span class="material-symbols-outlined text-[16px] fill-current">star</span>
+<span class="ml-1 text-gray-500 font-medium">4.6</span>
+</div>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-sm line-clamp-2">5 Gallon capacity with adjustable nozzle for precise application.</p>
+<div class="mt-auto pt-4 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-brand-dark dark:text-primary text-xl font-bold">$89.00</span>
+</div>
+<button class="h-9 px-4 rounded-lg bg-[#e9f3e7] hover:bg-primary hover:text-[#101b0d] text-brand-dark font-bold text-sm flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                                    Add
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Community Sidebar (4 cols) -->
+<aside class="xl:col-span-4 flex flex-col gap-6 sticky top-24">
+<!-- Forum Widget -->
+<div class="rounded-xl bg-brand-soft dark:bg-white/5 border border-[#e9f3e7] dark:border-white/10 p-6 shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-brand-dark dark:text-white text-xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-dark dark:text-primary">forum</span>
+                            Community Hub
+                        </h2>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Topic 1 -->
+<div class="bg-white dark:bg-black/20 p-4 rounded-lg shadow-sm border border-transparent hover:border-brand-dark/20 transition-all cursor-pointer group">
+<div class="flex items-start justify-between gap-3">
+<div class="flex gap-3">
+<div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0" data-alt="User Avatar Placeholder">
+<span class="text-sm font-bold">JD</span>
+</div>
+<div>
+<h4 class="text-[#101b0d] dark:text-white font-bold text-sm leading-snug group-hover:text-brand-dark dark:group-hover:text-primary transition-colors">How to treat rice blast effectively?</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs text-gray-500">@FarmerJohn</span>
+<span class="w-1 h-1 rounded-full bg-gray-300"></span>
+<span class="text-xs text-gray-500">2h ago</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-3 flex items-center gap-4 border-t border-gray-100 dark:border-white/5 pt-3">
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[14px]">chat_bubble</span>
+                                    12 Replies
+                                </div>
+<div class="flex items-center gap-1 text-xs text-brand-dark font-medium">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                    Solved
+                                </div>
+</div>
+</div>
+<!-- Topic 2 -->
+<div class="bg-white dark:bg-black/20 p-4 rounded-lg shadow-sm border border-transparent hover:border-brand-dark/20 transition-all cursor-pointer group">
+<div class="flex items-start justify-between gap-3">
+<div class="flex gap-3">
+<div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 shrink-0">
+<span class="text-sm font-bold">SM</span>
+</div>
+<div>
+<h4 class="text-[#101b0d] dark:text-white font-bold text-sm leading-snug group-hover:text-brand-dark dark:group-hover:text-primary transition-colors">Best organic alternative for tomato blight?</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs text-gray-500">@SarahM</span>
+<span class="w-1 h-1 rounded-full bg-gray-300"></span>
+<span class="text-xs text-gray-500">5h ago</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-3 flex items-center gap-4 border-t border-gray-100 dark:border-white/5 pt-3">
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[14px]">chat_bubble</span>
+                                    8 Replies
+                                </div>
+<span class="bg-primary/20 text-brand-dark text-[10px] font-bold px-2 py-0.5 rounded">HOT</span>
+</div>
+</div>
+<!-- Topic 3 -->
+<div class="bg-white dark:bg-black/20 p-4 rounded-lg shadow-sm border border-transparent hover:border-brand-dark/20 transition-all cursor-pointer group">
+<div class="flex items-start justify-between gap-3">
+<div class="flex gap-3">
+<div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+<span class="text-sm font-bold">AG</span>
+</div>
+<div>
+<h4 class="text-[#101b0d] dark:text-white font-bold text-sm leading-snug group-hover:text-brand-dark dark:group-hover:text-primary transition-colors">Identify this pest on my corn?</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs text-gray-500">@AgroGuy</span>
+<span class="w-1 h-1 rounded-full bg-gray-300"></span>
+<span class="text-xs text-gray-500">1d ago</span>
+</div>
+</div>
+</div>
+<div class="w-10 h-10 rounded-md bg-gray-100 bg-cover bg-center shrink-0" data-alt="Small thumbnail of corn pest" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCtlGJ2v_SH-_3c2AcB-EYtCX62yAWQ-KTg3NEk32p8-KstX-9izvcAbUrgPnH1Dua2oJkbB9ffsEs_Vh9aUkCc4c1oyqmEVDocmY-mgi20TnEezTMpI5e4Y42sVdrXeYDu_xW9lOQR8IK_MwXzCpEDBeoHIteZawTiGL3m1bVOas8jp-CQBZPut0dwKFLoxj80sZqKOkKHihfRjba2fzxus0WUMuAJ3e9QzLkSK9k7HCYnVEjFIk6K2pklcbbkJI101y1qeyr0Nns");'></div>
+</div>
+<div class="mt-3 flex items-center gap-4 border-t border-gray-100 dark:border-white/5 pt-3">
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[14px]">chat_bubble</span>
+                                    3 Replies
+                                </div>
+</div>
+</div>
+</div>
+<button class="w-full mt-4 py-2 text-sm font-bold text-brand-dark dark:text-primary hover:bg-white/50 dark:hover:bg-white/5 rounded-lg transition-colors">
+                        View All Discussions
+                    </button>
+</div>
+<!-- Promo / Newsletter -->
+<div class="rounded-xl bg-brand-dark p-6 text-white relative overflow-hidden">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/20 rounded-full blur-2xl"></div>
+<div class="relative z-10">
+<span class="material-symbols-outlined text-4xl mb-2 text-primary">mark_email_unread</span>
+<h3 class="text-lg font-bold mb-2">Weekly Agro Tips</h3>
+<p class="text-white/80 text-sm mb-4">Get expert advice on pest control and seasonal farming delivered to your inbox.</p>
+<div class="flex gap-2">
+<input class="w-full h-9 rounded bg-white/10 border border-white/20 text-sm px-3 text-white placeholder:text-white/50 focus:outline-none focus:border-primary" placeholder="Your email" type="email"/>
+<button class="h-9 px-3 bg-primary text-brand-dark font-bold rounded text-sm hover:bg-white transition-colors">Join</button>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</div>
+<!-- Footer Simple -->
+<footer class="bg-white dark:bg-background-dark border-t border-[#e9f3e7] dark:border-white/10 py-8 px-4 md:px-10 lg:px-40">
+<div class="flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-gray-500 text-sm">© 2024 AgroShop Inc. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="text-gray-500 hover:text-brand-dark dark:hover:text-primary text-sm" href="#">Privacy Policy</a>
+<a class="text-gray-500 hover:text-brand-dark dark:hover:text-primary text-sm" href="#">Terms of Service</a>
+<a class="text-gray-500 hover:text-brand-dark dark:hover:text-primary text-sm" href="#">Support</a>
+</div>
+</div>
+</footer>
+</body></html>
