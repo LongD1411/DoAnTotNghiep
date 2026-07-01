@@ -26,7 +26,7 @@ export const SHARED_REVIEWS = [
 export const FAKE_PRODUCTS = [
   {
     id: 1,  slug: '1-roundup-ultra-480-sl',
-    name: 'Roundup Ultra 480 SL', category: 'Herbicide', badge: 'Bán chạy',
+    name: 'Roundup Ultra 480 SL', category: 'Herbicide', badge: 'Bán chạy', hazardLevel: 'NANG',
     ingredient: 'Glyphosate 480 g/L',
     images: imgs('herb1'),
     price: 185000, discount_price: 157000, rating: 4.8, reviewCount: 124, stock: 80,
@@ -51,7 +51,7 @@ export const FAKE_PRODUCTS = [
   },
   {
     id: 2,  slug: '2-amistar-top-325-sc',
-    name: 'Amistar Top 325 SC', category: 'Fungicide', badge: null,
+    name: 'Amistar Top 325 SC', category: 'Fungicide', badge: null, hazardLevel: 'NANG',
     ingredient: 'Azoxystrobin 200 g/L + Difenoconazole 125 g/L',
     images: imgs('fungi2'),
     price: 320000, discount_price: null, rating: 4.5, reviewCount: 89, stock: 45,
@@ -76,7 +76,7 @@ export const FAKE_PRODUCTS = [
   },
   {
     id: 3,  slug: '3-bayer-confidor-200-sl',
-    name: 'Bayer Confidor 200 SL', category: 'Insecticide', badge: 'Mới',
+    name: 'Bayer Confidor 200 SL', category: 'Insecticide', badge: 'Mới', hazardLevel: 'NANG',
     ingredient: 'Imidacloprid 200 g/L',
     images: imgs('insec3'),
     price: 210000, discount_price: null, rating: 4.9, reviewCount: 201, stock: 120,
@@ -101,7 +101,7 @@ export const FAKE_PRODUCTS = [
   },
   {
     id: 4,  slug: '4-phan-npk-16-16-8-te',
-    name: 'Phân NPK 16-16-8+TE', category: 'Phân bón', badge: null,
+    name: 'Phân NPK 16-16-8+TE', category: 'Phân bón', badge: null, hazardLevel: 'TRUNG_BINH',
     ingredient: 'N:P:K = 16:16:8 + vi lượng',
     images: imgs('fert4'),
     price: 450000, discount_price: 382000, rating: 4.6, reviewCount: 67, stock: 200,
@@ -126,7 +126,7 @@ export const FAKE_PRODUCTS = [
   },
   {
     id: 5,  slug: '5-nativo-75-wg',
-    name: 'Nativo 75 WG', category: 'Fungicide', badge: null,
+    name: 'Nativo 75 WG', category: 'Fungicide', badge: null, hazardLevel: 'NANG',
     ingredient: 'Tebuconazole 50% + Trifloxystrobin 25%',
     images: imgs('fungi5'),
     price: 275000, discount_price: null, rating: 4.7, reviewCount: 103, stock: 60,
@@ -151,7 +151,7 @@ export const FAKE_PRODUCTS = [
   },
   {
     id: 6,  slug: '6-binh-xit-dien-pin-16l',
-    name: 'Bình xịt điện pin 16L', category: 'Dụng cụ', badge: 'Bán chạy',
+    name: 'Bình xịt điện pin 16L', category: 'Dụng cụ', badge: 'Bán chạy', hazardLevel: 'NONE',
     ingredient: 'Pin Li-ion 8Ah, motor không chổi than',
     images: imgs('tool6'),
     price: 1250000, discount_price: 1050000, rating: 4.6, reviewCount: 55, stock: 25,
@@ -176,7 +176,7 @@ export const FAKE_PRODUCTS = [
   },
   {
     id: 7,  slug: '7-axial-100-ec',
-    name: 'Axial 100 EC', category: 'Herbicide', badge: null,
+    name: 'Axial 100 EC', category: 'Herbicide', badge: null, hazardLevel: 'NANG',
     ingredient: 'Pinoxaden 100 g/L',
     images: imgs('herb7'),
     price: 195000, discount_price: null, rating: 4.4, reviewCount: 44, stock: 35,
@@ -201,7 +201,7 @@ export const FAKE_PRODUCTS = [
   },
   {
     id: 8,  slug: '8-phan-huu-co-vi-sinh',
-    name: 'Phân Hữu Cơ Vi Sinh', category: 'Phân bón', badge: 'Mới',
+    name: 'Phân Hữu Cơ Vi Sinh', category: 'Phân bón', badge: 'Mới', hazardLevel: 'TRUNG_BINH',
     ingredient: 'Hữu cơ ≥ 15%, vi sinh vật có ích ≥ 10⁶ CFU/g',
     images: imgs('fert8'),
     price: 380000, discount_price: null, rating: 4.3, reviewCount: 38, stock: 150,
@@ -226,7 +226,7 @@ export const FAKE_PRODUCTS = [
   },
   {
     id: 9,  slug: '9-gramoxone-20-sl',
-    name: 'Gramoxone 20 SL', category: 'Herbicide', badge: null,
+    name: 'Gramoxone 20 SL', category: 'Herbicide', badge: null, hazardLevel: 'NGUY_HIEM',
     ingredient: 'Paraquat Dichloride 200 g/L',
     images: imgs('herb9'),
     price: 145000, discount_price: 122000, rating: 4.2, reviewCount: 56, stock: 90,
@@ -251,7 +251,7 @@ export const FAKE_PRODUCTS = [
   },
   {
     id: 10, slug: '10-score-250-ec',
-    name: 'Score 250 EC', category: 'Fungicide', badge: null,
+    name: 'Score 250 EC', category: 'Fungicide', badge: null, hazardLevel: 'NANG',
     ingredient: 'Difenoconazole 250 g/L',
     images: imgs('fungi10'),
     price: 290000, discount_price: null, rating: 4.5, reviewCount: 78, stock: 55,
@@ -276,7 +276,7 @@ export const FAKE_PRODUCTS = [
   },
   {
     id: 11, slug: '11-movento-150-od',
-    name: 'Movento 150 OD', category: 'Insecticide', badge: 'Mới',
+    name: 'Movento 150 OD', category: 'Insecticide', badge: 'Mới', hazardLevel: 'NANG',
     ingredient: 'Spirotetramat 150 g/L',
     images: imgs('insec11'),
     price: 335000, discount_price: null, rating: 4.8, reviewCount: 42, stock: 30,
@@ -301,7 +301,7 @@ export const FAKE_PRODUCTS = [
   },
   {
     id: 12, slug: '12-may-do-ph-dat',
-    name: 'Máy đo pH đất', category: 'Dụng cụ', badge: null,
+    name: 'Máy đo pH đất', category: 'Dụng cụ', badge: null, hazardLevel: 'NONE',
     ingredient: 'Cảm biến điện cực kép, đo pH + độ ẩm',
     images: imgs('tool12'),
     price: 180000, discount_price: 150000, rating: 4.4, reviewCount: 29, stock: 40,

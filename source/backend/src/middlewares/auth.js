@@ -18,4 +18,16 @@ const authorizeRole = (roles) => (req, res, next) => {
   next();
 };
 
-export { authenticateToken, authorizeRole };
+// Giải mã token nếu có (gắn req.user), KHÔNG chặn khi thiếu/hỏng token.
+// Dùng cho route public cần phân biệt admin vs khách (vd: ẩn sản phẩm is_active=false).
+const optionalAuth = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return next();
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (!err) req.user = user;
+    next();
+  });
+};
+
+export { authenticateToken, authorizeRole, optionalAuth };

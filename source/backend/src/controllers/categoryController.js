@@ -44,6 +44,7 @@ const getAll = async (req, res) => {
 
 const getById = async (req, res) => {
   const { id } = req.params;
+  if (!/^\d+$/.test(id)) return respond.notFound(res, ERR.NOT_FOUND);
   try {
     const category = await prisma.category.findUnique({
       where:   { id: parseInt(id) },
@@ -60,7 +61,7 @@ const create = async (req, res) => {
   const result = CreateCategorySchema.safeParse(req.body);
   if (!result.success) return respond.badRequest(res, ERR.VALIDATION);
 
-  const { name, description, image_url } = result.data;
+  const { name } = result.data;
   const slug = `${toSlug(name)}-${Date.now()}`;
 
   try {
@@ -68,8 +69,6 @@ const create = async (req, res) => {
       data: {
         name,
         slug,
-        description: description ?? null,
-        imageUrl:    image_url   ?? null,
       },
       include: { _count: { select: { products: true } } },
     });
@@ -86,12 +85,10 @@ const update = async (req, res) => {
   const result = UpdateCategorySchema.safeParse(req.body);
   if (!result.success) return respond.badRequest(res, ERR.VALIDATION);
 
-  const { name, slug, description, image_url } = result.data;
+  const { name, slug } = result.data;
   const data = {
-    ...(name        !== undefined && { name                        }),
-    ...(slug        !== undefined && { slug                        }),
-    ...(description !== undefined && { description                 }),
-    ...(image_url   !== undefined && { imageUrl: image_url ?? null }),
+    ...(name !== undefined && { name }),
+    ...(slug !== undefined && { slug }),
   };
 
   if (Object.keys(data).length === 0) return respond.badRequest(res, ERR.NO_UPDATE);

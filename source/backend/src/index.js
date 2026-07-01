@@ -3,8 +3,10 @@ import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
 import productRoutes from './routes/products.js';
-import categoryRoutes from './routes/categories.js';
-import userRoutes from './routes/users.js';
+import categoryRoutes   from './routes/categories.js';
+import uploadRoutes     from './routes/upload.js';
+import userRoutes       from './routes/users.js';
+import pestEntryRoutes  from './routes/pestEntries.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,7 +19,9 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/products', productRoutes);
 app.use('/categories', categoryRoutes);
-app.use('/users', userRoutes);
+app.use('/upload',       uploadRoutes);
+app.use('/users',        userRoutes);
+app.use('/pest-entries', pestEntryRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

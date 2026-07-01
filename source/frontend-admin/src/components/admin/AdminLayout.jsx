@@ -1,10 +1,12 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import Toast from '../common/Toast';
 
 const NAV_ITEMS = [
   { label: 'Dashboard',  icon: 'dashboard',    path: '/admin/overview'  },
   { label: 'Đơn hàng',   icon: 'shopping_cart', path: '/admin/orders'    },
   { label: 'Sản phẩm',   icon: 'potted_plant',  path: '/admin/products',   fill: true },
   { label: 'Danh mục',   icon: 'category',      path: '/admin/categories'            },
+  { label: 'Tra cứu',    icon: 'menu_book',     path: '/admin/encyclopedia'          },
   { label: 'Cài đặt',    icon: 'settings',      path: '/admin/settings'              },
 ];
 
@@ -88,6 +90,8 @@ const AdminLayout = ({ children, title = 'AgroAdmin' }) => {
       <main className="flex-1 flex flex-col overflow-y-scroll">
         {children}
       </main>
+
+      <Toast />
     </div>
   );
 };

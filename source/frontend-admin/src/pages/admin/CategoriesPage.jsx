@@ -1,36 +1,15 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../components/admin/AdminLayout';
 import LoadingOverlay from '../../components/common/LoadingOverlay';
+import { getAllCategories, deleteCategory } from '../../services/categoryService';
+import { toastService, errMsg } from '../../services/toastService';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const PER_PAGE = 10;
 
 const BTN_ADD = 'bg-primary text-[#1B5E20] px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2';
-
-const MOCK_CATEGORIES = [
-  { id: 1, name: 'Phân bón',               slug: 'phan-bon',              description: 'Các loại phân bón hóa học và vô cơ',           imageUrl: null, productCount: 6 },
-  { id: 2, name: 'Thuốc bảo vệ thực vật', slug: 'thuoc-bao-ve-thuc-vat', description: 'Thuốc trừ sâu, thuốc trừ cỏ đặc trị',           imageUrl: null, productCount: 5 },
-  { id: 3, name: 'Hạt giống cây trồng',   slug: 'hat-giong-cay-trong',   description: 'Hạt giống F1, hạt giống thuần chủng',            imageUrl: null, productCount: 5 },
-  { id: 4, name: 'Thuốc trừ nấm',         slug: 'thuoc-tru-nam',         description: 'Nhóm thuốc chuyên trị nấm bệnh cây trồng',       imageUrl: null, productCount: 3 },
-  { id: 5, name: 'Phân hữu cơ',           slug: 'phan-huu-co',           description: 'Phân compost, phân vi sinh, phân hữu cơ khoáng', imageUrl: null, productCount: 2 },
-];
-
-const ICON_MAP = {
-  1: 'grass',
-  2: 'bug_report',
-  3: 'psychiatry',
-  4: 'science',
-  5: 'compost',
-};
-
-const STATS = [
-  { label: 'Tổng danh mục',  value: '5',  icon: 'category',    color: 'blue'  },
-  { label: 'Có sản phẩm',    value: '5',  icon: 'check_circle', color: 'green' },
-  { label: 'Chưa có SP',     value: '0',  icon: 'inbox',        color: 'amber' },
-  { label: 'Tổng sản phẩm',  value: '21', icon: 'inventory_2',  color: 'sky'   },
-];
 
 const STAT_COLORS = {
   blue:  { bg: 'bg-blue-100 dark:bg-blue-900/30',   text: 'text-blue-600'  },
@@ -42,17 +21,42 @@ const STAT_COLORS = {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 const CategoriesPage = () => {
-  const navigate  = useNavigate();
-  const tableRef  = useRef(null);
-  const [search,  setSearch]  = useState('');
-  const [loading] = useState(false);
-  const [page,    setPage]    = useState(1);
+  const navigate = useNavigate();
+  const tableRef = useRef(null);
+
+  const [categories, setCategories] = useState([]);
+  const [loading,    setLoading]    = useState(true);
+  const [search,     setSearch]     = useState('');
+  const [page,       setPage]       = useState(1);
+  const [confirmCat, setConfirmCat] = useState(null); // danh mục đang chờ xác nhận xóa
+  const [deleting,   setDeleting]   = useState(false);
+
+  // Fetch toàn bộ danh mục (tập nhỏ → lấy 1 lần, filter/phân trang client-side)
+  useEffect(() => {
+    setLoading(true);
+    getAllCategories({ limit: 100 })
+      .then(res => setCategories(res.data.data.data))
+      .catch(err => toastService.error(errMsg(err)))
+      .finally(() => setLoading(false));
+  }, []);
 
   // Filter
-  const filtered = MOCK_CATEGORIES.filter(c =>
+  const filtered = categories.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.slug.toLowerCase().includes(search.toLowerCase())
   );
+
+  // Stats tính từ dữ liệu thật
+  const stats = useMemo(() => {
+    const withProducts  = categories.filter(c => (c.product_count ?? 0) > 0).length;
+    const totalProducts = categories.reduce((sum, c) => sum + (c.product_count ?? 0), 0);
+    return [
+      { label: 'Tổng danh mục', value: categories.length,               icon: 'category',     color: 'blue'  },
+      { label: 'Có sản phẩm',   value: withProducts,                     icon: 'check_circle', color: 'green' },
+      { label: 'Chưa có SP',    value: categories.length - withProducts, icon: 'inbox',        color: 'amber' },
+      { label: 'Tổng sản phẩm', value: totalProducts,                    icon: 'inventory_2',  color: 'sky'   },
+    ];
+  }, [categories]);
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE);
   const start      = (page - 1) * PER_PAGE + 1;
@@ -64,6 +68,24 @@ const CategoriesPage = () => {
     if (tableRef.current) {
       const y = tableRef.current.getBoundingClientRect().top + window.scrollY - 80;
       window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirmCat) return;
+    setDeleting(true);
+    try {
+      await deleteCategory(confirmCat.id);
+      toastService.success('Xóa danh mục thành công');
+      setCategories(prev => prev.filter(c => c.id !== confirmCat.id));
+      setConfirmCat(null);
+      // Nếu trang hiện tại rỗng sau khi xóa, lùi về trang trước
+      const maxPage = Math.max(1, Math.ceil((filtered.length - 1) / PER_PAGE));
+      if (page > maxPage) setPage(maxPage);
+    } catch (err) {
+      toastService.error(errMsg(err));
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -87,7 +109,7 @@ const CategoriesPage = () => {
 
           {/* ── Stats ──────────────────────────────────────────────────── */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {STATS.map(s => {
+            {stats.map(s => {
               const c = STAT_COLORS[s.color];
               return (
                 <div key={s.label} className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 flex items-center gap-3">
@@ -131,11 +153,11 @@ const CategoriesPage = () => {
                     <th className="px-6 py-3 text-left font-semibold text-slate-600 dark:text-slate-400 uppercase text-xs tracking-wider">Danh mục</th>
                     <th className="px-6 py-3 text-left font-semibold text-slate-600 dark:text-slate-400 uppercase text-xs tracking-wider">Slug</th>
                     <th className="px-6 py-3 text-center font-semibold text-slate-600 dark:text-slate-400 uppercase text-xs tracking-wider">Sản phẩm</th>
-                    <th className="px-6 py-3 text-left font-semibold text-slate-600 dark:text-slate-400 uppercase text-xs tracking-wider">Mô tả</th>
+                    <th className="px-6 py-3 text-right font-semibold text-slate-600 dark:text-slate-400 uppercase text-xs tracking-wider">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                  {paged.length === 0 ? (
+                  {paged.length === 0 && !loading ? (
                     <tr>
                       <td colSpan={4} className="px-6 py-12 text-center text-sm text-slate-400">
                         <span className="material-symbols-outlined text-4xl block mb-2 opacity-30">category</span>
@@ -150,18 +172,7 @@ const CategoriesPage = () => {
                     >
                       {/* Tên */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <div className="size-10 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center border border-green-100 dark:border-green-800 shrink-0">
-                            {cat.imageUrl ? (
-                              <img src={cat.imageUrl} alt={cat.name} className="size-full object-cover rounded-lg" />
-                            ) : (
-                              <span className="material-symbols-outlined text-[#2E7D32] dark:text-primary text-lg">
-                                {ICON_MAP[cat.id] ?? 'category'}
-                              </span>
-                            )}
-                          </div>
-                          <span className="font-bold text-[#1B5E20] dark:text-primary">{cat.name}</span>
-                        </div>
+                        <span className="font-bold text-[#1B5E20] dark:text-primary">{cat.name}</span>
                       </td>
 
                       {/* Slug */}
@@ -174,13 +185,19 @@ const CategoriesPage = () => {
                       {/* Số sản phẩm */}
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <span className="inline-flex items-center justify-center size-7 rounded-full bg-primary/20 text-[#1B5E20] dark:text-primary text-xs font-bold">
-                          {cat.productCount}
+                          {cat.product_count ?? 0}
                         </span>
                       </td>
 
-                      {/* Mô tả */}
-                      <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 max-w-xs truncate">
-                        {cat.description || <span className="text-slate-300 dark:text-slate-600">—</span>}
+                      {/* Thao tác */}
+                      <td className="px-6 py-4 whitespace-nowrap text-right" onClick={e => e.stopPropagation()}>
+                        <button
+                          onClick={() => setConfirmCat(cat)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                          title="Xóa danh mục"
+                        >
+                          <span className="material-symbols-outlined text-base">delete</span>
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -233,6 +250,54 @@ const CategoriesPage = () => {
 
         </div>
       </AdminLayout>
+
+      {/* ── Confirm Delete Modal ──────────────────────────────────────── */}
+      {confirmCat && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => !deleting && setConfirmCat(null)} />
+          <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 w-full max-w-sm flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <div className="size-11 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-red-600 dark:text-red-400">delete_forever</span>
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 dark:text-white text-base">Xóa danh mục?</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Hành động này không thể hoàn tác.</p>
+              </div>
+            </div>
+            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl px-4 py-3">
+              <p className="font-semibold text-slate-800 dark:text-white text-sm">{confirmCat.name}</p>
+              <p className="text-xs text-slate-400 font-mono mt-0.5">/{confirmCat.slug}</p>
+            </div>
+            {(confirmCat.product_count ?? 0) > 0 && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-sm">warning</span>
+                Danh mục đang có {confirmCat.product_count} sản phẩm — không thể xóa.
+              </p>
+            )}
+            <div className="flex gap-3 pt-1">
+              <button
+                onClick={() => setConfirmCat(null)}
+                disabled={deleting}
+                className="flex-1 px-4 py-2.5 text-sm font-semibold border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-40"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting || (confirmCat.product_count ?? 0) > 0}
+                className="flex-1 px-4 py-2.5 text-sm font-bold bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {deleting
+                  ? <span className="size-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  : <span className="material-symbols-outlined text-base">delete</span>
+                }
+                {deleting ? 'Đang xóa...' : 'Xóa danh mục'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

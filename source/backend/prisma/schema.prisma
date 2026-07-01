@@ -43,8 +43,6 @@ model Category {
   id          Int     @id @default(autoincrement())
   name        String  @unique
   slug        String  @unique
-  description String?
-  imageUrl    String?
   parentId    Int?
 
   parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
@@ -60,18 +58,23 @@ model Product {
   id            Int      @id @default(autoincrement())
   name          String
   slug          String   @unique
-  description   String?
+  description   String?  @db.Text
   price         Float
   discountPrice Float?
-  unit          String   @default("kg") // kg, hộp, bó, con, quả, lít...
+  unit          String   @default("bao") // bao, hộp, bó, gói, con, quả... (đơn vị tính/bán)
   stock         Int      @default(0)
   sold          Int      @default(0)
   isActive      Boolean  @default(true)
   imageUrl      String?
   categoryId    Int
-  origin        String?  // xuất xứ: Đà Lạt, ĐBSCL...
-  weight        Float?   // kg, dùng tính phí ship
-  expiryDays    Int?     // hạn sử dụng tính từ ngày mua
+  weight         Float?  // số đo (theo weightUnit)
+  weightUnit     String? @default("kg") // kg | lít | ml — quy cách trọng lượng/dung tích
+  specifications String? @db.Text // thông số kỹ thuật (rich text HTML)
+  safetyNote     String? @db.Text // an toàn sử dụng (rich text HTML)
+  hazardLevel    String  @default("NONE") // NONE | TRUNG_BINH | NANG | NGUY_HIEM — màu hộp cảnh báo
+  hazardNote     String? @db.Text // lưu ý nội dung cho mức độ nguy hiểm
+  videoUrl       String? // link nhúng video hướng dẫn (hiển thị trên customer)
+  badge          String? @db.VarChar(50) // nhãn nổi bật: Mới, Bán chạy...
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -81,6 +84,7 @@ model Product {
   reviews       Review[]
   images        ProductImage[]
   inventoryLogs InventoryLog[]
+  pestProducts  PestProduct[]
 
   @@index([categoryId])
 }
@@ -361,6 +365,88 @@ model InventoryLog {
 
   @@index([productId])
   @@index([adminId])
+}
+
+// ─── ENCYCLOPEDIA (TRA CỨU DỊ HẠI) ──────────────────────────────────────────
+
+model PestEntry {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(300)
+  latinName   String?  @db.VarChar(300)
+  slug        String   @unique @db.VarChar(300)
+  category    String   // Côn trùng | Bệnh nấm | Vi khuẩn | Virus | Tuyến trùng | Nhện hại
+  severity    String   @default("TRUNG_BINH") // NGUY_HIEM | NANG | TRUNG_BINH
+  description String?  @db.Text
+  conditions  String?  @db.Text
+  isActive    Boolean  @default(true)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  images              PestImage[]
+  symptoms            PestSymptom[]
+  treatments          PestTreatment[]
+  cropTypes           PestCropType[]
+  recommendedProducts PestProduct[]
+
+  @@index([category])
+  @@index([severity])
+}
+
+model PestImage {
+  id     Int    @id @default(autoincrement())
+  pestId Int
+  url    String
+  order  Int    @default(0)
+
+  pest PestEntry @relation(fields: [pestId], references: [id], onDelete: Cascade)
+
+  @@index([pestId])
+}
+
+model PestSymptom {
+  id      Int    @id @default(autoincrement())
+  pestId  Int
+  content String @db.Text
+  order   Int    @default(0)
+
+  pest PestEntry @relation(fields: [pestId], references: [id], onDelete: Cascade)
+
+  @@index([pestId])
+}
+
+model PestTreatment {
+  id      Int    @id @default(autoincrement())
+  pestId  Int
+  content String @db.Text
+  order   Int    @default(0)
+
+  pest PestEntry @relation(fields: [pestId], references: [id], onDelete: Cascade)
+
+  @@index([pestId])
+}
+
+model PestCropType {
+  id       Int    @id @default(autoincrement())
+  pestId   Int
+  cropType String // Lúa & Ngũ cốc | Rau màu | Cây ăn quả | Đậu đỗ | Cây công nghiệp | Cây gia vị
+
+  pest PestEntry @relation(fields: [pestId], references: [id], onDelete: Cascade)
+
+  @@unique([pestId, cropType])
+  @@index([pestId])
+}
+
+// Many-to-many PestEntry ↔ Product (sản phẩm khuyến nghị)
+model PestProduct {
+  pestId    Int
+  productId Int
+
+  pest    PestEntry @relation(fields: [pestId], references: [id], onDelete: Cascade)
+  product Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([pestId, productId])
+  @@index([productId])
 }
 
 // ─── AUTH ────────────────────────────────────────────────────────────────────

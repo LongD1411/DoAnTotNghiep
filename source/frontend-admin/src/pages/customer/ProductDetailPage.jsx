@@ -36,6 +36,25 @@ const TABS = [
   { id: 'shipping', label: 'Vận chuyển & Đổi trả'  },
 ];
 
+// Vận chuyển & Đổi trả — nội dung CỐ ĐỊNH (fix cứng, không lấy từ sản phẩm). Sửa tại đây.
+const SHIPPING_RETURN = {
+  intro: 'Đơn hàng được xử lý trong vòng 1–2 ngày làm việc sau khi thanh toán thành công.',
+  items: [
+    'Giao hàng tiêu chuẩn: 3–5 ngày làm việc.',
+    'Giao hàng nhanh (hỏa tốc): 1–2 ngày làm việc (chỉ áp dụng nội thành).',
+    'Miễn phí vận chuyển cho đơn hàng từ 500.000đ.',
+    'Đổi trả miễn phí trong 7 ngày nếu sản phẩm lỗi hoặc sai hàng.',
+    'Không nhận đổi trả đối với sản phẩm đã mở seal hoặc sử dụng.',
+  ],
+};
+
+// Mức độ nguy hiểm → màu hộp cảnh báo (NONE = ẩn hộp)
+const HAZARD_STYLE = {
+  TRUNG_BINH: { box: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800/40', icon: 'text-yellow-600 dark:text-yellow-400', text: 'text-yellow-800 dark:text-yellow-200', name: 'warning',   label: 'Lưu ý an toàn'   },
+  NANG:       { box: 'bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-800/50', icon: 'text-orange-600 dark:text-orange-400', text: 'text-orange-800 dark:text-orange-200', name: 'warning',   label: 'Cảnh báo an toàn' },
+  NGUY_HIEM:  { box: 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-800/50',             icon: 'text-red-600 dark:text-red-400',       text: 'text-red-800 dark:text-red-200',       name: 'dangerous', label: 'NGUY HIỂM'        },
+};
+
 const ProductDetailPage = () => {
   const { slug }   = useParams();
   const navigate   = useNavigate();
@@ -71,6 +90,8 @@ const ProductDetailPage = () => {
     : null;
 
   const related = FAKE_PRODUCTS.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
+
+  const hz = HAZARD_STYLE[product.hazardLevel]; // undefined nếu NONE → ẩn hộp an toàn
 
   return (
     <CustomerLayout>
@@ -212,13 +233,15 @@ const ProductDetailPage = () => {
             </div>
 
             {/* Safety notice */}
-            <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800/40 flex gap-3 items-start">
-              <span className="material-symbols-outlined text-yellow-600 dark:text-yellow-400 shrink-0 text-[22px]">warning</span>
-              <div className="text-sm text-yellow-800 dark:text-yellow-200">
-                <span className="font-bold block mb-1">Lưu ý an toàn</span>
-                {product.safetyNote}
+            {hz && product.safetyNote && (
+              <div className={`p-4 rounded-xl border flex gap-3 items-start ${hz.box}`}>
+                <span className={`material-symbols-outlined shrink-0 text-[22px] ${hz.icon}`}>{hz.name}</span>
+                <div className={`text-sm ${hz.text}`}>
+                  <span className="font-bold block mb-1">{hz.label}</span>
+                  {product.safetyNote}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -242,9 +265,9 @@ const ProductDetailPage = () => {
             </nav>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div>
             {/* Tab content */}
-            <div className="md:col-span-2 text-gray-600 dark:text-gray-300 leading-relaxed flex flex-col gap-4">
+            <div className="text-gray-600 dark:text-gray-300 leading-relaxed flex flex-col gap-4">
               {activeTab === 'desc' && (
                 <>
                   {product.fullDesc.map((p, i) => <p key={i}>{p}</p>)}
@@ -266,40 +289,26 @@ const ProductDetailPage = () => {
               )}
               {activeTab === 'safety' && (
                 <>
-                  <div className="flex gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800/40">
-                    <span className="material-symbols-outlined text-yellow-600 shrink-0">warning</span>
-                    <p className="text-yellow-800 dark:text-yellow-200 text-sm">{product.safetyNote}</p>
-                  </div>
+                  {hz && product.safetyNote && (
+                    <div className={`flex gap-3 p-4 rounded-xl border ${hz.box}`}>
+                      <span className={`material-symbols-outlined shrink-0 ${hz.icon}`}>{hz.name}</span>
+                      <p className={`text-sm ${hz.text}`}>{product.safetyNote}</p>
+                    </div>
+                  )}
                   <p>Luôn đọc kỹ nhãn sản phẩm trước khi sử dụng. Tuân thủ đúng liều lượng và thời gian cách ly khuyến cáo. Bảo quản sản phẩm trong bao bì gốc, tránh xa tầm tay trẻ em.</p>
                   <p>Trường hợp bị nhiễm: rửa da và mắt bằng nhiều nước sạch ít nhất 15 phút. Nếu nuốt phải: không gây nôn, đến cơ sở y tế ngay và mang theo nhãn sản phẩm.</p>
                 </>
               )}
               {activeTab === 'shipping' && (
                 <>
-                  <p>Đơn hàng được xử lý trong vòng 1–2 ngày làm việc sau khi thanh toán thành công.</p>
+                  <p>{SHIPPING_RETURN.intro}</p>
                   <ul className="list-disc pl-5 flex flex-col gap-2 text-sm">
-                    <li>Giao hàng tiêu chuẩn: 3–5 ngày làm việc.</li>
-                    <li>Giao hàng nhanh (hỏa tốc): 1–2 ngày làm việc (chỉ áp dụng nội thành).</li>
-                    <li>Miễn phí vận chuyển cho đơn hàng từ 500.000đ.</li>
-                    <li>Đổi trả miễn phí trong 7 ngày nếu sản phẩm lỗi hoặc sai hàng.</li>
-                    <li>Không nhận đổi trả đối với sản phẩm đã mở seal hoặc sử dụng.</li>
+                    {SHIPPING_RETURN.items.map((t, i) => <li key={i}>{t}</li>)}
                   </ul>
                 </>
               )}
             </div>
 
-            {/* Quick Specs sidebar */}
-            <div className="bg-white dark:bg-[#132210] rounded-xl border border-[#d3e7cf] dark:border-[#2a4524] p-6 h-fit">
-              <h4 className="text-xs font-bold text-[#599a4c] uppercase tracking-wider mb-4">Thông số nhanh</h4>
-              <dl className="flex flex-col gap-3 text-sm">
-                {product.specs.map(s => (
-                  <div key={s.label} className="flex flex-col gap-0.5 border-b border-dashed border-[#e9f3e7] dark:border-white/10 pb-3 last:border-0 last:pb-0">
-                    <dt className="text-gray-400 text-xs">{s.label}</dt>
-                    <dd className="font-semibold text-[#101b0d] dark:text-white">{s.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
           </div>
         </div>
 

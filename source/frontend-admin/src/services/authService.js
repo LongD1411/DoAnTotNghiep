@@ -1,13 +1,10 @@
 import axios from 'axios';
+import api from './axiosInstance';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const getToken = (key) =>
   localStorage.getItem(key) || sessionStorage.getItem(key);
-
-const getAuthHeader = () => ({
-  headers: { Authorization: `Bearer ${getToken('access_token')}` },
-});
 
 export const clearTokens = () => {
   ['access_token', 'refresh_token'].forEach((k) => {
@@ -28,8 +25,9 @@ export const logout = () => {
   return axios.post(`${API_URL}/auth/logout`, { refresh_token });
 };
 
+// Dùng plain axios để tránh interceptor loop (axiosInstance tự gọi refresh)
 export const refresh = () =>
   axios.post(`${API_URL}/auth/refresh`, { refresh_token: getToken('refresh_token') });
 
 export const getProfile = () =>
-  axios.get(`${API_URL}/auth/me`, getAuthHeader());
+  api.get('/auth/me');

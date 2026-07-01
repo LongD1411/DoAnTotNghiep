@@ -24,8 +24,12 @@ const getAll = async (req, res) => {
   if (!result.success) return respond.badRequest(res, ERR.VALIDATION);
 
   const { search, page, limit } = result.data;
+  const isAdmin = req.user?.role === 'admin';
   try {
-    const where = search ? { name: { contains: search, mode: 'insensitive' } } : {};
+    const where = {
+      ...(search ? { name: { contains: search } } : {}),
+      ...(isAdmin ? {} : { isActive: true }), // khách chỉ thấy sản phẩm đang bán
+    };
     const [products, total] = await Promise.all([
       prisma.product.findMany({ where, skip: (page - 1) * limit, take: limit, include: { category: true }, orderBy: { createdAt: 'desc' } }),
       prisma.product.count({ where }),
@@ -38,14 +42,18 @@ const getAll = async (req, res) => {
 
 const getById = async (req, res) => {
   const { id } = req.params;
+  const isNumeric = /^\d+$/.test(id);
+  const isAdmin = req.user?.role === 'admin';
   try {
     const product = await prisma.product.findUnique({
-      where:   { id: parseInt(id) },
+      where:   isNumeric ? { id: parseInt(id) } : { slug: id }, // hỗ trợ cả id và slug
       include: { category: true, images: { orderBy: { order: 'asc' } } },
     });
     if (!product) return respond.notFound(res, ERR.NOT_FOUND);
+    if (!isAdmin && !product.isActive) return respond.notFound(res, ERR.NOT_FOUND); // ẩn hàng đã tắt với khách
     respond.ok(res, SCN.OK, ProductOutput(product));
-  } catch {
+  } catch (err) {
+    console.error('[product.getById]', err.code, err.message); // lộ lỗi thật để debug
     respond.serverError(res, ERR.SERVER);
   }
 };
@@ -55,11 +63,12 @@ const create = async (req, res) => {
   if (!result.success) return respond.badRequest(res, ERR.VALIDATION);
 
   const {
-    name, price, category_id, description, stock, images,
-    unit, discount_price, origin, weight, expiry_days, is_active,
+    name, slug: inputSlug, price, category_id, description, stock, images,
+    unit, discount_price, weight, weight_unit, is_active,
+    specifications, safety_note, hazard_level, hazard_note, video_url, badge,
   } = result.data;
 
-  const slug = `${toSlug(name)}-${Date.now()}`;
+  const slug = inputSlug?.trim() || `${toSlug(name)}-${Date.now()}`;
 
   try {
     const product = await prisma.product.create({
@@ -69,13 +78,18 @@ const create = async (req, res) => {
         description:   description    ?? null,
         price,
         stock,
-        unit:          unit            ?? 'kg',
+        unit:          unit            ?? 'bao',
         imageUrl:      images?.[0]    ?? null,
         categoryId:    category_id,
         discountPrice: discount_price  ?? null,
-        origin:        origin          ?? null,
         weight:        weight          ?? null,
-        expiryDays:    expiry_days     ?? null,
+        weightUnit:    weight_unit     ?? 'kg',
+        specifications: specifications ?? null,
+        safetyNote:    safety_note     ?? null,
+        hazardLevel:   hazard_level    ?? 'NONE',
+        hazardNote:    hazard_note     ?? null,
+        videoUrl:      video_url       ?? null,
+        badge:         badge           ?? null,
         isActive:      is_active       ?? true,
         ...(images?.length && {
           images: { create: images.map((url, i) => ({ url, order: i })) },
@@ -85,6 +99,8 @@ const create = async (req, res) => {
     });
     respond.created(res, SCN.CREATED, ProductOutput(product));
   } catch (err) {
+    console.error('[product.create]', err.code, err.message); // lộ lỗi thật để debug
+    if (err.code === 'P2002') return respond.badRequest(res, ERR.VALIDATION); // slug trùng
     if (err.code === 'P2003') return respond.badRequest(res, ERR.VALIDATION);
     respond.serverError(res, ERR.SERVER);
   }
@@ -95,13 +111,17 @@ const update = async (req, res) => {
   const result = UpdateProductSchema.safeParse(req.body);
   if (!result.success) return respond.badRequest(res, ERR.VALIDATION);
 
-  const { category_id, images, discount_price, expiry_days, is_active, ...rest } = result.data;
+  const { category_id, images, discount_price, is_active, safety_note, hazard_level, weight_unit, hazard_note, video_url, ...rest } = result.data;
   const scalarData = {
     ...rest,
     ...(category_id    !== undefined && { categoryId:    category_id    }),
     ...(discount_price !== undefined && { discountPrice: discount_price }),
-    ...(expiry_days    !== undefined && { expiryDays:    expiry_days    }),
     ...(is_active      !== undefined && { isActive:      is_active      }),
+    ...(safety_note    !== undefined && { safetyNote:    safety_note    }),
+    ...(hazard_level   !== undefined && { hazardLevel:   hazard_level   }),
+    ...(weight_unit    !== undefined && { weightUnit:    weight_unit    }),
+    ...(hazard_note    !== undefined && { hazardNote:    hazard_note    }),
+    ...(video_url      !== undefined && { videoUrl:      video_url      }),
     ...(images         !== undefined && { imageUrl:      images[0] ?? null }),
   };
 
@@ -128,6 +148,7 @@ const update = async (req, res) => {
     respond.ok(res, SCN.UPDATED, ProductOutput(product));
   } catch (err) {
     if (err.code === 'P2025') return respond.notFound(res, ERR.NOT_FOUND);
+    if (err.code === 'P2002') return respond.badRequest(res, ERR.VALIDATION); // slug trùng
     if (err.code === 'P2003') return respond.badRequest(res, ERR.VALIDATION);
     respond.serverError(res, ERR.SERVER);
   }

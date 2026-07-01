@@ -11,7 +11,7 @@ export const FAKE_ENTRIES = [
     severity: 'NGUY_HIEM', category: 'Côn trùng',
     name: 'Sâu keo mùa thu', latinName: 'Spodoptera frugiperda',
     description: 'Sâu bướm ăn tạp tấn công lúa mì, ngô và lúa. Nhận biết qua lỗ rách không đều trên lá cây.',
-    productCount: 3, cropTypes: ['Cereals'], categories: ['Insect'],
+    productCount: 3, cropTypes: ['Lúa & Ngũ cốc', 'Rau màu'], categories: ['Insect'],
     symptoms: [
       'Lá bị cắn thủng tạo thành "cửa sổ" trong suốt do sâu non tuổi nhỏ ăn biểu bì.',
       'Lỗ rách không đều, hình dạng bất thường trên phiến lá cùng với phân sâu màu xanh đậm trong nõn lá.',
@@ -34,7 +34,7 @@ export const FAKE_ENTRIES = [
     severity: 'NANG', category: 'Bệnh nấm',
     name: 'Mốc sương muộn', latinName: 'Phytophthora infestans',
     description: 'Bệnh tàn phá cà chua và khoai tây. Tạo đốm đen nâu trên lá và thân cây trong điều kiện ẩm ướt.',
-    productCount: 5, cropTypes: ['Vegetables'], categories: ['Fungal'],
+    productCount: 5, cropTypes: ['Rau màu', 'Cây ăn quả'], categories: ['Fungal'],
     symptoms: [
       'Đốm nước màu xanh đậm ở mép lá, sau chuyển nâu đen và lan nhanh khi trời ẩm.',
       'Lớp nấm trắng xám xuất hiện ở mặt dưới lá trong điều kiện sương mù ban đêm.',
@@ -57,7 +57,7 @@ export const FAKE_ENTRIES = [
     severity: 'TRUNG_BINH', category: 'Côn trùng',
     name: 'Rệp muội', latinName: 'Aphidoidea',
     description: 'Côn trùng nhỏ hút nhựa cây gây lá vàng và cong. Chúng còn lây truyền virus nguy hiểm.',
-    productCount: 8, cropTypes: ['Vegetables', 'Fruits'], categories: ['Insect'],
+    productCount: 8, cropTypes: ['Rau màu', 'Cây ăn quả'], categories: ['Insect'],
     symptoms: [
       'Lá non bị cuộn xoắn, vàng và dị dạng do rệp chích hút nhựa và tiêm độc tố.',
       'Lớp mật ngọt do rệp tiết ra bám trên lá, tạo điều kiện cho nấm muội đen phát triển.',
@@ -80,7 +80,7 @@ export const FAKE_ENTRIES = [
     severity: 'TRUNG_BINH', category: 'Bệnh nấm',
     name: 'Phấn trắng', latinName: 'Erysiphales',
     description: 'Xuất hiện dưới dạng đốm bột trắng trên lá và thân. Ảnh hưởng đến nhiều loại cây bao gồm dưa chuột.',
-    productCount: 4, cropTypes: ['Vegetables', 'Fruits'], categories: ['Fungal'],
+    productCount: 4, cropTypes: ['Rau màu', 'Cây ăn quả'], categories: ['Fungal'],
     symptoms: [
       'Lớp bột phấn trắng như bột mì xuất hiện trên mặt trên lá, sau lan ra toàn phiến.',
       'Lá bị nhiễm nặng vàng dần, khô và rụng sớm.',
@@ -102,7 +102,7 @@ export const FAKE_ENTRIES = [
     severity: 'NANG', category: 'Côn trùng',
     name: 'Bọ phấn trắng', latinName: 'Aleyrodidae',
     description: 'Côn trùng cánh trắng nhỏ bé hút nhựa cây và tiết mật ngọt, gây nấm muội đen trên lá.',
-    productCount: 6, cropTypes: ['Vegetables'], categories: ['Insect'],
+    productCount: 6, cropTypes: ['Rau màu'], categories: ['Insect'],
     symptoms: [
       'Đám bọ phấn trắng nhỏ bay lên khi rung cây, tập trung ở mặt dưới lá non.',
       'Lớp mật ngọt do bọ phấn tiết phủ lên lá, tạo điều kiện nấm muội đen phát triển.',
@@ -124,7 +124,7 @@ export const FAKE_ENTRIES = [
     severity: 'NGUY_HIEM', category: 'Bệnh nấm',
     name: 'Gỉ sắt lúa mì', latinName: 'Puccinia',
     description: 'Bệnh nấm ảnh hưởng đến lúa mì, lúa mạch và lúa mạch đen. Xuất hiện dưới dạng bụi đỏ rỉ sét.',
-    productCount: 2, cropTypes: ['Cereals'], categories: ['Fungal'],
+    productCount: 2, cropTypes: ['Lúa & Ngũ cốc'], categories: ['Fungal'],
     symptoms: [
       'Các mụn phồng nhỏ màu cam-đỏ (uredinia) trên thân và lá, vỡ ra rải bụi bào tử màu gỉ sắt.',
       'Lá và thân bị bao phủ bởi lớp bột rỉ sét màu vàng cam, dễ bám vào quần áo.',
@@ -146,7 +146,7 @@ export const FAKE_ENTRIES = [
     severity: 'NANG', category: 'Tuyến trùng',
     name: 'Tuyến trùng rễ', latinName: 'Meloidogyne spp.',
     description: 'Ký sinh trùng vi mô trong đất tấn công rễ cây, gây còi cọc và suy yếu hệ hấp thụ dinh dưỡng.',
-    productCount: 4, cropTypes: ['Vegetables', 'Legumes'], categories: ['Fungal'],
+    productCount: 4, cropTypes: ['Rau màu', 'Đậu đỗ'], categories: ['Fungal'],
     symptoms: [
       'Rễ cây có các u nốt (gall) kích thước 1–10mm, màu trắng hoặc vàng nhạt.',
       'Cây còi cọc, lá vàng và héo dù đất đủ ẩm và dinh dưỡng — dễ nhầm với thiếu nước.',
@@ -169,7 +169,7 @@ export const FAKE_ENTRIES = [
     severity: 'TRUNG_BINH', category: 'Côn trùng',
     name: 'Bọ trĩ', latinName: 'Thysanoptera',
     description: 'Côn trùng cực nhỏ cạo lá và hút nhựa cây, để lại vệt bạc hoặc sẹo trên bề mặt lá.',
-    productCount: 5, cropTypes: ['Vegetables', 'Fruits'], categories: ['Insect'],
+    productCount: 5, cropTypes: ['Rau màu', 'Cây ăn quả'], categories: ['Insect'],
     symptoms: [
       'Vệt bạc dài hoặc đốm trắng bạc rải rác trên lá, là nơi bọ trĩ đã cạo lớp biểu bì.',
       'Phân bọ trĩ màu đen nhỏ li ti trên vết bạc — dấu hiệu nhận dạng đặc trưng.',
@@ -191,7 +191,7 @@ export const FAKE_ENTRIES = [
     severity: 'NANG', category: 'Bệnh nấm',
     name: 'Sương mai', latinName: 'Peronospora',
     description: 'Bệnh nấm tạo lớp mốc xám tím ở mặt dưới lá, gây vàng lá và rụng sớm trong mùa ẩm.',
-    productCount: 3, cropTypes: ['Vegetables', 'Fruits'], categories: ['Fungal'],
+    productCount: 3, cropTypes: ['Rau màu', 'Cây ăn quả'], categories: ['Fungal'],
     symptoms: [
       'Đốm vàng góc cạnh bị giới hạn bởi gân lá ở mặt trên lá — đặc trưng của sương mai.',
       'Lớp mốc xám tím hoặc nâu xám ở mặt dưới tương ứng với vết vàng trên.',

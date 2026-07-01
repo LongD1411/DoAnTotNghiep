@@ -12,8 +12,10 @@ import AdminOrdersPage    from '../pages/admin/OrdersPage';
 import AdminProductFormPage from '../pages/admin/ProductFormPage';
 import AdminEditOrderPage    from '../pages/admin/EditOrderPage';
 import AdminCategoriesPage   from '../pages/admin/CategoriesPage';
-import AdminCategoryFormPage from '../pages/admin/CategoryFormPage';
-import AdminNotificationsPage from '../pages/admin/NotificationsPage';
+import AdminCategoryFormPage    from '../pages/admin/CategoryFormPage';
+import AdminEncyclopediaPage    from '../pages/admin/EncyclopediaAdminPage';
+import AdminEncyclopediaFormPage from '../pages/admin/EncyclopediaFormPage';
+import AdminNotificationsPage   from '../pages/admin/NotificationsPage';
 import CatalogPage        from '../pages/customer/CatalogPage';
 import ProductDetailPage  from '../pages/customer/ProductDetailPage';
 // import CheckoutPage       from '../pages/customer/CheckoutPage';
@@ -38,7 +40,7 @@ const AppRouter = () => (
     <Route path="/dang-ky"        element={<RegisterPage />} />
     <Route path="/trang-chu"  element={<HomePage />} />
     <Route path="/tra-cuu"           element={<EncyclopediaPage />} />
-    <Route path="/tra-cuu/:slug"     element={<EncyclopediaDetailPage />} />
+    <Route path="/tra-cuu/:slug"       element={<EncyclopediaDetailPage />} />
     <Route path="/san-pham"   element={<CatalogPage />} />
     
     {/* ── Admin (cần đăng nhập) ── */}
@@ -51,6 +53,9 @@ const AppRouter = () => (
     <Route path="/admin/categories"           element={<PrivateRoute><AdminCategoriesPage /></PrivateRoute>} />
     <Route path="/admin/add-category"         element={<PrivateRoute><AdminCategoryFormPage /></PrivateRoute>} />
     <Route path="/admin/edit-category/:id"    element={<PrivateRoute><AdminCategoryFormPage /></PrivateRoute>} />
+    <Route path="/admin/encyclopedia"          element={<PrivateRoute><AdminEncyclopediaPage /></PrivateRoute>} />
+    <Route path="/admin/encyclopedia/add"     element={<PrivateRoute><AdminEncyclopediaFormPage /></PrivateRoute>} />
+    <Route path="/admin/encyclopedia/edit/:id" element={<PrivateRoute><AdminEncyclopediaFormPage /></PrivateRoute>} />
     <Route path="/admin/notifications"        element={<PrivateRoute><AdminNotificationsPage /></PrivateRoute>} />
 
     {/* ── Customer (cần đăng nhập) ── */}

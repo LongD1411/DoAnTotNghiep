@@ -8,6 +8,11 @@
   --animate-fade-in-up: fade-in-up 0.6s ease-out forwards;
 }
 
+@keyframes toast-progress {
+  from { width: 100%; }
+  to   { width: 0; }
+}
+
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -43,6 +48,40 @@
 .admin-layout .text-xs  { font-size: 0.8125rem; }  /* 13px  (Tailwind default: 12px) */
 .admin-layout .text-sm  { font-size: 0.9375rem; }  /* 15px  (Tailwind default: 14px) */
 .admin-layout .text-base{ font-size: 1.0625rem; }  /* 17px  (Tailwind default: 16px) */
+
+/* ── TipTap rich text editor ────────────────────────────────────────────── */
+.rich-prose ul,
+.rich-prose ol {
+  padding-left: 1.4rem;
+  margin: 0.35rem 0;
+}
+.rich-prose ul       { list-style-type: disc;    }
+.rich-prose ol       { list-style-type: decimal; }
+.rich-prose li       { margin: 0.2rem 0; line-height: 1.6; }
+.rich-prose li + li  { margin-top: 0.15rem; }
+.rich-prose p        { margin: 0.2rem 0; line-height: 1.6; }
+.rich-prose blockquote {
+  border-left: 3px solid #4bee2b;
+  padding-left: 0.75rem;
+  color: #6b7280;
+  font-style: italic;
+  margin: 0.4rem 0;
+}
+.rich-prose strong   { font-weight: 700; }
+.rich-prose em       { font-style: italic; }
+.rich-prose s        { text-decoration: line-through; }
+.rich-prose h2       { font-size: 1.1rem; font-weight: 700; margin: 0.6rem 0 0.2rem; }
+.rich-prose h3       { font-size: 1rem;   font-weight: 600; margin: 0.5rem 0 0.15rem; }
+.rich-prose hr       { border: none; border-top: 1px solid #e2e8f0; margin: 0.6rem 0; }
+
+/* Placeholder */
+.rich-prose p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
 
 .bg-gradient-soft {
   background: radial-gradient(circle at center, #ffffff 0%, #eaf3e7 100%);
