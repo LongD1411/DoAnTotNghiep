@@ -1,5 +1,9 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import Toast from '../common/Toast';
+import CartPopup from './CartPopup';
+import { useCartStore, selectCartCount } from '../../store/useCartStore';
+import { getCurrentUser } from '../../services/authService';
 
 const NAV_LINKS = [
   { label: 'Tra cứu',   href: '/tra-cuu' },
@@ -9,19 +13,23 @@ const NAV_LINKS = [
   { label: 'Giới thiệu', href: '/gioi-thieu' },
 ];
 
-const CustomerLayout = ({ children, searchValue, onSearchChange }) => {
-  const navigate = useNavigate();
-  const [localSearch, setLocalSearch] = useState('');
+const CustomerLayout = ({ children }) => {
+  const cartCount = useCartStore(selectCartCount);
+  const initCart  = useCartStore(s => s.init);
+  const [cartOpen, setCartOpen] = useState(false);
+  const cartRef = useRef(null);
 
-  const isControlled = onSearchChange !== undefined;
-  const search    = isControlled ? searchValue : localSearch;
-  const setSearch = isControlled ? onSearchChange : setLocalSearch;
+  useEffect(() => { initCart(); }, [initCart]);
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !isControlled && localSearch.trim()) {
-      navigate(`/san-pham?q=${encodeURIComponent(localSearch.trim())}`);
-    }
-  };
+  // Đóng popup giỏ khi click ra ngoài
+  useEffect(() => {
+    if (!cartOpen) return;
+    const onDown = (e) => {
+      if (cartRef.current && !cartRef.current.contains(e.target)) setCartOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [cartOpen]);
 
   return (
     <div className="bg-background-light dark:bg-background-dark text-[#101b0d] dark:text-white font-display flex flex-col min-h-screen">
@@ -50,29 +58,25 @@ const CustomerLayout = ({ children, searchValue, onSearchChange }) => {
           </div>
 
           <div className="flex flex-1 justify-end gap-4 md:gap-8 items-center">
-            {/* Search */}
-            <label className="hidden md:flex flex-col min-w-40 h-10 w-full max-w-64">
-              <div className="flex w-full flex-1 items-stretch rounded-lg h-full bg-[#e9f3e7] dark:bg-white/10 border-transparent focus-within:ring-2 focus-within:ring-primary transition-all">
-                <div className="flex items-center justify-center pl-4 rounded-l-lg">
-                  <span className="material-symbols-outlined text-[#599a4c] dark:text-primary/70 text-[20px]">search</span>
-                </div>
-                <input
-                  className="w-full bg-transparent border-none text-sm text-[#101b0d] dark:text-white placeholder:text-[#599a4c] dark:placeholder:text-gray-400 focus:ring-0 outline-none px-3 h-full rounded-r-lg"
-                  placeholder="Tìm sản phẩm..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                />
-              </div>
-            </label>
-
             {/* Action icons */}
             <div className="flex gap-3">
-              <button className="flex items-center justify-center rounded-full h-10 w-10 bg-[#e9f3e7] dark:bg-white/10 hover:bg-primary hover:text-black dark:hover:bg-primary dark:hover:text-black transition-colors text-[#101b0d] dark:text-white">
-                <span className="material-symbols-outlined text-[20px]">shopping_cart</span>
-              </button>
+              <div className="relative" ref={cartRef}>
+                <button
+                  onClick={() => setCartOpen(v => !v)}
+                  className="relative flex items-center justify-center rounded-full h-10 w-10 bg-[#e9f3e7] dark:bg-white/10 hover:bg-primary hover:text-black dark:hover:bg-primary dark:hover:text-black transition-colors text-[#101b0d] dark:text-white"
+                >
+                  <span className="material-symbols-outlined text-[20px]">shopping_cart</span>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                      {cartCount > 99 ? '99+' : cartCount}
+                    </span>
+                  )}
+                </button>
+                {cartOpen && <CartPopup onClose={() => setCartOpen(false)} />}
+              </div>
               <Link
-                to="/dang-nhap"
+                to={getCurrentUser() ? '/tai-khoan' : '/dang-nhap'}
+                title={getCurrentUser() ? 'Tài khoản của tôi' : 'Đăng nhập'}
                 className="flex items-center justify-center rounded-full h-10 w-10 bg-[#e9f3e7] dark:bg-white/10 hover:bg-primary hover:text-black dark:hover:bg-primary dark:hover:text-black transition-colors text-[#101b0d] dark:text-white"
               >
                 <span className="material-symbols-outlined text-[20px]">account_circle</span>
@@ -101,6 +105,8 @@ const CustomerLayout = ({ children, searchValue, onSearchChange }) => {
           </div>
         </div>
       </footer>
+
+      <Toast />
     </div>
   );
 };

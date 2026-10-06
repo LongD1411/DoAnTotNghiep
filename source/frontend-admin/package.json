@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@tiptap/extension-character-count": "^3.26.1",
+    "@tiptap/extension-image": "^3.27.3",
     "@tiptap/pm": "^3.26.1",
     "@tiptap/react": "^3.26.1",
     "@tiptap/starter-kit": "^3.26.1",
@@ -18,7 +19,8 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.15.1",
-    "recharts": "^2.15.4"
+    "recharts": "^2.15.4",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

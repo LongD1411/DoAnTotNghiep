@@ -31,3 +31,27 @@ export const refresh = () =>
 
 export const getProfile = () =>
   api.get('/auth/me');
+
+export const updateProfile = (data) =>
+  api.put('/auth/me', { ...data, localTime: new Date().toISOString() });
+
+export const changePassword = (data) =>
+  api.put('/auth/me/password', { ...data, localTime: new Date().toISOString() });
+
+// Giải mã payload JWT access_token (không verify chữ ký — chỉ để đọc { id, role } phía client).
+// Dùng để ẩn/hiện UI theo quyền; backend vẫn kiểm tra quyền thật ở mỗi request.
+export const getCurrentUser = () => {
+  const token = getToken('access_token');
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return { id: payload.id, role: payload.role };
+  } catch {
+    return null;
+  }
+};
+
+export const isStaff = () => {
+  const role = getCurrentUser()?.role;
+  return role === 'mod' || role === 'admin';
+};

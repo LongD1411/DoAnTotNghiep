@@ -50,6 +50,17 @@ export const ERR = {
   EMAIL_DUPE: { code: 'ER202', message: 'Email này đã được sử dụng' },
   SELF_ROLE:  { code: 'ER203', message: 'Không thể thay đổi role của chính mình' },
   SELF_DEL:   { code: 'ER204', message: 'Không thể xóa tài khoản của chính mình' },
+  BAD_PASSWORD: { code: 'ER205', message: 'Mật khẩu hiện tại không đúng' },
+
+  // Review business
+  REVIEW_DUP:         { code: 'ER301', message: 'Lần mua này đã được đánh giá' },
+  REVIEW_NOT_ALLOWED: { code: 'ER302', message: 'Bạn chỉ có thể đánh giá sản phẩm trong đơn đã nhận của mình' },
+
+  // Upload
+  FILE_TOO_LARGE: { code: 'ER401', message: 'Tổng dung lượng ảnh vượt quá 10MB' },
+
+  // Cart business
+  OUT_OF_STOCK: { code: 'ER501', message: 'Sản phẩm đã hết hàng hoặc không còn kinh doanh' },
 };
 
 // ─── RESPONSE HELPERS ─────────────────────────────────────────────────────────

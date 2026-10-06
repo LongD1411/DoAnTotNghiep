@@ -360,7 +360,8 @@ Append vào `thiết kế/API_DOCS.md`:
 - `parseInt(id)` khi convert route param
 - Query: `z.coerce.number()` để tự convert string → number
 - Pagination mặc định: `page=1`, `limit=20`, max `limit=100`
-- Search: `contains` + `mode: 'insensitive'`
+- Search: chỉ `{ name: { contains: search } }` — **KHÔNG dùng `mode: 'insensitive'`** (Prisma + MySQL không hỗ trợ, sẽ throw → 500; MySQL đã case-insensitive theo collation)
+- **Upload ảnh: nhận file TRONG request create/update (multipart), upload SAU khi validate:** Không để client upload rời rồi mới gọi API (save lỗi → ảnh mồ côi). Route create/update gắn `multer.array('images', 5)` (memoryStorage). Controller: `JSON.parse(req.body.data)` → `Schema.safeParse` → nếu lỗi trả 400 NGAY (chưa upload gì) → mới `uploadToT3(file.buffer, ...)` → ghép `[...existing_images, ...uploaded]` → lưu DB → nếu DB lỗi thì `deleteFromT3` rollback ảnh vừa upload. Input schema dùng `existing_images: z.array(z.string().url())` (URL cũ giữ lại); file mới lấy từ `req.files`. Helper mẫu: `uploadFiles`/`rollbackImages` trong `productController.js`. (Vẫn giữ `POST/DELETE /upload` cho upload lẻ.)
 
 ## KHÔNG ĐƯỢC
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../components/admin/AdminLayout';
 import LoadingOverlay from '../../components/common/LoadingOverlay';
 import Select from '../../components/common/Select';
-import { getAllProducts } from '../../services/productService';
+import { getAllProducts, deleteProduct } from '../../services/productService';
 import { toastService, errMsg } from '../../services/toastService';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -70,6 +70,8 @@ const ProductsPage = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter,   setStatusFilter]   = useState('all');
   const [currentPage,    setCurrentPage]    = useState(1);
+  const [confirmProduct, setConfirmProduct] = useState(null); // SP đang chờ xác nhận xóa
+  const [deleting,       setDeleting]       = useState(false);
 
   // Fetch toàn bộ sản phẩm (tập nhỏ → lấy 1 lần, filter/phân trang client-side)
   useEffect(() => {
@@ -128,6 +130,23 @@ const ProductsPage = () => {
   const handleCategory = (val) => { setCategoryFilter(val);    setCurrentPage(1); };
   const handleStatus   = (val) => { setStatusFilter(val);      setCurrentPage(1); };
   const handleReset    = () => { setSearch(''); setCategoryFilter('all'); setStatusFilter('all'); setCurrentPage(1); };
+
+  const handleDelete = async () => {
+    if (!confirmProduct) return;
+    setDeleting(true);
+    try {
+      await deleteProduct(confirmProduct.id); // soft-delete: DELETE /products/:id → deletedAt
+      toastService.success('Đã xóa sản phẩm');
+      setProducts(prev => prev.filter(p => p.id !== confirmProduct.id));
+      setConfirmProduct(null);
+      const maxPage = Math.max(1, Math.ceil((filtered.length - 1) / PER_PAGE));
+      if (currentPage > maxPage) setCurrentPage(maxPage);
+    } catch (err) {
+      toastService.error(errMsg(err));
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const start = filtered.length === 0 ? 0 : (currentPage - 1) * PER_PAGE + 1;
   const end   = Math.min(currentPage * PER_PAGE, filtered.length);
@@ -232,12 +251,13 @@ const ProductsPage = () => {
                     <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Tồn kho</th>
                     <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Trạng thái</th>
                     <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Cập nhật</th>
+                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                   {paginated.length === 0 && !loading ? (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-sm text-slate-400">
+                      <td colSpan={7} className="px-6 py-12 text-center text-sm text-slate-400">
                         Không tìm thấy sản phẩm nào
                       </td>
                     </tr>
@@ -289,6 +309,17 @@ const ProductsPage = () => {
                         {/* Cập nhật */}
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
                           {formatDate(product.updated_at)}
+                        </td>
+
+                        {/* Thao tác */}
+                        <td className="px-6 py-4 whitespace-nowrap text-right" onClick={e => e.stopPropagation()}>
+                          <button
+                            onClick={() => setConfirmProduct(product)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                            title="Xóa sản phẩm"
+                          >
+                            <span className="material-symbols-outlined text-base">delete</span>
+                          </button>
                         </td>
 
                       </tr>
@@ -346,6 +377,48 @@ const ProductsPage = () => {
           </div>
 
         </div>
+
+        {/* ── Confirm Delete Modal ──────────────────────────────────────── */}
+        {confirmProduct && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => !deleting && setConfirmProduct(null)} />
+            <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 w-full max-w-sm flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <div className="size-11 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-red-600 dark:text-red-400">delete_forever</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base">Xóa sản phẩm?</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Sản phẩm bị ẩn khỏi cửa hàng (xóa mềm); lịch sử đơn hàng vẫn giữ.</p>
+                </div>
+              </div>
+              <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl px-4 py-3">
+                <p className="font-semibold text-slate-800 dark:text-white text-sm">{confirmProduct.name}</p>
+                <p className="text-xs text-slate-400 mt-0.5">Mã: #{confirmProduct.id}</p>
+              </div>
+              <div className="flex gap-3 pt-1">
+                <button
+                  onClick={() => setConfirmProduct(null)}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2.5 text-sm font-semibold border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-40"
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2.5 text-sm font-bold bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                >
+                  {deleting
+                    ? <span className="size-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                    : <span className="material-symbols-outlined text-base">delete</span>
+                  }
+                  {deleting ? 'Đang xóa...' : 'Xóa sản phẩm'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </>
     </AdminLayout>
   );

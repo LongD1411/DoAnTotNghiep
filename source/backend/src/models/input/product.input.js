@@ -8,7 +8,7 @@ export const CreateProductSchema = z.object({
   category_id:    z.number().int().positive(),
   description:    z.string().optional(),
   stock:          z.number().int().nonnegative().default(0),
-  images:         z.array(z.string().url()).max(5).optional(),
+  existing_images: z.array(z.string().url()).max(5).optional(), // URL ảnh cũ giữ lại (file mới gửi qua multipart field `images`)
   unit:           z.string().optional(),
   discount_price: z.number().nonnegative().optional(),
   weight:         z.number().nonnegative().optional(),

@@ -218,5 +218,38 @@ npx prisma migrate dev --name product_fields_revamp
 
 ---
 
+## v11 — 2026-06-29
+
+**Yêu cầu:** xóa sản phẩm theo hướng soft-delete (giữ lịch sử đơn hàng)
+
+**Thay đổi:**
+- [+] **Product**: + `deletedAt DateTime?` — soft-delete. Có giá trị = đã xóa; mọi query product lọc `deletedAt: null`; DELETE = set `deletedAt = now()` (không xóa cứng, tránh FK với OrderItem)
+
+**Models hiện tại:** User, Category, Product, Order, OrderItem, Address, Cart, CartItem, Review, Voucher, VoucherUsage, Notification, ProductImage, ForumCategory, Post, PostComment, PostImage, PostReport, InventoryLog, PestEntry, PestImage, PestSymptom, PestTreatment, PestCropType, PestProduct, RefreshToken
+
+**Migration command:**
+```bash
+npx prisma migrate dev --name product_soft_delete
+```
+
+---
+
+## v12 — 2026-06-29
+
+**Yêu cầu:** mỗi lần mua được đánh giá 1 lần (review theo lần mua thay vì theo sản phẩm/user)
+
+**Thay đổi:**
+- [~] **Review**: + `orderItemId Int @unique` + relation `orderItem OrderItem`; **bỏ** `@@unique([productId, userId])`; `verifiedPurchase` default `true`. → 1 review / 1 OrderItem (mỗi lần mua)
+- [~] **OrderItem**: + back-relation `review Review?`
+
+**Models hiện tại:** User, Category, Product, Order, OrderItem, Address, Cart, CartItem, Review, Voucher, VoucherUsage, Notification, ProductImage, ForumCategory, Post, PostComment, PostImage, PostReport, InventoryLog, PestEntry, PestImage, PestSymptom, PestTreatment, PestCropType, PestProduct, RefreshToken
+
+**Migration command:**
+```bash
+npx prisma migrate dev --name review_per_order_item
+```
+
+---
+
 > Tự động cập nhật khi chạy `/db`.
 > Không sửa tay trực tiếp.

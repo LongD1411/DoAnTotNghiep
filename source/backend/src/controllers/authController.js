@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../config/database.js';
-import { RegisterSchema, LoginSchema, RefreshSchema } from '../models/input/auth.input.js';
+import { RegisterSchema, LoginSchema, RefreshSchema, UpdateProfileSchema, ChangePasswordSchema } from '../models/input/auth.input.js';
 import { RegisterOutput, LoginOutput, ProfileOutput } from '../models/output/auth.output.js';
 import { respond, ERR, SCN } from '../common/response.js';
 
@@ -21,10 +21,10 @@ const register = async (req, res) => {
   const result = RegisterSchema.safeParse(req.body);
   if (!result.success) return respond.badRequest(res, ERR.VALIDATION);
 
-  const { email, password, full_name } = result.data;
+  const { email, password, full_name, phone } = result.data;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await prisma.user.create({ data: { email, password: hashedPassword, name: full_name } });
+    const user = await prisma.user.create({ data: { email, password: hashedPassword, name: full_name, phone } });
     respond.created(res, SCN.REGISTER_OK, RegisterOutput(user));
   } catch {
     respond.badRequest(res, ERR.EMAIL_DUPE);
@@ -98,7 +98,7 @@ const getProfile = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
-      select: { id: true, email: true, name: true, role: true, createdAt: true },
+      select: { id: true, email: true, name: true, phone: true, role: true, createdAt: true },
     });
     if (!user) return respond.notFound(res, ERR.NOT_FOUND);
     respond.ok(res, SCN.OK, ProfileOutput(user));
@@ -107,4 +107,47 @@ const getProfile = async (req, res) => {
   }
 };
 
-export { register, login, refresh, logout, getProfile };
+// ── Update profile ────────────────────────────────────────────────────────────
+const updateProfile = async (req, res) => {
+  const result = UpdateProfileSchema.safeParse(req.body);
+  if (!result.success) return respond.badRequest(res, ERR.VALIDATION);
+
+  const { full_name, phone } = result.data;
+  const data = {
+    ...(full_name !== undefined ? { name: full_name } : {}),
+    ...(phone     !== undefined ? { phone } : {}),
+  };
+  if (Object.keys(data).length === 0) return respond.badRequest(res, ERR.NO_UPDATE);
+
+  try {
+    const user = await prisma.user.update({
+      where: { id: req.user.id },
+      data,
+      select: { id: true, email: true, name: true, phone: true, role: true, createdAt: true },
+    });
+    respond.ok(res, SCN.UPDATED, ProfileOutput(user));
+  } catch {
+    respond.serverError(res, ERR.SERVER);
+  }
+};
+
+// ── Change password ───────────────────────────────────────────────────────────
+const changePassword = async (req, res) => {
+  const result = ChangePasswordSchema.safeParse(req.body);
+  if (!result.success) return respond.badRequest(res, ERR.VALIDATION);
+
+  const { current_password, new_password } = result.data;
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    if (!user?.password || !await bcrypt.compare(current_password, user.password)) {
+      return respond.badRequest(res, ERR.BAD_PASSWORD);
+    }
+    const hashedPassword = await bcrypt.hash(new_password, 10);
+    await prisma.user.update({ where: { id: user.id }, data: { password: hashedPassword } });
+    respond.ok(res, SCN.UPDATED, null);
+  } catch {
+    respond.serverError(res, ERR.SERVER);
+  }
+};
+
+export { register, login, refresh, logout, getProfile, updateProfile, changePassword };

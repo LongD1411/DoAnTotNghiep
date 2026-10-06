@@ -18,8 +18,12 @@ const extractPublicId = (url) => {
 
 export const deleteFromT3 = (url) => {
   const publicId = extractPublicId(url);
-  if (!publicId) return Promise.resolve();
-  return cloudinary.uploader.destroy(publicId);
+  if (!publicId) { console.warn('[deleteFromT3] không tách được public_id từ:', url); return Promise.resolve(); }
+  return cloudinary.uploader.destroy(publicId).then((r) => {
+    // Cloudinary KHÔNG throw khi public_id sai — trả { result: 'not found' }. Log để lộ trường hợp này.
+    if (r?.result !== 'ok') console.warn('[deleteFromT3]', publicId, '=>', r?.result);
+    return r;
+  });
 };
 
 // Upload buffer lên Cloudinary, trả về secure URL

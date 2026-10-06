@@ -5,7 +5,7 @@ import LoadingOverlay from '../../components/common/LoadingOverlay';
 import Select from '../../components/common/Select';
 import ImageUploader from '../../components/common/ImageUploader';
 import RichTextEditor from '../../components/common/RichTextEditor';
-import { resolveImages } from '../../services/uploadService';
+import { resolveImages, deleteImage } from '../../services/uploadService';
 import { getEntryById, createEntry, updateEntry } from '../../services/encyclopediaService';
 import { getAllProducts, getProductById } from '../../services/productService';
 import { toastService, errMsg } from '../../services/toastService';
@@ -213,8 +213,10 @@ const EncyclopediaFormPage = () => {
     errs = validateField('name', form.name, errs);
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
     setLoading(true);
+    let uploadedNow = []; // ảnh vừa upload trong lần submit này (rollback nếu lưu lỗi)
     try {
       const resolvedImages = await resolveImages(form.images);
+      uploadedNow = resolvedImages.filter((_, i) => form.images[i] instanceof File);
       const payload = {
         name:                    form.name.trim().slice(0, MAX.name),
         latin_name:              form.latinName.trim().slice(0, MAX.latinName) || undefined,
@@ -238,6 +240,8 @@ const EncyclopediaFormPage = () => {
       toastService.success(isEdit ? 'Cập nhật thành công' : 'Tạo mới thành công');
       navigate('/admin/encyclopedia');
     } catch (err) {
+      // Lưu thất bại → xóa ảnh vừa upload để không để rác trên server
+      await Promise.all(uploadedNow.map(deleteImage));
       toastService.error(errMsg(err));
     } finally {
       setLoading(false);

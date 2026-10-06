@@ -512,5 +512,282 @@
 
 ---
 
+## v40 — 2026-06-29
+
+**Yêu cầu:** trang sản phẩm — thêm button xóa, liên kết API xóa mềm
+
+**Files tạo/cập nhật:**
+- [~] frontend-admin/src/pages/admin/ProductsPage.jsx — thêm cột "Thao tác" + nút xóa (icon delete) mỗi dòng (stopPropagation để không trigger điều hướng edit); modal xác nhận (nêu rõ xóa mềm, giữ lịch sử đơn); `handleDelete` gọi `deleteProduct` (DELETE /products/:id → soft-delete), cập nhật state client-side + lùi trang nếu rỗng; colSpan empty-state 6→7
+
+**API endpoints sử dụng:**
+- DELETE /products/:id — xóa mềm (deletedAt)
+
+## v41 — 2026-06-29
+
+**Yêu cầu:** mapping các api sản phẩm với client (nối 2 trang customer với API thật)
+
+**Files tạo/cập nhật:**
+- [+] frontend-admin/src/services/reviewService.js — getReviews(productId), createReview
+- [~] frontend-admin/src/pages/customer/CatalogPage.jsx — bỏ FAKE_PRODUCTS; fetch GET /products (limit 100); card dùng image_url/category.name/giá/badge; description strip HTML; filter danh mục + quick chip dựng từ data thật; bỏ ingredient + sort "đánh giá cao"
+- [~] frontend-admin/src/pages/customer/ProductDetailPage.jsx — bỏ FAKE_PRODUCTS/SHARED_REVIEWS; fetch GET /products/:slug + GET /reviews?product_id=; render description/specifications/safety_note bằng dangerouslySetInnerHTML (class rich-prose); hộp an toàn theo hazard_level; section video nếu có video_url (iframe); khối rating + review từ API summary/data; "Viết đánh giá" → toast (gửi từ trang Đơn hàng); related cùng danh mục; loading + notFound state
+
+**API endpoints sử dụng:**
+- GET /products, GET /products/:slug, GET /reviews?product_id=
+
+---
+
+## v42 — 2026-06-29
+
+**Yêu cầu:** trang chi tiết SP — ảnh chính nhỏ lại, ảnh phụ 5 ảnh/dòng, bỏ nút "Viết đánh giá"
+
+**Files tạo/cập nhật:**
+- [~] frontend-admin/src/pages/customer/ProductDetailPage.jsx — hero grid `lg:grid-cols-2` → `lg:grid-cols-[460px_1fr]` (ảnh chính ~460px, nhỏ lại vừa; cột info rộng hơn); thumbnail `grid-cols-4 gap-3` → `grid-cols-5 gap-2` (5 ảnh/1 dòng); bỏ nút "Viết đánh giá" + handleWriteReview + import toastService/errMsg thừa
+
+---
+
+## v43 — 2026-06-29
+
+**Yêu cầu:** cột ảnh chính to thêm (520px); bỏ hộp cảnh báo an toàn ở tab "An toàn sử dụng" (đã có ở hero)
+
+**Files tạo/cập nhật:**
+- [~] frontend-admin/src/pages/customer/ProductDetailPage.jsx — hero grid ảnh chính `460px` → `520px`; tab "An toàn sử dụng" bỏ hộp render `safety_note` (trùng với hộp cảnh báo ở hero), chỉ giữ 2 đoạn hướng dẫn an toàn chung
+
+---
+
+## v44 — 2026-06-29
+
+**Yêu cầu:** trang danh sách SP (catalog) — bỏ icon con mắt mỗi card; bỏ hàng chip danh mục (Tất cả / …)
+
+**Files tạo/cập nhật:**
+- [~] frontend-admin/src/pages/customer/CatalogPage.jsx — bỏ nút icon `visibility` (Xem chi tiết) trên card; bỏ hàng "Quick filter chips" (Danh mục: Tất cả + chip); dọn state `activeChip`, `quickFilters`, `handleChip` + nhánh filter theo chip (lọc danh mục vẫn dùng checkbox sidebar)
+
+---
+
+## v45 — 2026-06-29
+
+**Yêu cầu:** header — bỏ field tìm sản phẩm
+
+**Files tạo/cập nhật:**
+- [~] frontend-admin/src/components/customer/CustomerLayout.jsx — bỏ ô search trong header; dọn logic search thừa (props searchValue/onSearchChange, localSearch, handleKeyDown, useNavigate/useState); signature còn `{ children }`
+
+**Lưu ý:** HomePage vẫn truyền `searchValue`/`onSearchChange` (giờ bị bỏ qua vô hại) — filter theo header search của HomePage không còn tác dụng (do đã bỏ ô tìm ở header).
+
+---
+
+## v46 — 2026-06-29
+
+**Yêu cầu:** diễn đàn — bỏ logic thêm tag (bài viết không cần tag)
+
+**Files tạo/cập nhật:**
+- [~] frontend-admin/src/pages/customer/CreatePostPage.jsx — gỡ toàn bộ tag: state `tags`/`tagInput`/`tagList`, hàm `addTag`/`removeTag`/`handleTagKeyDown`, block JSX "Tags", bỏ `tags` khỏi payload (comment API)
+- [~] frontend-admin/src/pages/customer/ForumPage.jsx — bỏ sidebar "Tags phổ biến" + hằng `POPULAR_TAGS` (không còn tag)
+
+---
+
+## v47 — 2026-06-29
+
+**Yêu cầu:** breadcrumb bài viết diễn đàn — bỏ cấp chủ đề (Quy định), đi thẳng Diễn đàn → tên bài
+
+**Files tạo/cập nhật:**
+- [~] frontend-admin/src/pages/customer/ForumPostPage.jsx — breadcrumb bỏ block `{badge && ...}` (cấp chủ đề) → còn Trang chủ / Diễn đàn / {tên bài}. Badge chủ đề trên thân bài viết vẫn giữ.
+
+---
+
+## v48 — 2026-06-29
+
+**Yêu cầu:** tạo bài viết — nội dung dạng edit Word, kéo ảnh vào ô text (preview, upload khi gửi)
+
+**Files tạo/cập nhật:**
+- [~] frontend-admin/src/components/common/RichTextEditor.jsx — thêm prop `enableImages`: Image extension (@tiptap/extension-image), kéo-thả (handleDrop) + dán (handlePaste) + nút chèn ảnh → chèn ảnh dạng blob URL (preview local). Opt-in, không ảnh hưởng form khác.
+- [~] frontend-admin/src/pages/customer/CreatePostPage.jsx — ô Nội dung: textarea → `<RichTextEditor enableImages>`; validate theo text đã strip HTML; submit `async` → `uploadContentImages` (upload ảnh blob qua POST /upload rồi thay src bằng URL thật) trước khi gửi
+- [~] frontend-admin/src/index.css — style `.rich-prose img` (max-width, bo góc, selected outline)
+
+**API endpoints sử dụng:**
+- POST /upload — upload ảnh trong nội dung (khi nhấn Đăng bài)
+
+**⚠️ CẦN CÀI NPM:** `@tiptap/extension-image@^3.26.1` (nếu chưa cài, RichTextEditor lỗi import → gãy cả các form admin dùng nó)
+
+---
+
+## v49 — 2026-06-29
+
+**Yêu cầu:** tạo bài viết — bỏ /upload, dùng POST /posts multipart
+
+**Files tạo/cập nhật:**
+- [+] frontend-admin/src/services/postService.js — getForumCategories, getPosts, getPostById, createPost(data, images) (multipart: data JSON + images files)
+- [~] frontend-admin/src/pages/customer/CreatePostPage.jsx — bỏ uploadContentImages(/upload); thêm extractContentImages (blob → placeholder `__IMG_i__` + files); dropdown chủ đề fetch từ GET /forum-categories (value = id thật); submit gọi `createPost({ title, category_id, content }, files)` (backend upload ảnh khi tạo bài); toast "chờ duyệt"
+
+**API endpoints sử dụng:**
+- GET /forum-categories, POST /posts (multipart)
+
+---
+
+## v50 — 2026-06-29
+
+**Yêu cầu:** giới hạn kích thước ảnh khi hiển thị
+
+**Files tạo/cập nhật:**
+- [~] frontend-admin/src/index.css — `.rich-prose img` thêm `max-height: 360px` + `width/height: auto` + `object-fit: contain` (giữ tỉ lệ). Áp dụng cho ảnh trong editor lẫn nội dung hiển thị (product detail, bài viết).
+
+---
+
+## v51 — 2026-06-29
+
+**Yêu cầu:** toast tạo bài không hiện; xóa data mock trang danh sách diễn đàn
+
+**Files tạo/cập nhật:**
+- [~] frontend-admin/src/components/customer/CustomerLayout.jsx — thêm `<Toast />` (trước giờ chỉ AdminLayout có → mọi toast ở trang customer không render). Nay create post / lỗi đều hiện toast.
+- [~] frontend-admin/src/pages/customer/ForumPage.jsx — bỏ `FAKE_THREADS`; fetch `GET /posts` (limit 100); map field API (is_pinned/comment_count/view_count/category.slug/user); badge qua CAT_BADGE[slug]; excerpt strip HTML; bỏ locked/hot (không có trong API); loading + toast lỗi + empty-state
+
+**API endpoints sử dụng:**
+- GET /posts
+
+**Lưu ý:** ForumPostPage (chi tiết bài) VẪN dùng mock → click bài thật sẽ "không tìm thấy" cho tới khi nối `GET /posts/:slug` (follow-up).
+
+---
+
+## v52 — 2026-06-29
+
+**Yêu cầu:** làm trang chi tiết diễn đàn (nối API)
+
+**Files tạo/cập nhật:**
+- [~] frontend-admin/src/pages/customer/ForumPostPage.jsx — bỏ FAKE_THREADS/FAKE_COMMENTS; fetch `GET /posts/:slug` (backend tra theo slug) → render title/badge(CAT_BADGE[slug])/author(user)/thời gian/lượt xem; content HTML bằng dangerouslySetInnerHTML (class rich-prose, có ảnh inline); bài liên quan qua `GET /posts` (cùng category slug); loading + notFound state; like/save/share giữ là UI local. **Bình luận**: chưa có API → hiện placeholder "đang phát triển" + form gửi → toast "sắp ra mắt".
+
+**API endpoints sử dụng:**
+- GET /posts/:slug, GET /posts
+
+**Lưu ý:** API bình luận (PostComment) + like/save chưa có → các phần đó là placeholder/UI-only. Bài pending chỉ tác giả/staff xem được (khớp backend).
+
+---
+
+## v53 — 2026-06-29
+
+**Yêu cầu:** từ trang diễn đàn thêm nút duyệt bài viết → mở danh sách bài chờ duyệt; API get này chỉ admin/mod gọi được
+
+**Files tạo/cập nhật:**
+- [+] frontend-admin/src/pages/customer/ForumModeratePage.jsx — hàng chờ duyệt: fetch `GET /posts/pending`; mỗi bài có **Xem / Xóa / Duyệt**. Duyệt → `PATCH /posts/:id/status` (published); **Xóa** (không duyệt) → confirm modal → `DELETE /posts/:id` (xoá hẳn + dọn ảnh). Xử lý xong bỏ khỏi list + toast; guard `isStaff()` → không phải staff thì `<Navigate to="/dien-dan">`. Loading + empty state.
+  - _v53.1:_ bỏ nút "Ẩn" (hidden), thay bằng "Xóa" hẳn theo yêu cầu (admin không duyệt thì xoá luôn).
+- [~] frontend-admin/src/pages/customer/ForumPage.jsx — thêm nút "Duyệt bài viết" ở sidebar, **chỉ hiện với mod/admin** (`isStaff()`) → link `/dien-dan/kiem-duyet`.
+- [~] frontend-admin/src/services/postService.js — thêm `getPendingPosts(params)`, `moderatePost(id, status)`.
+- [~] frontend-admin/src/services/authService.js — thêm `getCurrentUser()` (decode payload JWT access_token → { id, role }) + `isStaff()`.
+- [~] frontend-admin/src/router/index.jsx — route `/dien-dan/kiem-duyet` (PrivateRoute, đặt trước `/dien-dan/:slug`).
+
+**API endpoints sử dụng:**
+- GET /posts/pending (mod/admin) · PATCH /posts/:id/status (mod/admin)
+
+**Lưu ý:** UI ẩn nút theo role chỉ là UX; chặn thật nằm ở backend (403 nếu không phải mod/admin). Role đọc từ JWT client-side, không verify chữ ký.
+
+---
+
+## v54 — 2026-06-29
+
+**Yêu cầu:** admin/mod thì được thêm nút xóa bài ở mỗi row (danh sách diễn đàn)
+**Prototype tham chiếu:** customer/forum.html
+
+**Files tạo/cập nhật:**
+- [~] frontend-admin/src/pages/customer/ForumPage.jsx — mỗi card bài viết có nút **xóa** (icon thùng rác, đỏ) ở footer, **chỉ hiện với mod/admin** (`isStaff()`); bấm → confirm modal → `DELETE /posts/:id`; xóa xong bỏ khỏi list + toast. Dùng lại `deletePost` (postService) đã có.
+
+**API endpoints sử dụng:**
+- DELETE /posts/:id (mod/admin)
+
+**Lưu ý:** ẩn nút theo role chỉ là UX; backend chặn thật (403 nếu không phải mod/admin). Xóa cứng — trùng cơ chế trang kiểm duyệt (v53).
+
+---
+
+## v55 — 2026-07-16
+
+**Yêu cầu:** trang diễn đàn, khi hover vào row item thì hiện con trỏ (pointer) và ấn vào bất kỳ đâu trên row thì chuyển sang trang chi tiết, không phải chỉ bấm vào tên bài
+**Prototype tham chiếu:** customer/forum.html (không đổi layout — chỉ hành vi tương tác)
+
+**Files tạo/cập nhật:**
+- [~] frontend-admin/src/pages/customer/ForumPage.jsx — card bài viết thêm `cursor-pointer` + `onClick` → `navigate(/dien-dan/{slug})`; title Link `stopPropagation` (tránh navigate đúp); nút xóa/sửa `stopPropagation` (bấm action không bị chuyển trang).
+
+**API endpoints sử dụng:**
+- (không đổi)
+
+---
+
+## v56 — 2026-07-16
+
+**Yêu cầu:** tạo logic thêm vào giỏ hàng — chưa đăng nhập lưu tạm client (localStorage), đăng nhập thì đồng bộ với giỏ hàng của user
+**Prototype tham chiếu:** (không có màn hình mới — wire vào các trang hiện có)
+
+**Files tạo/cập nhật:**
+- [+] backend/src/models/input/cart.input.js — AddCartItem / UpdateCartItem / SyncCart schemas
+- [+] backend/src/models/output/cart.output.js — CartOutput (items + product snapshot)
+- [+] backend/src/controllers/cartController.js — getCart / addItem (cộng dồn, trần stock) / updateItem / removeItem / sync (merge giỏ guest)
+- [+] backend/src/routes/carts.js — mount /cart (tất cả authenticateToken)
+- [~] backend/src/index.js — mount /cart; response.js thêm ER501 OUT_OF_STOCK
+- [+] frontend-admin/src/services/cartService.js
+- [+] frontend-admin/src/store/useCartStore.js — Zustand store: guest = localStorage key guest_cart, authed = API; syncAfterLogin merge + xoá bản local
+- [~] CustomerLayout.jsx — init store + badge số lượng trên icon giỏ
+- [~] CatalogPage.jsx / ProductDetailPage.jsx — nút Thêm gọi addItem (disabled khi hết hàng, toast kết quả)
+- [~] LoginPage.jsx — syncAfterLogin() sau khi login thành công
+
+**API endpoints sử dụng:**
+- GET /cart · POST /cart/items · PUT /cart/items/:productId · DELETE /cart/items/:productId · POST /cart/sync
+
+**Lưu ý:** cài thêm package `zustand@5` (--legacy-peer-deps do conflict tiptap có sẵn). HomePage vẫn dùng MOCK_PRODUCTS nên CHƯA wire nút Thêm ở đó — cần chuyển HomePage sang API thật trước.
+
+---
+
+## v57 — 2026-07-16
+
+**Yêu cầu:** làm pop up giỏ hàng + trang giỏ hàng chi tiết
+**Prototype tham chiếu:** customer/checkout.html (mượn style Order Summary — không có cart.html riêng)
+
+**Files tạo/cập nhật:**
+- [+] frontend-admin/src/components/customer/CartPopup.jsx — mini cart dropdown dưới icon giỏ: list item (ảnh, tên, sl × giá, nút xoá), tạm tính, nút Xem giỏ hàng; empty state
+- [+] frontend-admin/src/pages/customer/CartPage.jsx — trang /gio-hang: row item (ảnh, tên link, giá gạch/giảm, stepper số lượng chặn stock, thành tiền, xoá), summary card (tạm tính, tiết kiệm, tổng, CTA thanh toán), empty state, hint đăng nhập cho guest
+- [~] components/customer/CustomerLayout.jsx — icon giỏ toggle CartPopup, đóng khi click ra ngoài
+- [~] router/index.jsx — route /gio-hang (public — guest xem giỏ localStorage)
+
+**API endpoints sử dụng:**
+- (qua useCartStore) GET /cart · PUT /cart/items/:productId · DELETE /cart/items/:productId — khi đã đăng nhập; guest thao tác localStorage
+
+---
+
+## v58 — 2026-07-16
+
+**Yêu cầu:** thiết kế trang thông tin cá nhân (bên client) gồm các chức năng đặc trưng
+**Prototype tham chiếu:** customer/dashboard.html (sidebar avatar+nav+logout, overview, stats, forum activity)
+
+**Files tạo/cập nhật:**
+- [+] frontend-admin/src/pages/customer/ProfilePage.jsx — /tai-khoan, 5 tab: **Tổng quan** (stat tiles: bài viết/giỏ hàng/thành viên từ + card thông tin), **Chỉnh sửa thông tin** (họ tên + sđt, onChange validation, email khoá), **Đổi mật khẩu** (3 field, check khớp confirm), **Bài viết của tôi** (list bài kèm badge trạng thái + nút sửa), **Đơn hàng** (disabled — sắp ra mắt); nút **Đăng xuất** (logout + reset cart store)
+- [~] backend: PUT /auth/me (UpdateProfileSchema: full_name/phone) + PUT /auth/me/password (ChangePasswordSchema, bcrypt compare, ER205 BAD_PASSWORD); ProfileOutput/UserOutput thêm phone
+- [~] services/authService.js — updateProfile, changePassword
+- [~] CustomerLayout.jsx — icon account: đã đăng nhập → /tai-khoan, chưa → /dang-nhap
+- [~] router/index.jsx — route /tai-khoan (PrivateRoute)
+
+**API endpoints sử dụng:**
+- GET /auth/me · PUT /auth/me · PUT /auth/me/password · GET /posts (lọc bài của mình client-side)
+
+---
+
+## v59 — 2026-10-06
+
+**Yêu cầu:** viết trang thanh toán
+**Prototype tham chiếu:** customer/checkout.html (stepper, 3 section form, Order Summary sticky, trust badges, help card)
+
+**Files tạo/cập nhật:**
+- [+] frontend-admin/src/pages/customer/CheckoutPage.jsx — /checkout (PrivateRoute): stepper (Giỏ hàng ✓ / Giao hàng & Thanh toán / Hoàn tất); cột trái 3 section — **Liên hệ** (email khoá, prefill từ hồ sơ), **Địa chỉ giao hàng** (họ tên, SĐT, tỉnh/thành, quận/huyện, phường/xã, địa chỉ cụ thể, ghi chú — onChange validation), **Phương thức thanh toán** (radio card: cod mặc định / bank_transfer / vnpay); cột phải Order Summary sticky (list sản phẩm từ giỏ + badge sl, mã giảm giá stub→toast, tạm tính/tiết kiệm/phí ship miễn phí ≥500k, tổng, nút Đặt hàng, trust badges, card hỗ trợ); empty state khi giỏ rỗng; palette hệ thống (#4bee2b / #2E7D32), KHÔNG dùng #36cf17 của prototype
+- [+] frontend-admin/src/services/orderService.js — createOrder (POST /orders + localTime), getMyOrders, getOrderById; có doc contract kỳ vọng cho /api
+- [~] router/index.jsx — route /checkout trỏ CheckoutPage (thay placeholder), bỏ comment import
+
+**API endpoints sử dụng:**
+- POST /orders — ⚠️ CHƯA có backend (chỉ có model Order trong Prisma). Nút "Đặt hàng" sẽ 404 tới khi chạy `/api` tạo controller+route. Contract: body `{ address:{fullName,phone,street,ward,district,city}, paymentMethod, note, shippingFee, localTime }`; backend đọc giỏ server-side của user để dựng OrderItem + tính total, tạo Address+Order, xoá giỏ, trả đơn
+- (giỏ) đồng bộ client về rỗng sau khi đặt hàng thành công qua `useCartStore.setState({ items: [] })`
+- GET /auth/me — prefill họ tên/SĐT/email người nhận
+
+**Tinh chỉnh cùng session:**
+- CheckoutPage: thêm dấu `*` đỏ cho field bắt buộc (họ tên, SĐT, tỉnh/thành, quận/huyện, địa chỉ cụ thể); stepper fix icon check lệch (lồng icon vào vòng tròn + `leading-none`); vô hiệu hoá option **VNPay** (bôi xám, radio disabled, badge "Sắp ra mắt") — mặc định vẫn COD
+- [+] frontend-admin/src/utils/productImage.js — helper `productImage(p)` = `image_url ?? images[0].url`; dùng chung cho **ảnh chính sản phẩm** ở CartPopup, CartPage, CheckoutPage (order summary) + snapshot trong `useCartStore`. Thống nhất một quy tắc resolve ảnh chính, có fallback gallery khi item mang `images`
+
+**API endpoints sử dụng (tinh chỉnh):**
+- (không thêm API) — chỉ hợp nhất logic resolve ảnh chính phía client
+
+---
+
+
 > Tự động cập nhật khi chạy `/ui`.
 > Không sửa tay trực tiếp.

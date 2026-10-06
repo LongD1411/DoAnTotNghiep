@@ -75,6 +75,7 @@ model Product {
   hazardNote     String? @db.Text // lưu ý nội dung cho mức độ nguy hiểm
   videoUrl       String? // link nhúng video hướng dẫn (hiển thị trên customer)
   badge          String? @db.VarChar(50) // nhãn nổi bật: Mới, Bán chạy...
+  deletedAt     DateTime? // soft-delete: có giá trị = đã xóa (ẩn khỏi mọi query, giữ lịch sử đơn)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -125,6 +126,7 @@ model OrderItem {
 
   order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id])
+  review  Review?
 
   @@index([orderId])
   @@index([productId])
@@ -182,16 +184,17 @@ model Review {
   id               Int      @id @default(autoincrement())
   productId        Int
   userId           Int
+  orderItemId      Int      @unique // mỗi lần mua (order item) chỉ đánh giá 1 lần
   rating           Int      // 1–5
   comment          String?
-  verifiedPurchase Boolean  @default(false)
+  verifiedPurchase Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  product Product @relation(fields: [productId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
 
-  @@unique([productId, userId])
   @@index([productId])
   @@index([userId])
 }
@@ -278,7 +281,7 @@ model Post {
   id         Int      @id @default(autoincrement())
   title      String
   slug       String   @unique
-  content    String   @db.Text
+  content    String?  @db.Text
   status     String   @default("pending") // published, pending, hidden
   viewCount  Int      @default(0)
   likeCount  Int      @default(0)

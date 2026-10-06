@@ -1,20 +1,13 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import CustomerLayout from '../../components/customer/CustomerLayout';
 import LoadingOverlay from '../../components/common/LoadingOverlay';
 import Select from '../../components/common/Select';
-import { FAKE_PRODUCTS } from '../../data/productData';
-
+import { getAllProducts } from '../../services/productService';
+import { toastService, errMsg } from '../../services/toastService';
+import { useCartStore } from '../../store/useCartStore';
 
 const ITEMS_PER_PAGE = 6;
-
-const CATEGORY_OPTIONS = [
-  { value: 'Herbicide',   label: 'Diệt cỏ' },
-  { value: 'Fungicide',   label: 'Trừ nấm' },
-  { value: 'Insecticide', label: 'Trừ sâu' },
-  { value: 'Phân bón',    label: 'Phân bón' },
-  { value: 'Dụng cụ',     label: 'Dụng cụ' },
-];
 
 const PRICE_OPTIONS = [
   { value: 'u150',  label: 'Dưới 150.000đ',       min: 0,      max: 150000  },
@@ -23,19 +16,10 @@ const PRICE_OPTIONS = [
   { value: 'o700',  label: 'Trên 700.000đ',         min: 700000, max: Infinity },
 ];
 
-const QUICK_FILTERS = [
-  { id: 'all',         label: 'Tất cả'    },
-  { id: 'Herbicide',   label: 'Diệt cỏ'  },
-  { id: 'Fungicide',   label: 'Trừ nấm'  },
-  { id: 'Insecticide', label: 'Trừ sâu'  },
-  { id: 'Phân bón',    label: 'Phân bón' },
-];
-
 const SORT_OPTIONS = [
-  { value: 'default',    label: 'Liên quan nhất'     },
-  { value: 'price-asc',  label: 'Giá: Thấp → Cao'   },
-  { value: 'price-desc', label: 'Giá: Cao → Thấp'   },
-  { value: 'top-rated',  label: 'Đánh giá cao nhất'  },
+  { value: 'default',    label: 'Liên quan nhất'   },
+  { value: 'price-asc',  label: 'Giá: Thấp → Cao'  },
+  { value: 'price-desc', label: 'Giá: Cao → Thấp'  },
 ];
 
 const BTN_ADD = 'bg-[#e9f3e7] dark:bg-white/10 text-[#2E7D32] dark:text-primary hover:bg-[#2E7D32] hover:text-white dark:hover:bg-[#2E7D32] transition-colors';
@@ -43,15 +27,49 @@ const BTN_ADD = 'bg-[#e9f3e7] dark:bg-white/10 text-[#2E7D32] dark:text-primary 
 const fmt = (n) =>
   n != null ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n) : '—';
 
+const stripHtml = (html) => {
+  const d = document.createElement('div');
+  d.innerHTML = html || '';
+  return (d.textContent || '').trim();
+};
+
 const CatalogPage = () => {
+  const [products, setProducts]         = useState([]);
+  const [loading, setLoading]           = useState(true);
   const [heroSearch, setHeroSearch]     = useState('');
-  const [activeChip, setActiveChip]     = useState('all');
   const [catFilters, setCatFilters]     = useState({});
   const [priceFilters, setPriceFilters] = useState({});
   const [sortBy, setSortBy]             = useState('default');
   const [currentPage, setCurrentPage]   = useState(1);
   const gridRef = useRef(null);
-  const loading = false;
+  const addToCart = useCartStore(s => s.addItem);
+
+  // Thêm vào giỏ: guest lưu localStorage, đăng nhập gọi API (store tự phân nhánh)
+  const handleAddToCart = async (e, product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await addToCart(product, 1);
+      toastService.success('Đã thêm vào giỏ hàng');
+    } catch (err) {
+      toastService.error(errMsg(err));
+    }
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    getAllProducts({ limit: 100 })
+      .then(res => setProducts(res.data.data.data))
+      .catch(err => toastService.error(errMsg(err)))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Danh mục cho filter — dựng từ dữ liệu thật
+  const categoryOptions = useMemo(() => {
+    const m = new Map();
+    products.forEach(p => { if (p.category) m.set(p.category.slug, p.category.name); });
+    return [...m].map(([slug, name]) => ({ value: slug, label: name }));
+  }, [products]);
 
   const toggleCheck = (setter, key) =>
     setter(prev => ({ ...prev, [key]: !prev[key] }));
@@ -59,30 +77,25 @@ const CatalogPage = () => {
   const resetFilters = () => {
     setCatFilters({});
     setPriceFilters({});
-    setActiveChip('all');
     setHeroSearch('');
     setSortBy('default');
     setCurrentPage(1);
   };
 
   const filtered = useMemo(() => {
-    let list = FAKE_PRODUCTS;
+    let list = products;
 
     if (heroSearch.trim()) {
       const q = heroSearch.toLowerCase();
       list = list.filter(p =>
         p.name.toLowerCase().includes(q) ||
-        p.ingredient.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q),
+        stripHtml(p.description).toLowerCase().includes(q),
       );
     }
 
-    if (activeChip !== 'all')
-      list = list.filter(p => p.category === activeChip);
-
     const activeCats = Object.keys(catFilters).filter(k => catFilters[k]);
     if (activeCats.length)
-      list = list.filter(p => activeCats.includes(p.category));
+      list = list.filter(p => activeCats.includes(p.category?.slug));
 
     const activePrices = PRICE_OPTIONS.filter(o => priceFilters[o.value]);
     if (activePrices.length)
@@ -95,11 +108,9 @@ const CatalogPage = () => {
       list = [...list].sort((a, b) => (a.discount_price ?? a.price) - (b.discount_price ?? b.price));
     else if (sortBy === 'price-desc')
       list = [...list].sort((a, b) => (b.discount_price ?? b.price) - (a.discount_price ?? a.price));
-    else if (sortBy === 'top-rated')
-      list = [...list].sort((a, b) => b.rating - a.rating);
 
     return list;
-  }, [heroSearch, activeChip, catFilters, priceFilters, sortBy]);
+  }, [products, heroSearch, catFilters, priceFilters, sortBy]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated  = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
@@ -112,11 +123,6 @@ const CatalogPage = () => {
         window.scrollTo({ top: y, behavior: 'smooth' });
       }
     }
-  };
-
-  const handleChip = (id) => {
-    setActiveChip(id);
-    setCurrentPage(1);
   };
 
   return (
@@ -152,7 +158,7 @@ const CatalogPage = () => {
             </div>
             <input
               className="flex w-full min-w-0 flex-1 bg-white dark:bg-[#1c3019] text-[#101b0d] dark:text-white focus:outline-none h-12 placeholder:text-[#599a4c] dark:placeholder:text-gray-500 px-3 text-base font-normal"
-              placeholder="Tìm sản phẩm, hoạt chất, tên thương hiệu..."
+              placeholder="Tìm sản phẩm, mô tả..."
               value={heroSearch}
               onChange={(e) => { setHeroSearch(e.target.value); setCurrentPage(1); }}
             />
@@ -199,7 +205,10 @@ const CatalogPage = () => {
                 <span className="material-symbols-outlined text-[#101b0d] dark:text-white group-open:rotate-180 transition-transform text-[20px]">expand_more</span>
               </summary>
               <div className="pt-2 pb-2 flex flex-col gap-2">
-                {CATEGORY_OPTIONS.map(opt => (
+                {categoryOptions.length === 0 && (
+                  <p className="text-xs text-gray-400">Chưa có danh mục</p>
+                )}
+                {categoryOptions.map(opt => (
                   <label key={opt.value} className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"
@@ -209,7 +218,7 @@ const CatalogPage = () => {
                     />
                     <span className="text-sm text-gray-700 dark:text-gray-300">{opt.label}</span>
                     <span className="ml-auto text-xs text-gray-400">
-                      {FAKE_PRODUCTS.filter(p => p.category === opt.value).length}
+                      {products.filter(p => p.category?.slug === opt.value).length}
                     </span>
                   </label>
                 ))}
@@ -240,24 +249,6 @@ const CatalogPage = () => {
 
           {/* ── Main content ─────────────────────────────────────────── */}
           <main ref={gridRef} className="flex-1 flex flex-col gap-6">
-
-            {/* Quick filter chips */}
-            <div className="flex gap-2 flex-wrap items-center">
-              <span className="text-sm font-medium text-gray-500 mr-1">Danh mục:</span>
-              {QUICK_FILTERS.map(chip => (
-                <button
-                  key={chip.id}
-                  onClick={() => handleChip(chip.id)}
-                  className={`flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg px-3 text-sm font-semibold transition-all
-                    ${activeChip === chip.id
-                      ? 'bg-primary text-[#101b0d] hover:scale-105'
-                      : 'bg-[#e9f3e7] dark:bg-[#2A3C25] hover:bg-[#d8ead5] dark:hover:bg-[#384f32] text-[#101b0d] dark:text-white'
-                    }`}
-                >
-                  {chip.label}
-                </button>
-              ))}
-            </div>
 
             {/* Toolbar */}
             <div className="flex flex-wrap justify-between items-center gap-4 bg-white dark:bg-[#1c3019] p-4 rounded-xl border border-[#d3e7cf] dark:border-[#2f4b26] shadow-sm">
@@ -293,11 +284,17 @@ const CatalogPage = () => {
                     >
                       {/* Image */}
                       <div className="relative aspect-[4/3] bg-[#f6f8f6] dark:bg-[#2a3e25] overflow-hidden">
-                        <img
-                          src={product.images[0]}
-                          alt={product.name}
-                          className="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                        />
+                        {product.image_url ? (
+                          <img
+                            src={product.image_url}
+                            alt={product.name}
+                            className="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center text-gray-300">
+                            <span className="material-symbols-outlined text-[48px]">inventory_2</span>
+                          </div>
+                        )}
                         {product.badge ? (
                           <span className={`absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded ${product.badge === 'Mới' ? 'bg-primary text-[#101b0d]' : 'bg-[#e0f2fe] text-[#0369a1]'}`}>
                             {product.badge}
@@ -307,24 +304,17 @@ const CatalogPage = () => {
                             -{discountPct}%
                           </span>
                         ) : null}
-                        <button
-                          aria-label="Xem chi tiết"
-                          className="absolute top-3 right-3 p-2 rounded-full bg-white/90 text-[#101b0d] hover:bg-primary hover:text-[#101b0d] transition-colors shadow-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300"
-                        >
-                          <span className="material-symbols-outlined text-[20px]">visibility</span>
-                        </button>
                       </div>
 
                       {/* Card body */}
                       <div className="p-4 flex flex-col gap-2 flex-grow">
                         <div className="flex flex-col gap-0.5">
-                          <p className="text-xs font-semibold text-[#599a4c] uppercase tracking-wider">{product.category}</p>
+                          <p className="text-xs font-semibold text-[#599a4c] uppercase tracking-wider">{product.category?.name ?? '—'}</p>
                           <h3 className="text-lg font-bold text-[#101b0d] dark:text-white group-hover:text-[#2E7D32] dark:group-hover:text-primary transition-colors leading-tight">
                             {product.name}
                           </h3>
-                          <p className="text-xs text-gray-500 italic">{product.ingredient}</p>
                         </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{product.description}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{stripHtml(product.description)}</p>
 
                         <div className="mt-auto pt-4 flex items-center justify-between gap-3">
                           <div className="flex flex-col">
@@ -337,7 +327,11 @@ const CatalogPage = () => {
                               <span className="text-[#101b0d] dark:text-white text-xl font-black">{fmt(product.price)}</span>
                             )}
                           </div>
-                          <button className={`py-1.5 px-3 rounded-lg text-sm font-bold flex items-center gap-1.5 ${BTN_ADD}`}>
+                          <button
+                            onClick={(e) => handleAddToCart(e, product)}
+                            disabled={product.stock === 0}
+                            className={`py-1.5 px-3 rounded-lg text-sm font-bold flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed ${BTN_ADD}`}
+                          >
                             <span className="material-symbols-outlined text-[18px]">add_shopping_cart</span>
                             Thêm
                           </button>
@@ -348,13 +342,15 @@ const CatalogPage = () => {
                 })}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
-                <span className="material-symbols-outlined text-[48px] text-gray-300">search_off</span>
-                <p className="text-gray-500 text-base">Không tìm thấy sản phẩm phù hợp.</p>
-                <button onClick={resetFilters} className="text-primary font-medium text-sm hover:underline">
-                  Xóa bộ lọc
-                </button>
-              </div>
+              !loading && (
+                <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
+                  <span className="material-symbols-outlined text-[48px] text-gray-300">search_off</span>
+                  <p className="text-gray-500 text-base">Không tìm thấy sản phẩm phù hợp.</p>
+                  <button onClick={resetFilters} className="text-primary font-medium text-sm hover:underline">
+                    Xóa bộ lọc
+                  </button>
+                </div>
+              )
             )}
 
             {/* Pagination */}

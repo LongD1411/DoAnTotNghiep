@@ -1,15 +1,14 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import CustomerLayout from '../../components/customer/CustomerLayout';
 import LoadingOverlay from '../../components/common/LoadingOverlay';
 import Select from '../../components/common/Select';
+import RichTextEditor from '../../components/common/RichTextEditor';
+import { createPost, updatePost, getPostById, getForumCategories } from '../../services/postService';
+import { toastService, errMsg } from '../../services/toastService';
+import { stripHtml, extractContentImages, totalSize, MAX_UPLOAD_BYTES } from '../../utils/richContent';
 
-const CATEGORY_OPTIONS = [
-  { value: '',        label: 'Chọn chủ đề...' },
-  { value: 'pest',    label: 'Sâu & Bệnh'      },
-  { value: 'tips',    label: 'Mẹo Nông Nghiệp' },
-  { value: 'general', label: 'Chung'            },
-];
+const CAT_PLACEHOLDER = { value: '', label: 'Chọn chủ đề...' };
 
 const GUIDELINES = [
   { icon: 'check_circle', text: 'Tiêu đề rõ ràng, mô tả đúng vấn đề.' },
@@ -22,12 +21,40 @@ const GUIDELINES = [
 
 const CreatePostPage = () => {
   const navigate  = useNavigate();
+  const { slug }  = useParams();      // có slug → chế độ sửa bài
+  const isEdit    = !!slug;
   const [loading, setLoading] = useState(false);
 
-  const [form, setForm] = useState({ title: '', catId: '', content: '', tags: '' });
+  const [form, setForm] = useState({ title: '', catId: '', content: '' });
   const [errors, setErrors] = useState({});
-  const [tagInput, setTagInput] = useState('');
-  const [tagList, setTagList]   = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [postId, setPostId] = useState(null); // id bài đang sửa
+
+  // Chủ đề cho dropdown — lấy từ API (id thật để gửi category_id)
+  useEffect(() => {
+    getForumCategories()
+      .then(res => setCategories(res.data.data))
+      .catch(() => {});
+  }, []);
+
+  // Chế độ sửa: nạp dữ liệu bài hiện có để prefill form
+  useEffect(() => {
+    if (!isEdit) return;
+    setLoading(true);
+    getPostById(slug)
+      .then(res => {
+        const p = res.data.data;
+        setPostId(p.id);
+        setForm({ title: p.title ?? '', catId: p.category?.id ?? '', content: p.content ?? '' });
+      })
+      .catch(err => { toastService.error(errMsg(err)); navigate('/dien-dan'); })
+      .finally(() => setLoading(false));
+  }, [isEdit, slug, navigate]);
+
+  const categoryOptions = useMemo(
+    () => [CAT_PLACEHOLDER, ...categories.map(c => ({ value: c.id, label: c.name }))],
+    [categories],
+  );
 
   const validate = (field, value) => {
     const next = { ...errors };
@@ -35,18 +62,14 @@ const CreatePostPage = () => {
       case 'title':
         if (!value.trim())               next.title = 'Tiêu đề không được để trống';
         else if (value.trim().length < 10) next.title = 'Tiêu đề tối thiểu 10 ký tự';
-        else if (value.trim().length > 200) next.title = 'Tiêu đề tối đa 200 ký tự';
+        else if (value.trim().length > 40) next.title = 'Tiêu đề tối đa 40 ký tự';
         else delete next.title;
         break;
       case 'catId':
         if (!value) next.catId = 'Vui lòng chọn chủ đề';
         else delete next.catId;
         break;
-      case 'content':
-        if (!value.trim())                next.content = 'Nội dung không được để trống';
-        else if (value.trim().length < 50) next.content = 'Nội dung tối thiểu 50 ký tự';
-        else delete next.content;
-        break;
+      // content: không bắt buộc — không validate
       default: break;
     }
     setErrors(next);
@@ -64,38 +87,48 @@ const CreatePostPage = () => {
     validate('catId', val);
   };
 
-  const addTag = () => {
-    const t = tagInput.trim().replace(/^#/, '');
-    if (t && !tagList.includes(t) && tagList.length < 5) {
-      setTagList(prev => [...prev, t]);
-    }
-    setTagInput('');
+  const handleContentChange = (html) => {
+    setForm(prev => ({ ...prev, content: html }));
   };
 
-  const removeTag = (t) => setTagList(prev => prev.filter(x => x !== t));
+  const isValid = !errors.title && !errors.catId && form.title.trim() && form.catId;
 
-  const handleTagKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(); }
-  };
-
-  const isValid = !errors.title && !errors.catId && !errors.content
-    && form.title.trim() && form.catId && form.content.trim();
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const allValid = ['title', 'catId', 'content'].every(f => validate(f, form[f]));
+    const allValid = ['title', 'catId'].every(f => validate(f, form[f]));
     if (!allValid) return;
 
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      alert('Bài viết đã được đăng (demo)');
+    try {
+      // Tách ảnh blob → placeholder + files; backend upload khi tạo bài (multipart)
+      const { content, files } = await extractContentImages(form.content);
+
+      // Tổng dung lượng ảnh không vượt quá 10MB (nhiều ảnh cộng lại)
+      if (totalSize(files) > MAX_UPLOAD_BYTES) {
+        toastService.error('Tổng dung lượng ảnh vượt quá 10MB, vui lòng giảm bớt hoặc nén ảnh');
+        return;
+      }
+
+      // Không có text lẫn ảnh (kể cả URL ảnh cũ khi sửa) → lưu null (content không bắt buộc)
+      const finalContent = (!stripHtml(content) && files.length === 0 && !/https?:\/\//.test(content || '')) ? null : content;
+      const payload = { title: form.title.trim(), category_id: Number(form.catId), content: finalContent };
+
+      if (isEdit) {
+        await updatePost(postId, payload, files);
+        toastService.success('Cập nhật bài viết thành công!');
+      } else {
+        await createPost(payload, files);
+        toastService.success('Đăng bài thành công! Bài viết đang chờ duyệt.');
+      }
       navigate('/dien-dan');
-    }, 800);
-    // Khi có API: axios.post(`${API_URL}/posts`, { ...form, tags: tagList, localTime: new Date().toISOString() }, getAuthHeader())
+    } catch (err) {
+      toastService.error(errMsg(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const charCount = form.content.length;
+  const charCount = stripHtml(form.content).length;
   const titleCount = form.title.length;
 
   return (
@@ -110,7 +143,7 @@ const CreatePostPage = () => {
           <span className="text-[#599a4c]">/</span>
           <Link to="/dien-dan" className="text-[#599a4c] hover:text-primary font-medium transition-colors">Diễn đàn</Link>
           <span className="text-[#599a4c]">/</span>
-          <span className="text-[#101b0d] dark:text-white font-medium">Tạo bài viết</span>
+          <span className="text-[#101b0d] dark:text-white font-medium">{isEdit ? 'Chỉnh sửa bài viết' : 'Tạo bài viết'}</span>
         </nav>
 
         <div className="flex flex-col lg:flex-row gap-8">
@@ -118,7 +151,7 @@ const CreatePostPage = () => {
           {/* ── Form ─────────────────────────────────────────────────── */}
           <div className="flex-1 min-w-0">
             <div className="bg-white dark:bg-[#132210] rounded-xl border border-gray-200 dark:border-[#2a4524] shadow-sm p-6 md:p-8">
-              <h1 className="text-2xl font-black text-[#101b0d] dark:text-white mb-6">Tạo bài viết mới</h1>
+              <h1 className="text-2xl font-black text-[#101b0d] dark:text-white mb-6">{isEdit ? 'Chỉnh sửa bài viết' : 'Tạo bài viết mới'}</h1>
 
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
@@ -128,8 +161,8 @@ const CreatePostPage = () => {
                     <label htmlFor="title" className="text-base font-semibold text-[#101b0d] dark:text-white">
                       Tiêu đề <span className="text-red-500">*</span>
                     </label>
-                    <span className={`text-xs ${titleCount > 180 ? 'text-red-400' : 'text-gray-400'}`}>
-                      {titleCount}/200
+                    <span className={`text-xs ${titleCount > 36 ? 'text-red-400' : 'text-gray-400'}`}>
+                      {titleCount}/40
                     </span>
                   </div>
                   <input
@@ -139,7 +172,7 @@ const CreatePostPage = () => {
                     value={form.title}
                     onChange={handleChange}
                     placeholder="Đặt tiêu đề rõ ràng, mô tả đúng vấn đề của bạn..."
-                    maxLength={200}
+                    maxLength={40}
                     className={`w-full rounded-lg border px-4 py-3 text-base text-[#101b0d] dark:text-white bg-[#f9fcf8] dark:bg-[#1c3019] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors ${
                       errors.title ? 'border-red-400' : 'border-[#d3e7cf] dark:border-[#3a5c35]'
                     }`}
@@ -154,7 +187,7 @@ const CreatePostPage = () => {
                   </label>
                   <Select
                     value={form.catId}
-                    options={CATEGORY_OPTIONS}
+                    options={categoryOptions}
                     onChange={handleCatChange}
                     className="w-full"
                   />
@@ -165,67 +198,21 @@ const CreatePostPage = () => {
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
                     <label htmlFor="content" className="text-base font-semibold text-[#101b0d] dark:text-white">
-                      Nội dung <span className="text-red-500">*</span>
+                      Nội dung
                     </label>
-                    <span className={`text-xs ${charCount < 50 && charCount > 0 ? 'text-orange-400' : 'text-gray-400'}`}>
-                      {charCount} ký tự {charCount < 50 ? `(cần thêm ${50 - charCount})` : ''}
+                    <span className="text-xs text-gray-400">
+                      {charCount} ký tự
                     </span>
                   </div>
-                  <textarea
-                    id="content"
-                    name="content"
-                    rows={10}
+                  <RichTextEditor
                     value={form.content}
-                    onChange={handleChange}
-                    placeholder="Mô tả chi tiết vấn đề: loại cây trồng, triệu chứng bệnh, điều kiện thời tiết, những gì bạn đã thử... Càng chi tiết, câu trả lời càng chính xác."
-                    className={`w-full rounded-lg border px-4 py-3 text-base text-[#101b0d] dark:text-white bg-[#f9fcf8] dark:bg-[#1c3019] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y transition-colors ${
-                      errors.content ? 'border-red-400' : 'border-[#d3e7cf] dark:border-[#3a5c35]'
-                    }`}
+                    onChange={handleContentChange}
+                    enableImages
+                    placeholder="Mô tả chi tiết: loại cây, triệu chứng, điều kiện thời tiết... Kéo/thả hoặc dán ảnh vào ô để chèn."
+                    minHeight={220}
                   />
+                  <p className="text-xs text-gray-400">Kéo/thả hoặc dán ảnh trực tiếp vào ô nội dung — ảnh chỉ được upload lên server khi bạn nhấn "Đăng bài".</p>
                   {errors.content && <p className="text-sm text-red-500">{errors.content}</p>}
-                </div>
-
-                {/* Tags */}
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="tags" className="text-base font-semibold text-[#101b0d] dark:text-white">
-                    Tags <span className="text-sm font-normal text-gray-400">(tuỳ chọn, tối đa 5)</span>
-                  </label>
-
-                  {/* Tag chips */}
-                  {tagList.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {tagList.map(t => (
-                        <span key={t} className="inline-flex items-center gap-1 rounded-md bg-[#e9f3e7] dark:bg-[#2a4524] px-2.5 py-1 text-sm font-medium text-[#2E7D32] dark:text-primary">
-                          #{t}
-                          <button type="button" onClick={() => removeTag(t)} className="ml-0.5 hover:text-red-500 transition-colors">
-                            <span className="material-symbols-outlined text-[14px]">close</span>
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {tagList.length < 5 && (
-                    <div className="flex gap-2">
-                      <input
-                        id="tags"
-                        type="text"
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        onKeyDown={handleTagKeyDown}
-                        placeholder='Nhập tag rồi nhấn Enter (vd: ngô, lúa...)'
-                        className="flex-1 rounded-lg border border-[#d3e7cf] dark:border-[#3a5c35] px-4 py-2.5 text-sm text-[#101b0d] dark:text-white bg-[#f9fcf8] dark:bg-[#1c3019] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
-                      />
-                      <button
-                        type="button"
-                        onClick={addTag}
-                        disabled={!tagInput.trim()}
-                        className="px-4 py-2.5 rounded-lg bg-[#e9f3e7] dark:bg-white/10 text-[#2E7D32] dark:text-primary hover:bg-[#2E7D32] hover:text-white dark:hover:bg-[#2E7D32] transition-colors text-sm font-bold disabled:opacity-40"
-                      >
-                        Thêm
-                      </button>
-                    </div>
-                  )}
                 </div>
 
                 {/* Actions */}
@@ -242,8 +229,8 @@ const CreatePostPage = () => {
                     disabled={!isValid || loading}
                     className="flex items-center gap-2 px-8 py-3 rounded-lg bg-primary hover:bg-[#3ed622] text-[#101b0d] font-bold transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
                   >
-                    <span className="material-symbols-outlined text-[18px]">send</span>
-                    Đăng bài
+                    <span className="material-symbols-outlined text-[18px]">{isEdit ? 'save' : 'send'}</span>
+                    {isEdit ? 'Cập nhật' : 'Đăng bài'}
                   </button>
                 </div>
               </form>

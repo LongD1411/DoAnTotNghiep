@@ -1,6 +1,7 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import CharacterCount from '@tiptap/extension-character-count';
+import Image from '@tiptap/extension-image';
 import { useEffect, useRef } from 'react';
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -22,6 +23,21 @@ const ToolbarBtn = ({ onClick, active, title, children }) => (
 
 const Sep = () => <div className="w-px h-4 bg-slate-200 dark:bg-slate-600 mx-0.5 shrink-0" />;
 
+const imageFiles = (list) => [...(list || [])].filter(f => f.type.startsWith('image/'));
+
+// Chèn File ảnh vào editor dưới dạng blob URL (preview local; upload thật khi page submit)
+const insertImages = (view, files, pos) => {
+  const { schema } = view.state;
+  let tr = view.state.tr;
+  let at = pos ?? view.state.selection.from;
+  files.forEach(file => {
+    const node = schema.nodes.image.create({ src: URL.createObjectURL(file) });
+    tr = tr.insert(at, node);
+    at += 1;
+  });
+  view.dispatch(tr);
+};
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 const RichTextEditor = ({
@@ -30,13 +46,16 @@ const RichTextEditor = ({
   placeholder = 'Nhập nội dung...',
   minHeight   = 140,
   maxChars,           // optional — shows counter + hard limit when set
+  enableImages = false, // cho phép kéo/thả · paste · nút chèn ảnh (blob preview)
 }) => {
   const isProgrammaticUpdate = useRef(false);
+  const fileInputRef = useRef(null);
 
   const editor = useEditor({
     extensions: [
       StarterKit,
       CharacterCount.configure(maxChars ? { limit: maxChars } : {}),
+      ...(enableImages ? [Image.configure({ inline: false })] : []),
     ],
     content: value,
     editorProps: {
@@ -44,6 +63,23 @@ const RichTextEditor = ({
         class: 'rich-prose focus:outline-none',
         style: `min-height:${minHeight}px; padding:10px 12px; font-size:0.875rem;`,
       },
+      ...(enableImages && {
+        handleDrop: (view, event, _slice, moved) => {
+          if (moved) return false;
+          const files = imageFiles(event.dataTransfer?.files);
+          if (!files.length) return false;
+          event.preventDefault();
+          insertImages(view, files, view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos);
+          return true;
+        },
+        handlePaste: (view, event) => {
+          const files = imageFiles(event.clipboardData?.files);
+          if (!files.length) return false;
+          event.preventDefault();
+          insertImages(view, files);
+          return true;
+        },
+      }),
     },
     onUpdate: ({ editor }) => {
       if (!isProgrammaticUpdate.current) onChange(editor.getHTML());
@@ -130,6 +166,27 @@ const RichTextEditor = ({
           title="Xóa định dạng">
           <span className="material-symbols-outlined text-[18px]">format_clear</span>
         </ToolbarBtn>
+
+        {enableImages && (
+          <>
+            <Sep />
+            <ToolbarBtn onClick={() => fileInputRef.current?.click()} title="Chèn ảnh (hoặc kéo/thả vào ô soạn)">
+              <span className="material-symbols-outlined text-[18px]">image</span>
+            </ToolbarBtn>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={e => {
+                imageFiles(e.target.files).forEach(file =>
+                  editor.chain().focus().setImage({ src: URL.createObjectURL(file) }).run());
+                e.target.value = '';
+              }}
+            />
+          </>
+        )}
       </div>
 
       {/* ── Editor content ───────────────────────────────────────────── */}

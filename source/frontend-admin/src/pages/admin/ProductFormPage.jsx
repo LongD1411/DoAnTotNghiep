@@ -5,7 +5,6 @@ import LoadingOverlay from '../../components/common/LoadingOverlay';
 import Select from '../../components/common/Select';
 import ImageUploader from '../../components/common/ImageUploader';
 import RichTextEditor from '../../components/common/RichTextEditor';
-import { resolveImages } from '../../services/uploadService';
 import { getProductById, createProduct, updateProduct } from '../../services/productService';
 import { getAllCategories } from '../../services/categoryService';
 import { toastService, errMsg } from '../../services/toastService';
@@ -203,7 +202,8 @@ const ProductFormPage = () => {
 
     setSaving(true);
     try {
-      const resolvedImages = await resolveImages(form.images);
+      // Chỉ gửi field dữ liệu; ảnh (form.images: URL cũ + File mới) do service đóng gói multipart.
+      // Backend validate xong mới upload file → save lỗi thì KHÔNG có ảnh nào lên server.
       const payload = {
         name:           form.name.trim(),
         slug:           form.slug.trim() || undefined,
@@ -212,7 +212,6 @@ const ProductFormPage = () => {
         description:    toApiHtml(form.description),
         specifications: toApiHtml(form.specifications),
         stock:          Number(form.stock),
-        images:         resolvedImages,
         unit:           form.unit,
         discount_price: form.discountPrice !== '' ? Number(form.discountPrice) : undefined,
         weight:         form.weight !== '' ? Number(form.weight) : undefined,
@@ -223,12 +222,11 @@ const ProductFormPage = () => {
         video_url:      form.videoUrl.trim() || undefined,
         badge:          form.badge.trim() || undefined,
         is_active:      form.isActive,
-        localTime:      new Date().toISOString(),
       };
       if (isEdit) {
-        await updateProduct(id, payload);
+        await updateProduct(id, payload, form.images);
       } else {
-        await createProduct(payload);
+        await createProduct(payload, form.images);
       }
       toastService.success(isEdit ? 'Cập nhật thành công' : 'Tạo mới thành công');
       navigate('/admin/products');

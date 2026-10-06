@@ -1,54 +1,76 @@
-import { useState, useMemo, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import CustomerLayout from '../../components/customer/CustomerLayout';
 import LoadingOverlay from '../../components/common/LoadingOverlay';
 import Select from '../../components/common/Select';
-import { FAKE_THREADS, CAT_BADGE } from '../../data/forumData';
+import { CAT_BADGE } from '../../data/forumData';
+import { getPosts, deletePost } from '../../services/postService';
+import { isStaff, getCurrentUser } from '../../services/authService';
+import { toastService, errMsg } from '../../services/toastService';
 
-// ── Category config ───────────────────────────────────────────────────────────
+// ── Category config (slug khớp ForumCategory đã seed: pest/tips/general) ─────────
 const CATEGORIES = [
-  { id: 'all',      label: 'Tất cả chủ đề',   icon: 'list'          },
-  { id: 'pest',     label: 'Sâu & Bệnh',       icon: 'pest_control'  },
-  { id: 'tips',     label: 'Mẹo Nông Nghiệp',  icon: 'local_florist' },
-  { id: 'general',  label: 'Chung',             icon: 'chat_bubble'   },
+  { id: 'all',     label: 'Tất cả chủ đề',   icon: 'list'          },
+  { id: 'pest',    label: 'Sâu & Bệnh',       icon: 'pest_control'  },
+  { id: 'tips',    label: 'Mẹo Nông Nghiệp',  icon: 'local_florist' },
+  { id: 'general', label: 'Chung',             icon: 'chat_bubble'   },
 ];
 
-const POPULAR_TAGS = ['#ngô', '#phân bón', '#hạn hán', '#thị trường', '#máy móc', '#lúa', '#cà chua'];
-
 const SORT_OPTIONS = [
-  { value: 'newest',      label: 'Mới nhất'        },
-  { value: 'active',      label: 'Hoạt động nhiều' },
-  { value: 'unanswered',  label: 'Chưa có trả lời' },
+  { value: 'newest',     label: 'Mới nhất'        },
+  { value: 'active',     label: 'Hoạt động nhiều' },
+  { value: 'unanswered', label: 'Chưa có trả lời' },
 ];
 
 const ITEMS_PER_PAGE = 5;
 
+// ── Helpers ─────────────────────────────────────────────────────────────────────
+const stripHtml = (html) => { const d = document.createElement('div'); d.innerHTML = html || ''; return (d.textContent || '').trim(); };
+const initials  = (name = '') => name.trim().split(/\s+/).slice(-2).map(w => w[0]).join('').toUpperCase() || '?';
+const AVATAR_COLORS = ['bg-indigo-100 text-indigo-700', 'bg-pink-100 text-pink-700', 'bg-sky-100 text-sky-700', 'bg-amber-100 text-amber-700', 'bg-emerald-100 text-emerald-700'];
+const avatarColor = (id = 0) => AVATAR_COLORS[id % AVATAR_COLORS.length];
+const fmtDate  = (iso) => (iso ? new Date(iso).toLocaleDateString('vi-VN') : '');
+const isNewPost = (iso) => iso && (Date.now() - new Date(iso).getTime() < 3 * 86400000);
+
+// Nhãn trạng thái cho bài chưa công khai (chỉ hiện với bài của chính mình)
+const STATUS_BADGE = {
+  pending: { label: 'Chờ duyệt', cls: 'bg-amber-100 text-amber-700 ring-amber-600/20' },
+  hidden:  { label: 'Đã ẩn',     cls: 'bg-gray-200 text-gray-600 ring-gray-500/20' },
+};
+
 const ForumPage = () => {
+  const [posts, setPosts]             = useState([]);
+  const [loading, setLoading]         = useState(true);
   const [selectedCat, setSelectedCat] = useState('all');
   const [sortBy, setSortBy]           = useState('newest');
   const [currentPage, setCurrentPage] = useState(1);
+  const [confirmDel, setConfirmDel]   = useState(null); // bài chờ xác nhận xoá
+  const [deleting, setDeleting]       = useState(false);
   const gridRef = useRef(null);
-  const loading = false;
+  const navigate = useNavigate();
+  const staff = isStaff();
+  const myId  = getCurrentUser()?.id;
 
-  const filtered = useMemo(() => {
-    const pinned  = FAKE_THREADS.filter(t => t.pinned);
-    let regular   = FAKE_THREADS.filter(t => !t.pinned);
+  useEffect(() => {
+    setLoading(true);
+    getPosts({ limit: 100 })
+      .then(res => setPosts(res.data.data.data))
+      .catch(err => toastService.error(errMsg(err)))
+      .finally(() => setLoading(false));
+  }, []);
 
-    if (selectedCat !== 'all')
-      regular = regular.filter(t => t.catId === selectedCat);
+  const pinned = useMemo(() => posts.filter(p => p.is_pinned), [posts]);
 
-    if (sortBy === 'active')
-      regular = [...regular].sort((a, b) => b.comments - a.comments);
-    else if (sortBy === 'unanswered')
-      regular = regular.filter(t => t.comments === 0);
+  const regular = useMemo(() => {
+    let r = posts.filter(p => !p.is_pinned);
+    if (selectedCat !== 'all') r = r.filter(p => p.category?.slug === selectedCat);
+    if (sortBy === 'active')       r = [...r].sort((a, b) => (b.comment_count ?? 0) - (a.comment_count ?? 0));
+    else if (sortBy === 'unanswered') r = r.filter(p => (p.comment_count ?? 0) === 0);
+    return r;
+  }, [posts, selectedCat, sortBy]);
 
-    return [...pinned, ...regular];
-  }, [selectedCat, sortBy]);
-
-  const nonPinned  = filtered.filter(t => !t.pinned);
-  const totalPages = Math.max(1, Math.ceil(nonPinned.length / ITEMS_PER_PAGE));
-  const pinned     = filtered.filter(t => t.pinned);
-  const paginated  = nonPinned.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const totalPages = Math.max(1, Math.ceil(regular.length / ITEMS_PER_PAGE));
+  const paginated  = regular.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
   const displayed  = [...pinned, ...paginated];
 
   const goToPage = (p) => {
@@ -62,6 +84,21 @@ const ForumPage = () => {
   };
 
   const handleCat = (id) => { setSelectedCat(id); setCurrentPage(1); };
+
+  const handleDelete = async () => {
+    if (!confirmDel) return;
+    setDeleting(true);
+    try {
+      await deletePost(confirmDel.id);
+      setPosts(prev => prev.filter(p => p.id !== confirmDel.id));
+      toastService.success('Đã xóa bài viết');
+      setConfirmDel(null);
+    } catch (err) {
+      toastService.error(errMsg(err));
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   return (
     <CustomerLayout>
@@ -81,6 +118,17 @@ const ForumPage = () => {
               <span className="material-symbols-outlined">add</span>
               Tạo bài viết
             </Link>
+
+            {/* Duyệt bài viết — chỉ mod/admin */}
+            {staff && (
+              <Link
+                to="/dien-dan/kiem-duyet"
+                className="w-full -mt-4 flex items-center justify-center gap-2 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-500/10 dark:border-amber-500/30 py-2.5 px-4 text-amber-700 dark:text-amber-400 font-semibold text-sm hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-colors active:scale-95"
+              >
+                <span className="material-symbols-outlined text-[20px]">gavel</span>
+                Duyệt bài viết
+              </Link>
+            )}
 
             {/* Categories */}
             <div className="flex flex-col gap-1">
@@ -109,23 +157,6 @@ const ForumPage = () => {
               })}
             </div>
 
-            {/* Popular Tags */}
-            <div className="flex flex-col gap-3">
-              <h3 className="px-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
-                Tags phổ biến
-              </h3>
-              <div className="flex flex-wrap gap-2 px-1">
-                {POPULAR_TAGS.map(tag => (
-                  <button
-                    key={tag}
-                    className="flex items-center gap-1 rounded-md bg-[#e9f3e7] dark:bg-[#1a2e16] px-2.5 py-1.5 text-xs font-medium text-[#101b0d] dark:text-gray-200 hover:bg-[#dcecd8] dark:hover:bg-[#2a4524] transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[14px] text-[#599a4c]">label</span>
-                    {tag}
-                  </button>
-                ))}
-              </div>
-            </div>
           </aside>
 
           {/* ── Main Feed ────────────────────────────────────────────── */}
@@ -155,19 +186,22 @@ const ForumPage = () => {
 
             {/* Thread list */}
             <div ref={gridRef} className="flex flex-col gap-4">
-              {displayed.length > 0 ? displayed.map(thread => {
-                const badge = CAT_BADGE[thread.catId];
+              {displayed.length > 0 ? displayed.map(post => {
+                const badge = CAT_BADGE[post.category?.slug];
+                const isOwner = myId && post.user?.id === myId;
+                const statusBadge = post.status && post.status !== 'published' ? STATUS_BADGE[post.status] : null;
                 return (
                   <div
-                    key={thread.id}
-                    className={`group relative flex flex-col gap-4 rounded-xl border bg-white dark:bg-[#132210] p-5 shadow-sm transition-all hover:shadow-md ${
-                      thread.pinned
+                    key={post.id}
+                    onClick={() => navigate(`/dien-dan/${post.slug}`)}
+                    className={`group relative flex flex-col gap-4 rounded-xl border bg-white dark:bg-[#132210] p-5 shadow-sm transition-all hover:shadow-md cursor-pointer ${
+                      post.is_pinned
                         ? 'border-primary/30 dark:border-[#2a4524]'
                         : 'border-gray-200 dark:border-[#2a4524]'
                     }`}
                   >
                     {/* Pin icon */}
-                    {thread.pinned && (
+                    {post.is_pinned && (
                       <div className="absolute right-4 top-4 text-primary">
                         <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>push_pin</span>
                       </div>
@@ -181,12 +215,17 @@ const ForumPage = () => {
                             {badge.label}
                           </span>
                         )}
+                        {statusBadge && (
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 font-semibold ring-1 ring-inset ${statusBadge.cls}`}>
+                            {statusBadge.label}
+                          </span>
+                        )}
                         <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1">
                           <span className="material-symbols-outlined text-[14px]">schedule</span>
-                          {thread.time}
+                          {fmtDate(post.created_at)}
                         </span>
                       </div>
-                      {thread.isNew && (
+                      {isNewPost(post.created_at) && (
                         <span className="flex size-2 rounded-full bg-primary animate-pulse" />
                       )}
                     </div>
@@ -194,52 +233,67 @@ const ForumPage = () => {
                     {/* Title + excerpt */}
                     <div className="space-y-1">
                       <h3 className="text-lg font-bold text-[#101b0d] dark:text-white group-hover:text-[#2E7D32] dark:group-hover:text-primary transition-colors leading-snug">
-                        <Link to={`/dien-dan/${thread.slug}`}>{thread.title}</Link>
+                        <Link to={`/dien-dan/${post.slug}`} onClick={(e) => e.stopPropagation()}>{post.title}</Link>
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{thread.excerpt}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{stripHtml(post.content)}</p>
                     </div>
 
                     {/* Footer */}
                     <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-800 pt-4">
                       <div className="flex items-center gap-2">
-                        <div className={`size-6 rounded-full flex items-center justify-center text-[10px] font-bold ${thread.avatarColor}`}>
-                          {thread.initials}
+                        <div className={`size-6 rounded-full flex items-center justify-center text-[10px] font-bold ${avatarColor(post.user?.id ?? post.id)}`}>
+                          {initials(post.user?.name)}
                         </div>
-                        <span className="text-sm font-medium text-[#101b0d] dark:text-gray-200">{thread.author}</span>
+                        <span className="text-sm font-medium text-[#101b0d] dark:text-gray-200">{post.user?.name ?? 'Ẩn danh'}</span>
                       </div>
                       <div className="flex items-center gap-4 text-gray-500 dark:text-gray-400">
-                        {thread.locked ? (
-                          <div className="flex items-center gap-1.5 text-xs font-medium">
-                            <span className="material-symbols-outlined text-[18px]">lock</span>
-                            Đã khoá
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5 group-hover:text-primary transition-colors">
-                            <span className="material-symbols-outlined text-[18px]">chat_bubble</span>
-                            <span className="text-xs font-medium">{thread.comments} bình luận</span>
-                          </div>
+                        <div className="flex items-center gap-1.5 group-hover:text-primary transition-colors">
+                          <span className="material-symbols-outlined text-[18px]">chat_bubble</span>
+                          <span className="text-xs font-medium">{post.comment_count ?? 0} bình luận</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="material-symbols-outlined text-[18px]">visibility</span>
+                          <span className="text-xs font-medium">{post.view_count ?? 0}</span>
+                        </div>
+                        {/* Sửa bài — chỉ tác giả bài viết */}
+                        {isOwner && (
+                          <Link
+                            to={`/dien-dan/sua/${post.slug}`}
+                            onClick={(e) => e.stopPropagation()}
+                            title="Chỉnh sửa bài viết"
+                            className="flex items-center justify-center size-7 rounded-lg text-[#2E7D32] dark:text-primary hover:bg-primary/10 transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">edit</span>
+                          </Link>
                         )}
-                        {thread.hot && (
-                          <div className="flex items-center gap-1 text-orange-500">
-                            <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
-                            <span className="text-xs font-medium">Hot</span>
-                          </div>
+                        {/* Xóa bài — tác giả hoặc mod/admin */}
+                        {(staff || isOwner) && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setConfirmDel(post); }}
+                            title="Xóa bài viết"
+                            className="flex items-center justify-center size-7 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">delete</span>
+                          </button>
                         )}
                       </div>
                     </div>
                   </div>
                 );
               }) : (
-                <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
-                  <span className="material-symbols-outlined text-[48px] text-gray-300">forum</span>
-                  <p className="text-gray-500 text-base">Chưa có bài viết nào trong chủ đề này.</p>
-                  <button
-                    onClick={() => handleCat('all')}
-                    className="text-primary font-medium text-sm hover:underline"
-                  >
-                    Xem tất cả bài viết
-                  </button>
-                </div>
+                !loading && (
+                  <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
+                    <span className="material-symbols-outlined text-[48px] text-gray-300">forum</span>
+                    <p className="text-gray-500 text-base">
+                      {selectedCat === 'all' ? 'Chưa có bài viết nào.' : 'Chưa có bài viết nào trong chủ đề này.'}
+                    </p>
+                    {selectedCat !== 'all' && (
+                      <button onClick={() => handleCat('all')} className="text-primary font-medium text-sm hover:underline">
+                        Xem tất cả bài viết
+                      </button>
+                    )}
+                  </div>
+                )
               )}
             </div>
 
@@ -282,6 +336,48 @@ const ForumPage = () => {
           </main>
         </div>
       </div>
+
+      {/* ── Confirm Delete Modal (staff) ──────────────────────────────── */}
+      {confirmDel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => !deleting && setConfirmDel(null)} />
+          <div className="relative bg-white dark:bg-[#132210] rounded-2xl shadow-2xl p-6 w-full max-w-sm flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <div className="size-11 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-red-600 dark:text-red-400">delete_forever</span>
+              </div>
+              <div>
+                <h3 className="font-bold text-[#101b0d] dark:text-white text-base">Xóa bài viết?</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Bài viết và ảnh đính kèm sẽ bị xóa vĩnh viễn, không thể khôi phục.</p>
+              </div>
+            </div>
+            <div className="bg-gray-50 dark:bg-white/5 rounded-xl px-4 py-3">
+              <p className="font-semibold text-[#101b0d] dark:text-white text-sm line-clamp-2">{confirmDel.title}</p>
+              <p className="text-xs text-gray-400 mt-0.5">Tác giả: {confirmDel.user?.name ?? 'Ẩn danh'}</p>
+            </div>
+            <div className="flex gap-3 pt-1">
+              <button
+                onClick={() => setConfirmDel(null)}
+                disabled={deleting}
+                className="flex-1 px-4 py-2.5 text-sm font-semibold border border-gray-200 dark:border-[#3a5c35] text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-colors disabled:opacity-40"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex-1 px-4 py-2.5 text-sm font-bold bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {deleting
+                  ? <span className="size-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  : <span className="material-symbols-outlined text-base">delete</span>
+                }
+                {deleting ? 'Đang xóa...' : 'Xóa bài viết'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </CustomerLayout>
   );
 };

@@ -141,6 +141,7 @@ Xem thông tin tài khoản đang đăng nhập.
   "id": 1,
   "email": "user@example.com",
   "name": "Nguyen Van A",
+  "phone": "0901234567",
   "role": "customer",
   "createdAt": "2026-05-25T14:24:43.362Z"
 }
@@ -151,6 +152,52 @@ Xem thông tin tài khoản đang đăng nhập.
 |--------|-------|-------------|
 | `401` | `"Access token required"` | Không gửi token |
 | `403` | `"Invalid token"` | Token hết hạn hoặc sai |
+
+---
+
+### PUT /auth/me
+
+Cập nhật hồ sơ cá nhân của chính mình (chỉ họ tên + số điện thoại — email/role không đổi qua endpoint này).
+
+**Auth:** Bắt buộc (mọi role)
+
+**Request body:**
+| Field | Type | Bắt buộc | Mô tả |
+|-------|------|----------|-------|
+| `full_name` | string | — | 1–30 ký tự |
+| `phone` | string \| null | — | Tối đa 15 ký tự; `null` để xoá |
+| `localTime` | string | ✔ | ISO datetime từ client |
+
+**Response `200`:** profile mới (cùng shape `GET /auth/me`)
+
+**Lỗi:**
+| Status | code | Nguyên nhân |
+|--------|------|-------------|
+| `400` | `ER001` | Body sai định dạng |
+| `400` | `ER004` | Không có field nào để cập nhật |
+
+---
+
+### PUT /auth/me/password
+
+Đổi mật khẩu — phải nhập đúng mật khẩu hiện tại.
+
+**Auth:** Bắt buộc (mọi role)
+
+**Request body:**
+| Field | Type | Bắt buộc | Mô tả |
+|-------|------|----------|-------|
+| `current_password` | string | ✔ | Mật khẩu hiện tại |
+| `new_password` | string | ✔ | Tối thiểu 6 ký tự |
+| `localTime` | string | ✔ | ISO datetime từ client |
+
+**Response `200`:** `data: null`
+
+**Lỗi:**
+| Status | code | Nguyên nhân |
+|--------|------|-------------|
+| `400` | `ER001` | Body sai định dạng (mật khẩu mới < 6 ký tự...) |
+| `400` | `ER205` | Mật khẩu hiện tại không đúng |
 
 ---
 
@@ -463,6 +510,117 @@ Xoá user.
 
 ---
 
+## Cart _(Token required)_
+
+> Giỏ hàng server-side của **user đã đăng nhập** — mọi endpoint đều cần token (mọi role).
+> Guest dùng giỏ localStorage phía client (`store/useCartStore.js`); ngay sau đăng nhập frontend gọi `POST /cart/sync` để merge giỏ guest vào giỏ user.
+> Mọi mutation đều trả về **giỏ đầy đủ** (cùng shape với `GET /cart`) để frontend set state một lần.
+
+### GET /cart
+
+Lấy giỏ hàng của user hiện tại (tự tạo giỏ rỗng nếu chưa có).
+
+**Auth:** token (mọi role)
+
+**Response `200`:**
+```json
+{
+  "id": 3,
+  "items": [
+    {
+      "product_id": 12,
+      "quantity": 2,
+      "product": {
+        "id": 12,
+        "name": "Thuốc trừ sâu sinh học BT",
+        "slug": "thuoc-tru-sau-sinh-hoc-bt",
+        "price": 150000,
+        "discount_price": 120000,
+        "unit": "chai",
+        "stock": 25,
+        "image_url": "https://res.cloudinary.com/..."
+      }
+    }
+  ]
+}
+```
+
+---
+
+### POST /cart/items
+
+Thêm sản phẩm vào giỏ. Nếu sản phẩm đã có trong giỏ thì **cộng dồn** số lượng; luôn chặn trần theo `stock`.
+
+**Auth:** token (mọi role)
+
+**Request body:**
+| Field | Type | Bắt buộc | Mô tả |
+|-------|------|----------|-------|
+| `product_id` | number | ✔ | ID sản phẩm |
+| `quantity` | number | — | Mặc định `1`, nguyên dương |
+| `localTime` | string | ✔ | ISO datetime từ client |
+
+**Response `200`:** giỏ đầy đủ (như `GET /cart`)
+
+**Lỗi:**
+| Status | code | Nguyên nhân |
+|--------|------|-------------|
+| `400` | `ER001` | Body sai định dạng |
+| `400` | `ER501` | Sản phẩm hết hàng / ngừng kinh doanh / đã xoá |
+
+---
+
+### PUT /cart/items/:productId
+
+Đặt lại số lượng một sản phẩm trong giỏ (không cộng dồn). Chặn trần theo `stock`.
+
+**Auth:** token (mọi role)
+
+**Request body:**
+| Field | Type | Bắt buộc | Mô tả |
+|-------|------|----------|-------|
+| `quantity` | number | ✔ | Nguyên dương |
+| `localTime` | string | ✔ | ISO datetime từ client |
+
+**Response `200`:** giỏ đầy đủ
+
+**Lỗi:**
+| Status | code | Nguyên nhân |
+|--------|------|-------------|
+| `404` | `ER002` | Sản phẩm không tồn tại hoặc không có trong giỏ |
+
+---
+
+### DELETE /cart/items/:productId
+
+Bỏ một sản phẩm khỏi giỏ (idempotent — xoá item không tồn tại vẫn trả 200).
+
+**Auth:** token (mọi role)
+
+**Response `200`:** giỏ đầy đủ
+
+---
+
+### POST /cart/sync
+
+Merge giỏ guest (localStorage) vào giỏ user — gọi **một lần ngay sau đăng nhập**. Cộng dồn số lượng theo từng sản phẩm, chặn trần `stock`. Sản phẩm không hợp lệ/hết hàng bị **bỏ qua** (không làm fail cả batch).
+
+**Auth:** token (mọi role)
+
+**Request body:**
+| Field | Type | Bắt buộc | Mô tả |
+|-------|------|----------|-------|
+| `items` | array | ✔ | Tối đa 100 phần tử `{ product_id, quantity }` |
+| `localTime` | string | ✔ | ISO datetime từ client |
+
+```json
+{ "items": [ { "product_id": 12, "quantity": 2 }, { "product_id": 5, "quantity": 1 } ] }
+```
+
+**Response `200`:** giỏ đầy đủ sau khi merge
+
+---
+
 ## Tóm tắt tất cả endpoints
 
 | Method | Endpoint | Auth | Mô tả |
@@ -470,6 +628,8 @@ Xoá user.
 | POST | `/auth/register` | — | Đăng ký |
 | POST | `/auth/login` | — | Đăng nhập |
 | GET | `/auth/me` | token | Xem profile |
+| PUT | `/auth/me` | token | Sửa hồ sơ (tên, sđt) |
+| PUT | `/auth/me/password` | token | Đổi mật khẩu |
 | GET | `/products` | — | Danh sách sản phẩm |
 | GET | `/products/:id` | — | Chi tiết sản phẩm |
 | POST | `/products` | admin | Tạo sản phẩm |
@@ -479,3 +639,8 @@ Xoá user.
 | GET | `/users/:id` | admin | Chi tiết user |
 | PUT | `/users/:id/role` | admin | Đổi role user |
 | DELETE | `/users/:id` | admin | Xoá user |
+| GET | `/cart` | token | Giỏ hàng của user |
+| POST | `/cart/items` | token | Thêm sản phẩm vào giỏ (cộng dồn) |
+| PUT | `/cart/items/:productId` | token | Đặt lại số lượng |
+| DELETE | `/cart/items/:productId` | token | Bỏ sản phẩm khỏi giỏ |
+| POST | `/cart/sync` | token | Merge giỏ guest sau đăng nhập |

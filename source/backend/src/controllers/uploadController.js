@@ -1,4 +1,4 @@
-import { uploadToT3 } from '../utils/t3Storage.js';
+import { uploadToT3, deleteFromT3 } from '../utils/t3Storage.js';
 import { respond, ERR, SCN } from '../common/response.js';
 
 const upload = async (req, res) => {
@@ -15,4 +15,17 @@ const upload = async (req, res) => {
   }
 };
 
-export { upload };
+// Xóa ảnh khỏi storage — dùng để rollback ảnh vừa upload khi form lưu thất bại
+const remove = async (req, res) => {
+  const { url } = req.body;
+  if (!url || typeof url !== 'string') return respond.badRequest(res, ERR.VALIDATION);
+
+  try {
+    await deleteFromT3(url);
+    respond.ok(res, SCN.DELETED, null);
+  } catch {
+    respond.serverError(res, ERR.SERVER);
+  }
+};
+
+export { upload, remove };

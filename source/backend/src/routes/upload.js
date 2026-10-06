@@ -1,6 +1,6 @@
 import express from 'express';
 import multer  from 'multer';
-import { upload } from '../controllers/uploadController.js';
+import { upload, remove } from '../controllers/uploadController.js';
 import { authenticateToken } from '../middlewares/auth.js';
 
 const router = express.Router();
@@ -15,5 +15,6 @@ const multerUpload = multer({
 });
 
 router.post('/', authenticateToken, multerUpload.single('file'), upload);
+router.delete('/', authenticateToken, remove); // body: { url } — xóa ảnh (rollback khi lưu lỗi)
 
 export default router;

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../../services/authService';
 import LoadingOverlay from '../../components/common/LoadingOverlay';
+import { useCartStore } from '../../store/useCartStore';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -48,6 +49,8 @@ const res = await login(form.email, form.password);
       const storage = form.rememberMe ? localStorage : sessionStorage;
       storage.setItem('access_token', access_token);
       storage.setItem('refresh_token', refresh_token);
+      // Merge giỏ guest (localStorage) vào giỏ user — nuốt lỗi, không chặn flow login
+      await useCartStore.getState().syncAfterLogin();
       navigate('/admin/overview');
     } catch (err) {
       setServerError(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.');

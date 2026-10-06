@@ -8,6 +8,10 @@ export const uploadImage = async (file) => {
   return res.data.data.url;
 };
 
+// Xóa 1 ảnh khỏi server (rollback khi form lưu thất bại). Nuốt lỗi — best effort.
+export const deleteImage = (url) =>
+  api.delete('/upload', { data: { url } }).catch(() => {});
+
 // Nhận mảng string | File, upload các File và trả về mảng URL thuần
 export const resolveImages = async (items) =>
   Promise.all(
