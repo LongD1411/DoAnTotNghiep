@@ -49,7 +49,7 @@ const getAll = async (req, res) => {
   const result = PestEntryQuerySchema.safeParse(req.query);
   if (!result.success) return respond.badRequest(res, ERR.VALIDATION);
 
-  const { search, category, severity, page, limit } = result.data;
+  const { search, category, severity, page, limit } = result. data;
   try {
     const where = {
       ...(search   && { name: { contains: search } }),

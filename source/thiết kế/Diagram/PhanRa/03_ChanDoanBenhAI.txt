@@ -1,0 +1,26 @@
+@startuml
+left to right direction
+skinparam defaultFontName Times New Roman
+skinparam usecase {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+}
+skinparam actorBackgroundColor #FEFECE
+skinparam actorBorderColor #A80036
+skinparam ArrowColor #A80036
+skinparam rectangleBorderColor #A80036
+
+actor "Khách hàng" as Cust
+
+rectangle " " {
+  usecase "Chẩn đoán bệnh qua ảnh (AI)" as P
+  usecase "Gửi ảnh để nhận diện bệnh" as U2
+  usecase "Xem kết quả chẩn đoán" as U3
+  usecase "Xem thuốc điều trị gợi ý" as E1
+}
+
+Cust --> P
+P ..> U2 : <<include>>
+P ..> U3 : <<include>>
+E1 ..> P : <<extend>>
+@enduml

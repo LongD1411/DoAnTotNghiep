@@ -1,0 +1,31 @@
+@startuml
+left to right direction
+skinparam defaultFontName Times New Roman
+skinparam usecase {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+}
+skinparam actorBackgroundColor #FEFECE
+skinparam actorBorderColor #A80036
+skinparam ArrowColor #A80036
+skinparam rectangleBorderColor #A80036
+
+actor "Quản trị viên" as Admin
+
+rectangle " " {
+  usecase "Thống kê & báo cáo" as P
+  usecase "Thống kê doanh thu" as U1
+  usecase "Thống kê đơn hàng" as U2
+  usecase "Thống kê sản phẩm bán chạy" as U3
+  usecase "Thống kê người dùng" as U4
+  usecase "Xuất báo cáo (Excel / PDF)" as E1
+}
+
+Admin --> P
+
+P ..> U1 : <<include>>
+P ..> U2 : <<include>>
+P ..> U3 : <<include>>
+P ..> U4 : <<include>>
+E1 ..> P : <<extend>>
+@enduml

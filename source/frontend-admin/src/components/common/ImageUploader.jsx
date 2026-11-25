@@ -1,8 +1,20 @@
 import { useState, useRef, useEffect } from 'react';
+import { toastService } from '../../services/toastService';
 
 const MAX_SIZE_MB  = 5;
 const ACCEPT_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const ACCEPT_ATTR  = ACCEPT_TYPES.join(',');
+
+// Đọc tỉ lệ (w/h) + kích thước của 1 file ảnh — dùng để validate tỉ lệ khi upload
+const readRatio = (file) => new Promise((resolve) => {
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload  = () => { resolve({ ratio: img.naturalWidth / img.naturalHeight, w: img.naturalWidth, h: img.naturalHeight }); URL.revokeObjectURL(url); };
+  img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+  img.src = url;
+});
+
+const ratioLabel = (r) => (r === 1 ? '1:1 (vuông)' : `${r.toFixed(2)}:1`);
 
 // ── ImageUploader ─────────────────────────────────────────────────────────────
 // Props:
@@ -14,7 +26,8 @@ const ACCEPT_ATTR  = ACCEPT_TYPES.join(',');
 // File objects được hiện preview local ngay lập tức.
 // Upload lên cloud xảy ra khi parent form submit (dùng resolveImages từ uploadService).
 
-const ImageUploader = ({ images = [], onChange, max = 5, className = '' }) => {
+// aspectRatio (w/h) — nếu đặt, chỉ nhận ảnh có tỉ lệ nằm trong ±aspectTolerance quanh giá trị này.
+const ImageUploader = ({ images = [], onChange, max = 5, className = '', aspectRatio = null, aspectTolerance = 0.15 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null); // lightbox
   const inputRef    = useRef(null);
@@ -48,12 +61,22 @@ const ImageUploader = ({ images = [], onChange, max = 5, className = '' }) => {
     return blobCache.current.get(item);
   };
 
-  const addFiles = (files) => {
-    const valid = Array.from(files)
-      .filter(f => ACCEPT_TYPES.includes(f.type) && f.size <= MAX_SIZE_MB * 1024 * 1024)
-      .slice(0, available);
-    if (!valid.length) return;
-    onChange([...images, ...valid]);
+  const addFiles = async (files) => {
+    const incoming = Array.from(files).slice(0, available);
+    const accepted = [];
+    for (const f of incoming) {
+      if (!ACCEPT_TYPES.includes(f.type)) { toastService.error(`"${f.name}": định dạng không hỗ trợ (JPG/PNG/WebP/GIF)`); continue; }
+      if (f.size > MAX_SIZE_MB * 1024 * 1024) { toastService.error(`"${f.name}": vượt quá ${MAX_SIZE_MB}MB`); continue; }
+      if (aspectRatio) {
+        const info = await readRatio(f);
+        if (info && Math.abs(info.ratio - aspectRatio) / aspectRatio > aspectTolerance) {
+          toastService.error(`"${f.name}" (${info.w}×${info.h}) sai tỉ lệ — cần ảnh tỉ lệ ${ratioLabel(aspectRatio)}`);
+          continue;
+        }
+      }
+      accepted.push(f);
+    }
+    if (accepted.length) onChange([...images, ...accepted]);
   };
 
   const removeAt = (idx) => {

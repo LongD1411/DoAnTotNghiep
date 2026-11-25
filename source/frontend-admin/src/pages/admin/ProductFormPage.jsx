@@ -513,7 +513,11 @@ const ProductFormPage = () => {
                   images={form.images}
                   onChange={urls => setForm(prev => ({ ...prev, images: urls }))}
                   max={5}
+                  aspectRatio={1}
                 />
+                <p className="text-xs text-slate-400 mt-3">
+                  Khuyến nghị ảnh <b>vuông — tỉ lệ 1:1</b> (vd 800×800px) để hiển thị đồng bộ. Ảnh sai tỉ lệ sẽ bị từ chối.
+                </p>
               </div>
 
               {/* Phân loại & Trạng thái */}

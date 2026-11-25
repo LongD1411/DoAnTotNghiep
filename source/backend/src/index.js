@@ -11,7 +11,10 @@ import reviewRoutes     from './routes/reviews.js';
 import postRoutes       from './routes/posts.js';
 import commentRoutes    from './routes/comments.js';
 import cartRoutes       from './routes/carts.js';
+import orderRoutes      from './routes/orders.js';
+import notificationRoutes from './routes/notifications.js';
 import forumCategoryRoutes from './routes/forumCategories.js';
+import diagnosisRoutes    from './routes/diagnosis.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,7 +38,10 @@ app.use('/reviews',      reviewRoutes);
 app.use('/posts',        postRoutes);
 app.use('/comments',     commentRoutes);
 app.use('/cart',         cartRoutes);
+app.use('/orders',       orderRoutes);
+app.use('/notifications', notificationRoutes);
 app.use('/forum-categories', forumCategoryRoutes);
+app.use('/diagnosis',    diagnosisRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

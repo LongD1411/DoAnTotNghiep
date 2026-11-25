@@ -1,0 +1,11 @@
+# Môi trường ảo Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Dataset & model (dung lượng lớn - KHÔNG commit)
+dataset/
+model/
+*.keras
+*.h5

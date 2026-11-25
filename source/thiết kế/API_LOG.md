@@ -492,5 +492,95 @@ Chưa có API post → tạo mới. Ảnh inline trong nội dung dùng **multip
 **Ghi chú:** đổi mật khẩu KHÔNG thu hồi refresh token hiện có (phiên khác vẫn sống đến khi hết hạn 7 ngày) — nếu cần bảo mật chặt hơn thì xoá `refreshToken` của user sau khi đổi.
 
 
+## v25 — 2026-10-06
+
+**Resource:** order
+**Yêu cầu:** API đơn hàng cho luồng thanh toán (checkout) — khớp contract frontend `orderService.js`; hỗ trợ COD + chuyển khoản ngân hàng (đối soát Vietcombank thủ công)
+
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|-------|
+| POST | /orders | token | Tạo đơn từ giỏ server-side (atomic $transaction): tạo Address + Order(`pending`/`unpaid`) + OrderItem (snapshot giá), trừ stock + tăng sold, xoá giỏ. Giá/phí ship/tổng tính SERVER (ship 30k, free ≥500k). Giỏ trống → ER601, hết hàng/vượt tồn → ER501 |
+| GET | /orders | token | Đơn của user hiện tại; admin thấy tất cả. Filter `status`, `payment_status`, phân trang |
+| GET | /orders/:id | token | Chi tiết đơn — chỉ chủ đơn hoặc admin (sai quyền ER103) |
+| PUT | /orders/:id | admin | Cập nhật `status` / `payment_status` / `cancel_reason`; sang `delivered` tự set `deliveredAt`; rỗng → ER004 |
+
+**Files:**
+- [+] backend/src/models/input/order.input.js — CreateOrderSchema (address + payment_method + note), UpdateOrderSchema, OrderQuerySchema; hằng ORDER_STATUS/PAYMENT_STATUS/PAYMENT_METHODS
+- [+] backend/src/models/output/order.output.js — OrderOutput (code `DH000123`, subtotal từ items, address, items kèm ảnh chính), OrderListOutput
+- [+] backend/src/controllers/orderController.js — create/getAll/getById/update; phí ship + giá tính server; ownership check
+- [+] backend/src/routes/orders.js — POST/GET/GET:id (token), PUT:id (admin)
+- [~] backend/src/index.js — import + app.use('/orders', ...)
+- [~] backend/src/common/response.js — thêm ER601 CART_EMPTY (tái dùng ER501 OUT_OF_STOCK cho tồn kho)
+- [~] thiết kế/API_DOCS.md — section Orders + 4 dòng bảng tóm tắt
+
+**Ghi chú:** `bank_transfer` tạo đơn `unpaid`; admin xác nhận đã nhận chuyển khoản VCB bằng `PUT /orders/:id { payment_status: 'paid', status: 'approved' }`. Chưa tích hợp cổng/webhook tự động (đối soát thủ công theo mã `DH######`). `shipping_fee`/`localTime` client gửi đều bị bỏ qua (server tự tính/không cần).
+
+---
+
+## v26 — 2026-10-07
+
+**Resource:** order
+**Yêu cầu:** cho phép KHÁCH tự huỷ đơn khi đơn còn `pending` (nút "Hủy đơn hàng" trang chi tiết)
+
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|-------|
+| PUT | /orders/:id/cancel | token | Chủ đơn (hoặc admin) huỷ đơn — **chỉ khi `status='pending'`** (khác → ER602). `$transaction`: set `status='cancelled'` + `cancelReason`, hoàn lại tồn kho (`stock +qty`, `sold -qty`). Không phải chủ/admin → ER103; không tồn tại → ER002 |
+
+**Files:**
+- [~] backend/src/common/response.js — thêm ER602 ORDER_NOT_CANCELABLE
+- [~] backend/src/models/input/order.input.js — CancelOrderSchema (cancel_reason optional)
+- [~] backend/src/controllers/orderController.js — thêm `cancel` (hoàn kho + check ownership + check pending)
+- [~] backend/src/routes/orders.js — `PUT /orders/:id/cancel` (authenticateToken, đặt TRƯỚC `/:id`)
+
+**Verify:** route mounted (401 khi thiếu token); PUT /orders/999999/cancel (token customer) → 404 ER002 (controller chạy đúng, không mutate).
+
+---
+
+## v27 — 2026-10-08
+
+**Resource:** notification
+**Yêu cầu:** thông báo realtime (SSE) cho admin + customer; sự kiện: đơn mới · đổi trạng thái đơn · sắp hết hàng · bài mới chờ duyệt
+
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|-------|
+| GET | /notifications | token | Danh sách thông báo của tôi (phân trang) + `unread` |
+| GET | /notifications/stream | token (query `?token=`) | **SSE** realtime push (EventSource không gửi header được) |
+| PUT | /notifications/:id/read | token | Đánh dấu 1 cái đã đọc |
+| PUT | /notifications/read-all | token | Đánh dấu tất cả đã đọc |
+
+**Files:**
+- [+] backend/src/utils/notificationHub.js — registry SSE (userId→Set<res>) + `notify`/`notifyMany`/`notifyStaff` (lưu DB + đẩy SSE)
+- [+] backend/src/controllers/notificationController.js — getAll / markRead / markAllRead / **stream** (SSE, verify JWT qua query)
+- [+] backend/src/routes/notifications.js · models/output/notification.output.js · models/input/notification.input.js
+- [~] backend/src/index.js — mount `/notifications`
+- [~] backend/src/controllers/orderController.js — hook: create → notifyStaff (đơn mới) + low-stock; update → notify chủ đơn (đổi trạng thái/thanh toán); cancel → notifyStaff
+- [~] backend/src/controllers/postController.js — hook: create (pending) → notifyStaff (bài chờ duyệt)
+
+**Ghi chú:** model `Notification` đã có sẵn trong schema → **không cần migrate**. Chưa có endpoint tạo "báo cáo bài viết" nên dùng sự kiện **bài mới chờ duyệt** làm nguồn forum. Notify là fire-and-forget (không chặn/làm chậm request chính). Verify: client SSE nhận `event: notification` tức thì sau khi emit.
+
+---
+
+## v28 — 2026-10-08
+
+**Resource:** diagnosis (Chẩn đoán bệnh cây bằng AI)
+**Yêu cầu:** nhận ảnh lá → gọi ML service (CNN tự train) → map sang PestEntry → trả kết quả hoặc fallback + lưu lịch sử
+
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|-------|
+| POST | /diagnosis | optional | Upload ảnh (multipart `file`) → nhận diện; trả `status` = `matched` / `healthy` / `unmatched` |
+| GET | /diagnosis/history | token | Lịch sử chẩn đoán của chính người dùng |
+
+**Files:**
+- [+] backend/src/utils/mlClient.js — gọi ML service `POST /predict` (global fetch + FormData, AbortController timeout); mã lỗi `ML_NOT_READY` (chưa train) / `ML_ERROR`
+- [+] backend/src/controllers/diagnosisController.js — `diagnose` (gọi ML → upload Cloudinary → map `PestEntry.modelLabel` → lưu `Diagnosis`) + `history`; ngưỡng tin cậy `DIAGNOSIS_CONFIDENCE_THRESHOLD` (0.6); lớp `*healthy*` → cây khỏe
+- [+] backend/src/routes/diagnosis.js — POST `/` (optionalAuth + multer memory 5MB) · GET `/history` (token)
+- [+] backend/src/models/output/diagnosis.output.js — `DiagnosisOutput` (status, confidence, predictions, pest, recommended_products) + `DiagnosisHistoryItemOutput`
+- [~] backend/src/common/response.js — + `ERR.AI_NOT_READY` (ER701) · `ERR.AI_UNAVAILABLE` (ER702)
+- [~] backend/src/index.js — mount `/diagnosis`
+
+**Ghi chú:** cần **migrate DB v13** (model `Diagnosis` + `PestEntry.modelLabel`). ENV mới: `ML_SERVICE_URL` (mặc định `http://localhost:8000`), `DIAGNOSIS_CONFIDENCE_THRESHOLD` (0.6), `ML_TIMEOUT_MS` (30000). ML engine nằm ở `ml-service/` (FastAPI + MobileNetV2 trên PlantVillage). Khi chưa train model, `/predict` trả 503 → backend trả ER701. Seed bệnh mẫu: `node prisma/seedDiagnosis.js`.
+
+---
+
 > Tự động cập nhật khi chạy `/api`.
 > Không sửa tay trực tiếp.

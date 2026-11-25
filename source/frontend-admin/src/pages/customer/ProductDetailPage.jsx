@@ -225,16 +225,8 @@ const ProductDetailPage = () => {
 
             <div className="h-px bg-[#e9f3e7] dark:bg-white/10" />
 
-            {/* Price + stock */}
-            <div className="flex items-end gap-3 flex-wrap">
-              <span className={`mb-1 mr-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
-                product.stock > 0
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-                  : 'bg-red-100 text-red-700'
-              }`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
-                {product.stock > 0 ? `Còn ${product.stock} ${product.unit ?? ''}` : 'Hết hàng'}
-              </span>
+            {/* Price */}
+            <div className="flex items-end justify-end gap-3 flex-wrap">
               {product.discount_price ? (
                 <>
                   <span className="text-xl text-gray-400 line-through mb-1">{fmt(product.price)}</span>

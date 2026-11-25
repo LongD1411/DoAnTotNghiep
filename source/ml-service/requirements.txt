@@ -1,0 +1,8 @@
+# ML service - Nhà Nông
+# Python 3.10 - 3.13
+tensorflow>=2.16,<3        # Keras 3 era; pip sẽ lấy bản ổn định mới nhất (vd 2.21). CPU chạy được; có CUDA thì nhanh hơn
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pillow>=10.0
+numpy>=1.24
+python-multipart>=0.0.9     # cần cho upload file trong FastAPI

@@ -3,6 +3,7 @@ import { CreatePostSchema, PostQuerySchema, ModeratePostSchema } from '../models
 import { PostOutput, PostListOutput } from '../models/output/post.output.js';
 import { respond, ERR, SCN } from '../common/response.js';
 import { uploadToT3, deleteFromT3 } from '../utils/t3Storage.js';
+import { notifyStaff } from '../utils/notificationHub.js';
 
 const VI_MAP = {'à':'a','á':'a','ả':'a','ã':'a','ạ':'a','ă':'a','ắ':'a','ằ':'a','ẳ':'a','ẵ':'a','ặ':'a','â':'a','ấ':'a','ầ':'a','ẩ':'a','ẫ':'a','ậ':'a','đ':'d','è':'e','é':'e','ẻ':'e','ẽ':'e','ẹ':'e','ê':'e','ế':'e','ề':'e','ể':'e','ễ':'e','ệ':'e','ì':'i','í':'i','ỉ':'i','ĩ':'i','ị':'i','ò':'o','ó':'o','ỏ':'o','õ':'o','ọ':'o','ô':'o','ố':'o','ồ':'o','ổ':'o','ỗ':'o','ộ':'o','ơ':'o','ớ':'o','ờ':'o','ở':'o','ỡ':'o','ợ':'o','ù':'u','ú':'u','ủ':'u','ũ':'u','ụ':'u','ư':'u','ứ':'u','ừ':'u','ử':'u','ữ':'u','ự':'u','ỳ':'y','ý':'y','ỷ':'y','ỹ':'y','ỵ':'y'};
 const toSlug = (str) => { let s = str.toLowerCase(); for (const [k,v] of Object.entries(VI_MAP)) s = s.split(k).join(v); return s.replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-'); };
@@ -114,6 +115,8 @@ const create = async (req, res) => {
       data: { title, slug, content: finalContent, categoryId: category_id, userId, status: 'pending' },
       include: { category: CAT_SELECT, user: { select: USER_SELECT }, _count: { select: { comments: true } } },
     });
+    // Bài mới ở trạng thái pending → báo staff vào kiểm duyệt (fire-and-forget)
+    notifyStaff({ type: 'forum', title: 'Bài viết mới chờ duyệt', body: `"${title}" cần kiểm duyệt`, refId: post.id, refType: 'post' });
     respond.created(res, SCN.CREATED, PostOutput(post));
   } catch (err) {
     await deleteImages(uploaded); // lỗi sau khi đã upload → dọn ảnh (không để mồ côi)

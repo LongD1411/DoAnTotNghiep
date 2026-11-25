@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+dataset/
+colab_train_rice.ipynb
+README.md
+# GIỮ model/ — HF Space cần file model

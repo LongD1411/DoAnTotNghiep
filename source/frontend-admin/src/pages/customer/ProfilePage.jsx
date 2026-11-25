@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import CustomerLayout from '../../components/customer/CustomerLayout';
 import LoadingOverlay from '../../components/common/LoadingOverlay';
 import { getProfile, updateProfile, changePassword, logout } from '../../services/authService';
 import { getPosts } from '../../services/postService';
+import { getMyOrders } from '../../services/orderService';
 import { useCartStore, selectCartCount } from '../../store/useCartStore';
+import { useNotificationStore } from '../../store/useNotificationStore';
 import { toastService, errMsg } from '../../services/toastService';
+import { productImage } from '../../utils/productImage';
+import { ORDER_STATUS_LABEL, PAYMENT_STATUS_LABEL } from '../../utils/orderStatus';
 
 const initials = (name = '') => name.trim().split(/\s+/).slice(-2).map(w => w[0]).join('').toUpperCase() || '?';
 const fmtDate  = (iso) => (iso ? new Date(iso).toLocaleDateString('vi-VN') : '—');
+const fmt = (n) =>
+  n != null ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n) : '—';
 
 const ROLE_LABEL  = { customer: 'Khách hàng', mod: 'Kiểm duyệt viên', admin: 'Quản trị viên' };
 const POST_STATUS = {
@@ -19,10 +25,10 @@ const POST_STATUS = {
 
 const TABS = [
   { id: 'overview', label: 'Tổng quan',           icon: 'person' },
+  { id: 'orders',   label: 'Đơn hàng',            icon: 'shopping_bag' },
+  { id: 'posts',    label: 'Bài viết của tôi',    icon: 'forum' },
   { id: 'edit',     label: 'Chỉnh sửa thông tin', icon: 'edit' },
   { id: 'password', label: 'Đổi mật khẩu',        icon: 'lock' },
-  { id: 'posts',    label: 'Bài viết của tôi',    icon: 'forum' },
-  { id: 'orders',   label: 'Đơn hàng',            icon: 'shopping_bag', disabled: true },
 ];
 
 const INPUT_CLS = 'w-full rounded-lg border px-4 py-3 text-base text-[#101b0d] dark:text-white bg-[#f9fcf8] dark:bg-[#1c3019] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors';
@@ -30,12 +36,14 @@ const border = (err) => (err ? 'border-red-400' : 'border-[#d3e7cf] dark:border-
 
 const ProfilePage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const cartCount = useCartStore(selectCartCount);
 
   const [profile, setProfile]   = useState(null);
   const [myPosts, setMyPosts]   = useState([]);
+  const [myOrders, setMyOrders] = useState([]);
   const [loading, setLoading]   = useState(true);
-  const [tab, setTab]           = useState('overview');
+  const [tab, setTab]           = useState(location.state?.tab ?? 'overview');
 
   // Form sửa thông tin
   const [form, setForm]     = useState({ full_name: '', phone: '' });
@@ -48,12 +56,13 @@ const ProfilePage = () => {
   const [pwSaving, setPwSaving] = useState(false);
 
   useEffect(() => {
-    Promise.all([getProfile(), getPosts({ limit: 100 })])
-      .then(([pRes, postsRes]) => {
+    Promise.all([getProfile(), getPosts({ limit: 100 }), getMyOrders({ limit: 100 })])
+      .then(([pRes, postsRes, ordersRes]) => {
         const p = pRes.data.data;
         setProfile(p);
         setForm({ full_name: p.name ?? '', phone: p.phone ?? '' });
         setMyPosts(postsRes.data.data.data.filter(post => post.user?.id === p.id));
+        setMyOrders(ordersRes.data.data.data);
       })
       .catch(err => toastService.error(errMsg(err)))
       .finally(() => setLoading(false));
@@ -153,6 +162,7 @@ const ProfilePage = () => {
   const handleLogout = async () => {
     try { await logout(); } catch { /* token đã được xoá phía client */ }
     useCartStore.getState().reset();
+    useNotificationStore.getState().reset();
     toastService.success('Đã đăng xuất');
     navigate('/trang-chu');
   };
@@ -237,7 +247,11 @@ const ProfilePage = () => {
                 </div>
 
                 {/* Stat tiles */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <button onClick={() => setTab('orders')} className="text-left bg-white dark:bg-[#132210] rounded-xl border border-gray-200 dark:border-[#2a4524] p-5 hover:border-primary transition-colors">
+                    <p className="text-sm font-semibold uppercase tracking-wide text-gray-400">Đơn hàng</p>
+                    <p className="text-3xl font-black text-[#101b0d] dark:text-white mt-2">{myOrders.length}</p>
+                  </button>
                   <div className="bg-white dark:bg-[#132210] rounded-xl border border-gray-200 dark:border-[#2a4524] p-5">
                     <p className="text-sm font-semibold uppercase tracking-wide text-gray-400">Bài viết diễn đàn</p>
                     <p className="text-3xl font-black text-[#101b0d] dark:text-white mt-2">{myPosts.length}</p>
@@ -284,6 +298,80 @@ const ProfilePage = () => {
                   </dl>
                 </div>
               </>
+            )}
+
+            {/* ═══ Đơn hàng ═══ */}
+            {tab === 'orders' && (
+              <div className="flex flex-col gap-4">
+                <h2 className="text-2xl font-black text-[#101b0d] dark:text-white">Đơn hàng của tôi ({myOrders.length})</h2>
+
+                {myOrders.length === 0 ? (
+                  <div className="bg-white dark:bg-[#132210] rounded-xl border border-gray-100 dark:border-[#2a4524] p-10 flex flex-col items-center gap-3 text-gray-400">
+                    <span className="material-symbols-outlined text-[40px]">shopping_bag</span>
+                    <p className="text-sm">Bạn chưa có đơn hàng nào.</p>
+                    <Link to="/san-pham" className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary hover:bg-[#3ed622] text-[#101b0d] text-sm font-bold transition-colors">
+                      <span className="material-symbols-outlined text-[18px]">storefront</span>
+                      Mua sắm ngay
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {myOrders.map(o => {
+                      const st = ORDER_STATUS_LABEL[o.status] ?? ORDER_STATUS_LABEL.pending;
+                      const ps = PAYMENT_STATUS_LABEL[o.payment_status] ?? PAYMENT_STATUS_LABEL.unpaid;
+                      const items = o.items ?? [];
+                      return (
+                        <div
+                          key={o.id}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => navigate(`/dat-hang/${o.id}`)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/dat-hang/${o.id}`); }}
+                          className="group bg-white dark:bg-[#132210] rounded-xl border border-gray-200 dark:border-[#2a4524] p-4 flex flex-col sm:flex-row sm:items-center gap-4 cursor-pointer hover:shadow-md transition-all"
+                        >
+                          {/* Ảnh sản phẩm */}
+                          <div className="flex -space-x-3 shrink-0">
+                            {items.slice(0, 3).map((it, i) => {
+                              const img = productImage(it);
+                              return (
+                                <div key={it.id ?? i} className="size-12 rounded-lg bg-[#e9f3e7] dark:bg-white/10 bg-cover bg-center border-2 border-white dark:border-[#132210] flex items-center justify-center" style={img ? { backgroundImage: `url("${img}")` } : {}}>
+                                  {!img && <span className="material-symbols-outlined text-[#d3e7cf]">eco</span>}
+                                </div>
+                              );
+                            })}
+                            {items.length > 3 && (
+                              <div className="size-12 rounded-lg bg-[#e9f3e7] dark:bg-white/10 border-2 border-white dark:border-[#132210] flex items-center justify-center text-xs font-bold text-[#2E7D32] dark:text-primary">
+                                +{items.length - 3}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Thông tin đơn */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-base font-bold text-[#101b0d] dark:text-white group-hover:text-[#2E7D32] dark:group-hover:text-primary transition-colors">{o.code}</span>
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold ${st.cls}`}>
+                                <span className={`size-1.5 rounded-full ${st.dot}`} />{st.label}
+                              </span>
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${ps.cls}`}>{ps.label}</span>
+                            </div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
+                              {items[0]?.name}{items.length > 1 ? ` và ${items.length - 1} sản phẩm khác` : ''}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-0.5">{fmtDate(o.created_at)} · {o.item_count} sản phẩm</p>
+                          </div>
+
+                          {/* Tổng tiền + mũi tên gợi ý bấm */}
+                          <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+                            <span className="text-lg font-black text-[#2E7D32] dark:text-primary">{fmt(o.total)}</span>
+                            <span className="material-symbols-outlined text-gray-300 group-hover:text-[#2E7D32] dark:group-hover:text-primary group-hover:translate-x-1 transition-all">chevron_right</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             )}
 
             {/* ═══ Chỉnh sửa thông tin ═══ */}
@@ -380,11 +468,18 @@ const ProfilePage = () => {
                     {myPosts.map(post => {
                       const st = POST_STATUS[post.status] ?? POST_STATUS.published;
                       return (
-                        <div key={post.id} className="bg-white dark:bg-[#132210] rounded-xl border border-gray-200 dark:border-[#2a4524] p-4 flex items-center gap-4 flex-wrap sm:flex-nowrap">
+                        <div
+                          key={post.id}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => navigate(`/dien-dan/${post.slug}`)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/dien-dan/${post.slug}`); }}
+                          className="group bg-white dark:bg-[#132210] rounded-xl border border-gray-200 dark:border-[#2a4524] p-4 flex items-center gap-4 flex-wrap sm:flex-nowrap cursor-pointer hover:shadow-md transition-all"
+                        >
                           <div className="flex-1 min-w-0">
-                            <Link to={`/dien-dan/${post.slug}`} className="text-base font-bold text-[#101b0d] dark:text-white hover:text-[#2E7D32] dark:hover:text-primary transition-colors line-clamp-1">
+                            <span className="block text-base font-bold text-[#101b0d] dark:text-white group-hover:text-[#2E7D32] dark:group-hover:text-primary transition-colors line-clamp-1">
                               {post.title}
-                            </Link>
+                            </span>
                             <p className="text-xs text-gray-400 mt-1 flex items-center gap-3">
                               <span>{fmtDate(post.created_at)}</span>
                               <span className="flex items-center gap-1">
@@ -401,6 +496,7 @@ const ProfilePage = () => {
                             {st.label}
                           </span>
                           <Link to={`/dien-dan/sua/${post.slug}`} title="Chỉnh sửa bài viết"
+                            onClick={(e) => e.stopPropagation()}
                             className="flex items-center justify-center size-8 rounded-lg text-[#2E7D32] dark:text-primary hover:bg-primary/10 transition-colors shrink-0">
                             <span className="material-symbols-outlined text-[18px]">edit</span>
                           </Link>

@@ -2,21 +2,17 @@ import api from './axiosInstance';
 
 // Đơn hàng — tất cả endpoint cần đăng nhập (axiosInstance tự gắn Bearer token).
 //
-// ⚠️ Backend CHƯA có route /orders (mới chỉ có model Order trong Prisma). Chạy /api để tạo
-// controller + route trước khi "Đặt hàng" hoạt động. Contract kỳ vọng của POST /orders:
-//
-//   POST /orders
+//   POST /orders  (xem thiết kế/API_DOCS.md — Orders)
 //   body: {
-//     address:       { fullName, phone, street, ward, district, city },
-//     paymentMethod: 'cod' | 'bank_transfer' | 'vnpay',
-//     note:          string | null,
-//     shippingFee:   number,   // client tính để hiển thị — backend TỰ tính lại (authoritative)
-//     localTime:     ISO string
+//     address:        { full_name, phone, street, ward?, district, city, zip? },
+//     payment_method: 'cod' | 'bank_transfer',
+//     note?:          string,
+//     localTime:      ISO string   // backend bỏ qua; đính kèm theo convention
 //   }
 //
-// Backend đọc giỏ server-side của user đang đăng nhập để dựng OrderItem + tính total,
-// tạo Address + Order, xoá giỏ, rồi trả về đơn vừa tạo. Không nhận items/giá từ client
-// (tránh sửa giá). Trả về shape chuẩn { data: <order> } như các controller khác.
+// Backend đọc giỏ server-side của user để dựng OrderItem + tính total/phí ship theo GIÁ DB
+// (không nhận items/giá/phí từ client), tạo Address + Order, xoá giỏ, trả về đơn vừa tạo
+// trong { data: <order> } (gồm id, code `DH######`, total, payment_status...).
 export const createOrder = (payload) =>
   api.post('/orders', { ...payload, localTime: new Date().toISOString() });
 
@@ -26,3 +22,11 @@ export const getMyOrders = (params = {}) =>
 
 export const getOrderById = (id) =>
   api.get(`/orders/${id}`);
+
+// Admin cập nhật trạng thái đơn / thanh toán (PUT /orders/:id). data: { status?, payment_status?, cancel_reason? }
+export const updateOrder = (id, data) =>
+  api.put(`/orders/${id}`, { ...data, localTime: new Date().toISOString() });
+
+// Chủ đơn tự huỷ đơn — backend chỉ cho huỷ khi đơn còn 'pending' (và hoàn lại tồn kho)
+export const cancelOrder = (id, cancel_reason) =>
+  api.put(`/orders/${id}/cancel`, { cancel_reason, localTime: new Date().toISOString() });

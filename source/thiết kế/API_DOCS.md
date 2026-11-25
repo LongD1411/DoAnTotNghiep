@@ -621,6 +621,76 @@ Merge giỏ guest (localStorage) vào giỏ user — gọi **một lần ngay sa
 
 ---
 
+## Orders — Đơn hàng
+
+Tất cả endpoint đều cần `token`. Đơn được tạo từ **giỏ server-side** của user; giá sản phẩm, phí ship và tổng tiền đều tính ở **backend** (không tin client). Phí ship: phẳng **30.000đ**, **miễn phí** khi tạm tính ≥ **500.000đ**.
+
+### POST `/orders` — Đặt hàng
+
+**Auth:** token (customer)
+
+**Request body:**
+| Field | Type | Bắt buộc | Mô tả |
+|-------|------|----------|-------|
+| `address.full_name` | string | ✔ | Tên người nhận (1–100) |
+| `address.phone` | string | ✔ | SĐT, 8–15 chữ số |
+| `address.street` | string | ✔ | Địa chỉ cụ thể (số nhà, đường) |
+| `address.district` | string | ✔ | Quận/Huyện |
+| `address.city` | string | ✔ | Tỉnh/Thành phố |
+| `address.ward` | string | — | Phường/Xã |
+| `address.zip` | string | — | Mã bưu chính |
+| `payment_method` | enum | — | `cod` (mặc định) \| `bank_transfer` |
+| `note` | string | — | Ghi chú (≤500) |
+
+```json
+{
+  "address": { "full_name": "Nguyễn Văn A", "phone": "0901234567", "street": "12 Lê Lợi", "district": "Cầu Giấy", "city": "Hà Nội" },
+  "payment_method": "bank_transfer",
+  "note": "Giao giờ hành chính"
+}
+```
+
+**Xử lý:** đọc giỏ server-side → chặn nếu giỏ trống (`ER601`) / có sản phẩm hết hàng–ngừng bán–vượt tồn kho (`ER501`) → trong 1 transaction: tạo `Address`, tạo `Order` (`status=pending`, `paymentStatus=unpaid`, `paymentMethod` theo body) + `OrderItem` (snapshot giá), trừ `stock` + tăng `sold`, xoá sạch giỏ.
+
+**Response `201`:** đơn vừa tạo
+```json
+{ "success": true, "code": "ECN001", "data": {
+  "id": 123, "code": "DH000123", "status": "pending",
+  "payment_method": "bank_transfer", "payment_status": "unpaid",
+  "subtotal": 157000, "shipping_fee": 30000, "discount": 0, "total": 187000,
+  "note": null, "cancel_reason": null,
+  "address": { "id": 7, "full_name": "Nguyễn Văn A", "phone": "0901234567", "street": "12 Lê Lợi", "ward": null, "district": "Cầu Giấy", "city": "Hà Nội", "zip": null },
+  "items": [ { "id": 1, "product_id": 12, "name": "Roundup Ultra 480 SL", "slug": "roundup-ultra-480-sl", "unit": "chai", "image_url": "https://...", "price": 157000, "quantity": 1, "subtotal": 157000 } ],
+  "item_count": 1, "delivered_at": null, "created_at": "...", "updated_at": "..."
+} }
+```
+**Lỗi:** `ER601` (giỏ trống) · `ER501` (hết hàng/vượt tồn) · `ER001` (validate) · `ER101/ER102` (token)
+
+### GET `/orders` — Danh sách đơn
+
+**Auth:** token. Customer chỉ thấy đơn của mình; **admin thấy tất cả**. Query: `page`, `limit`, `status`, `payment_status`.
+
+**Response `200`:** `{ data: [<order>], total, page, limit }`
+
+### GET `/orders/:id` — Chi tiết đơn
+
+**Auth:** token — chỉ **chủ đơn** hoặc **admin** (sai quyền → `ER103`, không tồn tại → `ER002`).
+
+### PUT `/orders/:id` — Cập nhật trạng thái (admin)
+
+**Auth:** token + role `admin`. Dùng để **đối soát chuyển khoản Vietcombank thủ công** (đánh dấu đã thanh toán) và chuyển trạng thái giao hàng.
+
+**Request body** (ít nhất 1 field, không có → `ER004`):
+| Field | Type | Mô tả |
+|-------|------|-------|
+| `status` | enum | `pending` \| `approved` \| `delivering` \| `delivered` \| `completed` \| `cancelled` (sang `delivered` tự set `delivered_at`) |
+| `payment_status` | enum | `unpaid` \| `paid` \| `refunded` |
+| `cancel_reason` | string | Lý do huỷ (≤255) |
+
+**Response `200`:** đơn sau cập nhật. **Lỗi:** `ER002` (không tồn tại) · `ER004` (rỗng) · `ER103` (không phải admin).
+
+---
+
 ## Tóm tắt tất cả endpoints
 
 | Method | Endpoint | Auth | Mô tả |
@@ -644,3 +714,7 @@ Merge giỏ guest (localStorage) vào giỏ user — gọi **một lần ngay sa
 | PUT | `/cart/items/:productId` | token | Đặt lại số lượng |
 | DELETE | `/cart/items/:productId` | token | Bỏ sản phẩm khỏi giỏ |
 | POST | `/cart/sync` | token | Merge giỏ guest sau đăng nhập |
+| POST | `/orders` | token | Đặt hàng từ giỏ server-side |
+| GET | `/orders` | token | Đơn của tôi (admin: tất cả) |
+| GET | `/orders/:id` | token | Chi tiết đơn (chủ đơn/admin) |
+| PUT | `/orders/:id` | admin | Cập nhật trạng thái/thanh toán |

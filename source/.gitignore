@@ -1,0 +1,28 @@
+# ── Node ──
+node_modules/
+dist/
+*.log
+
+# ── Env / secrets (KHÔNG commit) ──
+.env
+.env.*
+!.env.production.example
+backend/.env
+backend/.env.docker
+
+# ── Python / ML ──
+ml-service/venv/
+**/__pycache__/
+*.pyc
+ml-service/dataset/
+ml-service/model/
+*.keras
+*.h5
+
+# ── Deploy / Caddy local ──
+caddy_data/
+caddy_config/
+
+# ── OS ──
+.DS_Store
+Thumbs.db

@@ -35,6 +35,7 @@ model User {
   postComments  PostComment[]
   postReports   PostReport[]
   inventoryLogs InventoryLog[]
+  diagnoses     Diagnosis[]
 }
 
 // ─── CATEGORY ────────────────────────────────────────────────────────────────
@@ -381,6 +382,7 @@ model PestEntry {
   severity    String   @default("TRUNG_BINH") // NGUY_HIEM | NANG | TRUNG_BINH
   description String?  @db.Text
   conditions  String?  @db.Text
+  modelLabel  String?  @unique @db.VarChar(200) // mã lớp CNN (PlantVillage) ánh xạ sang bệnh này, vd "Tomato___Late_blight"
   isActive    Boolean  @default(true)
   viewCount   Int      @default(0)
   createdAt   DateTime @default(now())
@@ -391,6 +393,7 @@ model PestEntry {
   treatments          PestTreatment[]
   cropTypes           PestCropType[]
   recommendedProducts PestProduct[]
+  diagnoses           Diagnosis[]
 
   @@index([category])
   @@index([severity])
@@ -450,6 +453,27 @@ model PestProduct {
 
   @@id([pestId, productId])
   @@index([productId])
+}
+
+// ─── DIAGNOSIS (LỊCH SỬ CHẨN ĐOÁN AI) ───────────────────────────────────────
+
+model Diagnosis {
+  id             Int      @id @default(autoincrement())
+  userId         Int?     // null nếu khách chưa đăng nhập
+  imageUrl       String   @db.VarChar(500) // ảnh đã upload lên Cloudinary
+  predictedLabel String   @db.VarChar(200) // label gốc CNN trả về (vd Tomato___Late_blight)
+  displayName    String?  @db.VarChar(300) // tên tiếng Việt hiển thị
+  confidence     Float    // độ tin cậy của dự đoán top-1 (0..1)
+  matched        Boolean  @default(false)  // có map được sang PestEntry không
+  pestId         Int?     // PestEntry khớp (nếu có)
+  predictions    String?  @db.Text         // JSON top-k để tra cứu lại
+  createdAt      DateTime @default(now())
+
+  user User?      @relation(fields: [userId], references: [id])
+  pest PestEntry? @relation(fields: [pestId], references: [id])
+
+  @@index([userId])
+  @@index([pestId])
 }
 
 // ─── AUTH ────────────────────────────────────────────────────────────────────

@@ -189,62 +189,71 @@ const CatalogPage = () => {
           {/* ── Sidebar Filters ───────────────────────────────────────── */}
           <aside className="w-full lg:w-64 shrink-0 flex flex-col gap-6">
             <div className="flex items-center justify-between pb-2 border-b border-[#d3e7cf] dark:border-[#2A3C25]">
-              <h3 className="text-lg font-bold text-[#101b0d] dark:text-white">Bộ lọc</h3>
+              <h3 className="flex items-center gap-2 text-lg font-bold text-[#101b0d] dark:text-white">
+                <span className="material-symbols-outlined text-[20px] text-[#2E7D32] dark:text-primary">tune</span>
+                Bộ lọc
+              </h3>
               <button
                 onClick={resetFilters}
-                className="text-sm text-[#599a4c] hover:text-primary font-medium"
+                className="text-sm text-[#599a4c] hover:text-primary font-medium transition-colors"
               >
                 Đặt lại
               </button>
             </div>
 
             {/* Danh mục sản phẩm */}
-            <details className="flex flex-col rounded-lg border border-[#d3e7cf] dark:border-[#2A3C25] bg-white dark:bg-[#1c3019] px-4 py-2 group" open>
-              <summary className="flex cursor-pointer items-center justify-between gap-2 py-2 select-none">
-                <span className="text-[#101b0d] dark:text-white text-sm font-bold">Danh mục sản phẩm</span>
-                <span className="material-symbols-outlined text-[#101b0d] dark:text-white group-open:rotate-180 transition-transform text-[20px]">expand_more</span>
-              </summary>
-              <div className="pt-2 pb-2 flex flex-col gap-2">
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-bold text-[#101b0d] dark:text-white">Danh mục sản phẩm</p>
+              <div className="flex flex-col gap-0.5">
                 {categoryOptions.length === 0 && (
                   <p className="text-xs text-gray-400">Chưa có danh mục</p>
                 )}
-                {categoryOptions.map(opt => (
-                  <label key={opt.value} className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={!!catFilters[opt.value]}
-                      onChange={() => { toggleCheck(setCatFilters, opt.value); setCurrentPage(1); }}
-                      className="size-4 rounded border-gray-300 text-primary focus:ring-primary bg-white dark:bg-[#132210] dark:border-gray-600"
-                    />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{opt.label}</span>
-                    <span className="ml-auto text-xs text-gray-400">
-                      {products.filter(p => p.category?.slug === opt.value).length}
-                    </span>
-                  </label>
-                ))}
+                {categoryOptions.map(opt => {
+                  const active = !!catFilters[opt.value];
+                  return (
+                    <label
+                      key={opt.value}
+                      className="flex items-center gap-3 cursor-pointer -mx-2 px-2 py-1.5 rounded-lg hover:bg-[#f3faf2] dark:hover:bg-white/5 transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={active}
+                        onChange={() => { toggleCheck(setCatFilters, opt.value); setCurrentPage(1); }}
+                        className="size-4 rounded border-gray-300 accent-primary bg-white dark:bg-[#132210] dark:border-gray-600"
+                      />
+                      <span className={`text-sm transition-colors ${active ? 'text-[#2E7D32] dark:text-primary font-semibold' : 'text-gray-700 dark:text-gray-300'}`}>{opt.label}</span>
+                      <span className="ml-auto text-[11px] font-semibold text-[#599a4c] bg-[#e9f3e7] dark:bg-white/10 rounded-full px-1.5 py-0.5">
+                        {products.filter(p => p.category?.slug === opt.value).length}
+                      </span>
+                    </label>
+                  );
+                })}
               </div>
-            </details>
+            </div>
 
             {/* Khoảng giá */}
-            <details className="flex flex-col rounded-lg border border-[#d3e7cf] dark:border-[#2A3C25] bg-white dark:bg-[#1c3019] px-4 py-2 group" open>
-              <summary className="flex cursor-pointer items-center justify-between gap-2 py-2 select-none">
-                <span className="text-[#101b0d] dark:text-white text-sm font-bold">Khoảng giá</span>
-                <span className="material-symbols-outlined text-[#101b0d] dark:text-white group-open:rotate-180 transition-transform text-[20px]">expand_more</span>
-              </summary>
-              <div className="pt-2 pb-2 flex flex-col gap-2">
-                {PRICE_OPTIONS.map(opt => (
-                  <label key={opt.value} className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={!!priceFilters[opt.value]}
-                      onChange={() => { toggleCheck(setPriceFilters, opt.value); setCurrentPage(1); }}
-                      className="size-4 rounded border-gray-300 text-primary focus:ring-primary bg-white dark:bg-[#132210] dark:border-gray-600"
-                    />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{opt.label}</span>
-                  </label>
-                ))}
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-bold text-[#101b0d] dark:text-white">Khoảng giá</p>
+              <div className="flex flex-col gap-0.5">
+                {PRICE_OPTIONS.map(opt => {
+                  const active = !!priceFilters[opt.value];
+                  return (
+                    <label
+                      key={opt.value}
+                      className="flex items-center gap-3 cursor-pointer -mx-2 px-2 py-1.5 rounded-lg hover:bg-[#f3faf2] dark:hover:bg-white/5 transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={active}
+                        onChange={() => { toggleCheck(setPriceFilters, opt.value); setCurrentPage(1); }}
+                        className="size-4 rounded border-gray-300 accent-primary bg-white dark:bg-[#132210] dark:border-gray-600"
+                      />
+                      <span className={`text-sm transition-colors ${active ? 'text-[#2E7D32] dark:text-primary font-semibold' : 'text-gray-700 dark:text-gray-300'}`}>{opt.label}</span>
+                    </label>
+                  );
+                })}
               </div>
-            </details>
+            </div>
           </aside>
 
           {/* ── Main content ─────────────────────────────────────────── */}
@@ -283,7 +292,7 @@ const CatalogPage = () => {
                       className="group flex flex-col rounded-xl border border-[#d3e7cf] dark:border-[#2f4b26] bg-white dark:bg-[#1a2e16] overflow-hidden hover:shadow-lg transition-all duration-300"
                     >
                       {/* Image */}
-                      <div className="relative aspect-[4/3] bg-[#f6f8f6] dark:bg-[#2a3e25] overflow-hidden">
+                      <div className="relative aspect-square bg-[#f6f8f6] dark:bg-[#2a3e25] overflow-hidden">
                         {product.image_url ? (
                           <img
                             src={product.image_url}

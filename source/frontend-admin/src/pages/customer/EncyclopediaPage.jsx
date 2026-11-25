@@ -14,6 +14,8 @@ const CATEGORY_OPTIONS = [
   { value: 'Bệnh nấm',    label: 'Bệnh nấm'        },
   { value: 'Vi khuẩn',    label: 'Vi khuẩn'        },
   { value: 'Virus',       label: 'Virus'            },
+  { value: 'Bệnh do tảo', label: 'Bệnh do tảo'      },
+  { value: 'Thiếu dinh dưỡng', label: 'Thiếu dinh dưỡng' },
   { value: 'Tuyến trùng', label: 'Tuyến trùng'     },
   { value: 'Nhện hại',    label: 'Nhện hại'         },
 ];

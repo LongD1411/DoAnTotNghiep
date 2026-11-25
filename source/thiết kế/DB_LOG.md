@@ -251,5 +251,24 @@ npx prisma migrate dev --name review_per_order_item
 
 ---
 
+## v13 — 2026-10-08
+
+**Yêu cầu:** Tích hợp AI chẩn đoán bệnh cây — ánh xạ kết quả CNN ↔ cẩm nang + lưu lịch sử chẩn đoán
+
+**Thay đổi:**
+- [~] **PestEntry**: + `modelLabel String? @unique @db.VarChar(200)` — mã lớp CNN (PlantVillage, vd `Tomato___Late_blight`) để map prediction → bệnh
+- [+] **Diagnosis** (model mới): `userId Int?` · `imageUrl` · `predictedLabel` · `displayName?` · `confidence Float` · `matched Boolean` · `pestId Int?` · `predictions Text` (JSON top-k) · `createdAt` — lưu lịch sử chẩn đoán
+- [~] **User**: + back-relation `diagnoses Diagnosis[]`
+- [~] **PestEntry**: + back-relation `diagnoses Diagnosis[]`
+
+**Models hiện tại:** User, Category, Product, Order, OrderItem, Address, Cart, CartItem, Review, Voucher, VoucherUsage, Notification, ProductImage, ForumCategory, Post, PostComment, PostImage, PostReport, InventoryLog, PestEntry, PestImage, PestSymptom, PestTreatment, PestCropType, PestProduct, **Diagnosis**, RefreshToken
+
+**Migration command:**
+```bash
+npx prisma migrate dev --name add_diagnosis_ai
+```
+
+---
+
 > Tự động cập nhật khi chạy `/db`.
 > Không sửa tay trực tiếp.

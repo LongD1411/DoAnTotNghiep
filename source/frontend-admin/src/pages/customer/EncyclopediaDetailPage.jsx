@@ -9,12 +9,6 @@ import { getProductById } from '../../services/productService';
 const fmt = (n) =>
   n != null ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n) : '—';
 
-const TABS = [
-  { id: 'symptoms',   label: 'Triệu chứng'        },
-  { id: 'conditions', label: 'Điều kiện phát sinh' },
-  { id: 'treatment',  label: 'Biện pháp xử lý'     },
-];
-
 const EncyclopediaDetailPage = () => {
   const { slug } = useParams();
   const [entry,        setEntry]        = useState(null);
@@ -22,7 +16,6 @@ const EncyclopediaDetailPage = () => {
   const [recommended,  setRecommended]  = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [notFound,     setNotFound]     = useState(false);
-  const [activeTab,    setActiveTab]    = useState('symptoms');
   const [activeImage,  setActiveImage]  = useState(0);
   const [lightbox,     setLightbox]     = useState(false);
 
@@ -41,16 +34,12 @@ const EncyclopediaDetailPage = () => {
         if (!data) { setNotFound(true); return; }
         setEntry(data);
 
-        // Fetch related và recommended song song
         await Promise.allSettled([
-          // Related: cùng category, loại bỏ entry hiện tại
           getAllEntries({ category: data.category, limit: 4 })
             .then(r => {
               const list = (r.data?.data?.data ?? []).filter(e => e.id !== data.id).slice(0, 3);
               setRelated(list);
             }),
-
-          // Recommended products
           ...(data.recommended_product_ids?.length
             ? data.recommended_product_ids.map(pid =>
                 getProductById(pid)
@@ -60,8 +49,6 @@ const EncyclopediaDetailPage = () => {
             : []
           ),
         ]).then((results) => {
-          // results[0] = related (allSettled — handled above)
-          // results[1..] = products
           const products = results
             .slice(1)
             .filter(r => r.status === 'fulfilled' && r.value)
@@ -114,7 +101,6 @@ const EncyclopediaDetailPage = () => {
   const badge        = SEVERITY_BADGE[entry.severity] ?? { label: entry.severity, cls: 'bg-slate-100 text-slate-700' };
   const images       = Array.isArray(entry.images) ? entry.images : [];
   const currentImage = images[activeImage] ?? images[0];
-  const productCount = entry.recommended_product_ids?.length ?? 0;
 
   return (
     <CustomerLayout>
@@ -129,11 +115,11 @@ const EncyclopediaDetailPage = () => {
           <span className="text-[#101b0d] dark:text-white font-medium line-clamp-1 max-w-[200px]">{entry.name}</span>
         </nav>
 
-        {/* ── Hero ─────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        {/* ── Hero: ảnh trái (sticky) · nội dung phải ───────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
 
-          {/* Gallery */}
-          <div className="flex flex-col gap-3">
+          {/* Gallery — dính khi cuộn để luôn thấy ảnh */}
+          <div className="flex flex-col gap-3 lg:sticky lg:top-24 lg:self-start">
 
             {/* Ảnh chính */}
             <div className="group rounded-2xl overflow-hidden border border-[#d3e7cf] dark:border-[#2a4524] aspect-[4/3] relative bg-gray-100 dark:bg-[#2a3e25] flex items-center justify-center">
@@ -148,19 +134,16 @@ const EncyclopediaDetailPage = () => {
                 <span className="material-symbols-outlined text-[80px] text-gray-300 dark:text-gray-600">image</span>
               )}
 
-              {/* Severity badge */}
               <div className={`absolute top-4 left-4 text-xs font-bold px-3 py-1 rounded-full shadow ${badge.cls}`}>
                 {badge.label}
               </div>
 
-              {/* Đếm số ảnh */}
               {images.length > 1 && (
                 <div className="absolute bottom-4 right-4 text-xs font-semibold px-2.5 py-1 rounded-full bg-black/60 text-white backdrop-blur-sm">
                   {activeImage + 1} / {images.length}
                 </div>
               )}
 
-              {/* Prev / Next */}
               {images.length > 1 && (
                 <>
                   <button
@@ -181,7 +164,7 @@ const EncyclopediaDetailPage = () => {
               )}
             </div>
 
-            {/* Thumbnails — 5 cột dàn đều khớp bề ngang ảnh chính */}
+            {/* Thumbnails */}
             {images.length > 1 && (
               <div className="grid grid-cols-5 gap-2.5">
                 {images.map((img, i) => (
@@ -201,7 +184,7 @@ const EncyclopediaDetailPage = () => {
             )}
           </div>
 
-          {/* Info */}
+          {/* Nội dung phải: tiêu đề + 1 khối Triệu chứng / Điều kiện / Biện pháp */}
           <div className="flex flex-col gap-5 justify-start">
             <span className="text-xs font-semibold uppercase tracking-wider text-[#599a4c]">{entry.category}</span>
 
@@ -214,7 +197,16 @@ const EncyclopediaDetailPage = () => {
               )}
             </div>
 
-            <div className="h-px bg-[#e9f3e7] dark:bg-white/10" />
+            {/* Meta nhanh: mức độ + cây trồng */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${badge.cls}`}>{badge.label}</span>
+              {entry.crop_types?.map(c => (
+                <span key={c} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#e9f3e7] dark:bg-[#2a3c25] text-xs font-medium text-[#2E7D32] dark:text-primary">
+                  <span className="material-symbols-outlined text-[14px]">eco</span>
+                  {c}
+                </span>
+              ))}
+            </div>
 
             {entry.description && (
               <div
@@ -223,112 +215,72 @@ const EncyclopediaDetailPage = () => {
               />
             )}
 
-            {/* Crop types */}
-            {entry.crop_types?.length > 0 && (
-              <div className="flex flex-col gap-2">
-                <p className="text-sm font-semibold text-[#101b0d] dark:text-white">Cây trồng bị ảnh hưởng:</p>
-                <div className="flex flex-wrap gap-2">
-                  {entry.crop_types.map(c => (
-                    <span key={c} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#e9f3e7] dark:bg-[#2a3c25] text-sm font-medium text-[#2E7D32] dark:text-primary">
-                      <span className="material-symbols-outlined text-[14px]">eco</span>
-                      {c}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* ── 1 KHỐI nội dung ─────────────────────────────────── */}
+            <div className="rounded-2xl border border-[#d3e7cf] dark:border-[#2a4524] bg-white dark:bg-[#132210] p-5 md:p-6 flex flex-col divide-y divide-[#e9f3e7] dark:divide-white/10">
 
-            {/* Stats */}
-            <div className="flex gap-4 flex-wrap">
-              {productCount > 0 && (
-                <div className="flex flex-col items-center gap-1 px-4 py-3 rounded-xl bg-white dark:bg-[#1c3019] border border-[#d3e7cf] dark:border-[#2a4524]">
-                  <span className="text-2xl font-black text-[#2E7D32] dark:text-primary">{productCount}</span>
-                  <span className="text-xs text-gray-400">Sản phẩm xử lý</span>
-                </div>
-              )}
-              <div className="flex flex-col items-center gap-1 px-4 py-3 rounded-xl bg-white dark:bg-[#1c3019] border border-[#d3e7cf] dark:border-[#2a4524]">
-                <span className={`text-sm font-bold px-2 py-0.5 rounded-full ${badge.cls}`}>{badge.label}</span>
-                <span className="text-xs text-gray-400">Mức độ nguy hại</span>
-              </div>
-              {entry.view_count > 0 && (
-                <div className="flex flex-col items-center gap-1 px-4 py-3 rounded-xl bg-white dark:bg-[#1c3019] border border-[#d3e7cf] dark:border-[#2a4524]">
-                  <span className="text-2xl font-black text-[#2E7D32] dark:text-primary">{entry.view_count}</span>
-                  <span className="text-xs text-gray-400">Lượt xem</span>
-                </div>
-              )}
+              {/* Triệu chứng */}
+              <section className="pb-5 flex flex-col gap-3">
+                <h2 className="flex items-center gap-2 text-base font-bold text-[#101b0d] dark:text-white">
+                  <span className="material-symbols-outlined text-[#2E7D32] dark:text-primary text-[20px]">coronavirus</span>
+                  Triệu chứng
+                </h2>
+                {entry.symptoms?.length ? (
+                  <ul className="flex flex-col gap-2">
+                    {entry.symptoms.map((s, i) => (
+                      <li key={i} className="flex items-start gap-2.5">
+                        <span
+                          className="material-symbols-outlined text-[#2E7D32] dark:text-primary text-[16px] shrink-0 mt-1"
+                          style={{ fontVariationSettings: "'FILL' 1" }}
+                        >
+                          circle
+                        </span>
+                        <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed">{s}</p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-400 text-sm italic">Chưa có dữ liệu triệu chứng.</p>
+                )}
+              </section>
+
+              {/* Điều kiện phát sinh */}
+              <section className="py-5 flex flex-col gap-3">
+                <h2 className="flex items-center gap-2 text-base font-bold text-[#101b0d] dark:text-white">
+                  <span className="material-symbols-outlined text-[#2E7D32] dark:text-primary text-[20px]">partly_cloudy_day</span>
+                  Điều kiện phát sinh
+                </h2>
+                {entry.conditions ? (
+                  <div
+                    className="rich-prose text-sm text-gray-700 dark:text-gray-200 leading-relaxed overflow-x-hidden"
+                    dangerouslySetInnerHTML={{ __html: entry.conditions }}
+                  />
+                ) : (
+                  <p className="text-gray-400 text-sm italic">Chưa có dữ liệu điều kiện phát sinh.</p>
+                )}
+              </section>
+
+              {/* Biện pháp xử lý */}
+              <section className="pt-5 flex flex-col gap-3">
+                <h2 className="flex items-center gap-2 text-base font-bold text-[#101b0d] dark:text-white">
+                  <span className="material-symbols-outlined text-[#2E7D32] dark:text-primary text-[20px]">medication</span>
+                  Biện pháp xử lý
+                </h2>
+                {entry.treatment?.length ? (
+                  <ol className="flex flex-col gap-3">
+                    {entry.treatment.map((t, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="flex-shrink-0 size-6 rounded-full bg-primary/20 dark:bg-primary/10 text-[#2E7D32] dark:text-primary text-xs font-bold flex items-center justify-center mt-0.5">
+                          {i + 1}
+                        </span>
+                        <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed">{t}</p>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="text-gray-400 text-sm italic">Chưa có dữ liệu biện pháp xử lý.</p>
+                )}
+              </section>
             </div>
-          </div>
-        </div>
-
-        {/* ── Tabs ─────────────────────────────────────────────────── */}
-        <div className="flex flex-col gap-0">
-          <div className="border-b border-[#e9f3e7] dark:border-white/10 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <nav className="flex gap-0 -mb-px">
-              {TABS.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`whitespace-nowrap py-4 px-5 text-sm font-medium border-b-2 transition-colors ${
-                    activeTab === tab.id
-                      ? 'border-primary text-[#101b0d] dark:text-white font-bold'
-                      : 'border-transparent text-[#599a4c] hover:text-[#101b0d] dark:hover:text-white'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
-          </div>
-
-          <div className="bg-white dark:bg-[#132210] rounded-b-xl border border-t-0 border-[#d3e7cf] dark:border-[#2a4524] p-6 md:p-8">
-
-            {activeTab === 'symptoms' && (
-              entry.symptoms?.length ? (
-                <ul className="flex flex-col gap-3">
-                  {entry.symptoms.map((s, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span
-                        className="material-symbols-outlined text-[#2E7D32] dark:text-primary text-[20px] shrink-0 mt-0.5"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                      >
-                        circle
-                      </span>
-                      <p className="text-base text-gray-700 dark:text-gray-200 leading-relaxed">{s}</p>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-400 text-sm italic">Chưa có dữ liệu triệu chứng.</p>
-              )
-            )}
-
-            {activeTab === 'conditions' && (
-              entry.conditions ? (
-                <div
-                  className="rich-prose text-base text-gray-700 dark:text-gray-200 leading-relaxed overflow-x-hidden"
-                  dangerouslySetInnerHTML={{ __html: entry.conditions }}
-                />
-              ) : (
-                <p className="text-gray-400 text-sm italic">Chưa có dữ liệu điều kiện phát sinh.</p>
-              )
-            )}
-
-            {activeTab === 'treatment' && (
-              entry.treatment?.length ? (
-                <ol className="flex flex-col gap-4">
-                  {entry.treatment.map((t, i) => (
-                    <li key={i} className="flex items-start gap-4">
-                      <span className="flex-shrink-0 size-7 rounded-full bg-primary/20 dark:bg-primary/10 text-[#2E7D32] dark:text-primary text-sm font-bold flex items-center justify-center mt-0.5">
-                        {i + 1}
-                      </span>
-                      <p className="text-base text-gray-700 dark:text-gray-200 leading-relaxed">{t}</p>
-                    </li>
-                  ))}
-                </ol>
-              ) : (
-                <p className="text-gray-400 text-sm italic">Chưa có dữ liệu biện pháp xử lý.</p>
-              )
-            )}
           </div>
         </div>
 
@@ -454,7 +406,6 @@ const EncyclopediaDetailPage = () => {
           className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4"
           onClick={() => setLightbox(false)}
         >
-          {/* Close */}
           <button
             onClick={() => setLightbox(false)}
             className="absolute top-5 right-5 size-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
@@ -463,7 +414,6 @@ const EncyclopediaDetailPage = () => {
             <span className="material-symbols-outlined text-[26px]">close</span>
           </button>
 
-          {/* Prev / Next */}
           {images.length > 1 && (
             <>
               <button
@@ -483,7 +433,6 @@ const EncyclopediaDetailPage = () => {
             </>
           )}
 
-          {/* Ảnh phóng to */}
           <img
             src={currentImage}
             alt={`${entry.name} — ảnh ${activeImage + 1}`}
@@ -491,7 +440,6 @@ const EncyclopediaDetailPage = () => {
             className="max-w-full max-h-[85vh] object-contain rounded-lg"
           />
 
-          {/* Counter */}
           {images.length > 1 && (
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-sm font-semibold px-3 py-1.5 rounded-full bg-white/10 text-white backdrop-blur-sm">
               {activeImage + 1} / {images.length}

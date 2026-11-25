@@ -1,0 +1,14 @@
+# Reverse proxy + HTTPS tự động.
+# DOMAIN: đặt domain thật (vd nhanong.duckdns.org) -> Caddy tự xin cert Let's Encrypt.
+#         hoặc ":80" nếu chỉ chạy HTTP bằng IP (camera trên mobile sẽ không dùng được).
+{$DOMAIN} {
+	# API -> backend (cắt tiền tố /api): /api/auth/login -> backend /auth/login
+	handle_path /api/* {
+		reverse_proxy backend:3000
+	}
+
+	# Còn lại -> frontend (SPA)
+	handle {
+		reverse_proxy frontend:80
+	}
+}

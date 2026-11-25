@@ -1,0 +1,41 @@
+@startuml
+left to right direction
+skinparam defaultFontName Times New Roman
+skinparam usecase {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+}
+skinparam actorBackgroundColor #FEFECE
+skinparam actorBorderColor #A80036
+skinparam ArrowColor #A80036
+skinparam rectangleBorderColor #A80036
+
+actor "Khách hàng" as Cust
+actor "Quản trị viên" as Admin
+
+rectangle " " {
+  usecase "Xem danh sách đơn hàng" as U1
+  usecase "Xem chi tiết đơn hàng" as U2
+  usecase "Theo dõi trạng thái đơn hàng" as U3
+  usecase "Hủy đơn hàng" as U4
+  usecase "Xác nhận đơn hàng" as U5
+  usecase "Cập nhật trạng thái đơn hàng" as U6
+}
+
+' ===== Khách hàng =====
+Cust --> U1
+Cust --> U3
+Cust --> U4
+
+' ===== Quản trị viên =====
+Admin --> U1
+Admin --> U4
+Admin --> U5
+Admin --> U6
+
+' ===== include / extend =====
+U1 ..> U2 : <<include>>
+U5 ..> U2 : <<include>>
+U6 ..> U2 : <<include>>
+U3 ..> U2 : <<extend>>
+@enduml

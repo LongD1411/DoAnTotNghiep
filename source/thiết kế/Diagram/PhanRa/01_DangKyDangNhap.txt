@@ -1,0 +1,29 @@
+@startuml
+left to right direction
+skinparam defaultFontName Times New Roman
+skinparam usecase {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+}
+skinparam actorBackgroundColor #FEFECE
+skinparam actorBorderColor #A80036
+skinparam ArrowColor #A80036
+skinparam rectangleBorderColor #A80036
+
+actor "Khách" as Guest
+
+rectangle " " {
+  usecase "Đăng ký tài khoản" as DK
+  usecase "Đăng nhập" as DN
+  usecase "Kiểm tra thông tin đăng nhập" as V
+  usecase "Đăng nhập bằng Google / Facebook" as OAuth
+  usecase "Quên mật khẩu / Đặt lại mật khẩu" as FP
+}
+
+Guest --> DK
+Guest --> DN
+
+DN ..> V : <<include>>
+OAuth ..> DN : <<extend>>
+FP ..> DN : <<extend>>
+@enduml

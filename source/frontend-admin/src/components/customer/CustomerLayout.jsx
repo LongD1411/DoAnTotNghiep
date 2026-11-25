@@ -2,13 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Toast from '../common/Toast';
 import CartPopup from './CartPopup';
+import NotificationBell from '../common/NotificationBell';
 import { useCartStore, selectCartCount } from '../../store/useCartStore';
+import { useNotificationStore } from '../../store/useNotificationStore';
 import { getCurrentUser } from '../../services/authService';
 
 const NAV_LINKS = [
   { label: 'Tra cứu',   href: '/tra-cuu' },
   { label: 'Cửa hàng',  href: '/san-pham' },
-  { label: 'Công nghệ', href: '#' },
+  { label: 'Chẩn đoán AI', href: '/chan-doan' },
   { label: 'Diễn đàn',  href: '/dien-dan' },
   { label: 'Giới thiệu', href: '/gioi-thieu' },
 ];
@@ -16,10 +18,11 @@ const NAV_LINKS = [
 const CustomerLayout = ({ children }) => {
   const cartCount = useCartStore(selectCartCount);
   const initCart  = useCartStore(s => s.init);
+  const initNotif = useNotificationStore(s => s.init);
   const [cartOpen, setCartOpen] = useState(false);
   const cartRef = useRef(null);
 
-  useEffect(() => { initCart(); }, [initCart]);
+  useEffect(() => { initCart(); initNotif(); }, [initCart, initNotif]);
 
   // Đóng popup giỏ khi click ra ngoài
   useEffect(() => {
@@ -60,6 +63,12 @@ const CustomerLayout = ({ children }) => {
           <div className="flex flex-1 justify-end gap-4 md:gap-8 items-center">
             {/* Action icons */}
             <div className="flex gap-3">
+              {getCurrentUser() && (
+                <NotificationBell
+                  scope="customer"
+                  triggerClassName="relative flex items-center justify-center rounded-full h-10 w-10 bg-[#e9f3e7] dark:bg-white/10 hover:bg-primary hover:text-black dark:hover:bg-primary dark:hover:text-black transition-colors text-[#101b0d] dark:text-white"
+                />
+              )}
               <div className="relative" ref={cartRef}>
                 <button
                   onClick={() => setCartOpen(v => !v)}

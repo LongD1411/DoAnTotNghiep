@@ -788,6 +788,189 @@
 
 ---
 
+## v60 — 2026-10-06
+
+**Yêu cầu:** ghép luồng thanh toán end-to-end (sau khi dựng API đơn hàng `/api` v25) — hỗ trợ chuyển khoản Vietcombank
+
+**Files tạo/cập nhật:**
+- [+] frontend-admin/src/pages/customer/OrderSuccessPage.jsx — màn xác nhận sau đặt hàng `/dat-hang/:id` (PrivateRoute): banner thành công + mã đơn `DH######` + badge trạng thái; nếu `bank_transfer` & `unpaid` → card **hướng dẫn chuyển khoản** (ảnh **VietQR** tự điền số tiền + nội dung, thông tin TK + nút copy số TK/số tiền/nội dung); nếu `cod` → note thu tiền khi nhận; địa chỉ giao hàng; tóm tắt đơn (items + ảnh chính + tạm tính/phí ship/tổng). Lấy đơn từ `location.state.order` (khi vừa đặt) hoặc `GET /orders/:id`
+- [+] frontend-admin/src/config/bank.js — `BANK` (đọc `VITE_BANK_*`, mặc định BIN 970436 = Vietcombank) + `vietQrUrl()` dựng link ảnh VietQR Napas 247 (không cần API key)
+- [~] pages/customer/CheckoutPage.jsx — `handlePlaceOrder` gửi payload **snake_case** (`address.full_name...`, `payment_method`, `note`) khớp `CreateOrderSchema`; nhận đơn trả về → xoá giỏ client → `navigate('/dat-hang/:id', { state:{ order } })`
+- [~] services/orderService.js — cập nhật doc contract POST /orders sang snake_case (bỏ ghi chú "chưa có backend")
+- [~] router/index.jsx — route `/dat-hang/:id` → OrderSuccessPage
+
+**API endpoints sử dụng:**
+- POST /orders — tạo đơn (nay đã có backend, API_LOG v25); GET /orders/:id — nạp lại đơn khi mở trực tiếp màn xác nhận
+- Ảnh QR: `img.vietqr.io` (static image, không gọi API nội bộ)
+
+**Cần cấu hình:** đặt `VITE_BANK_ACCOUNT`, `VITE_BANK_HOLDER` (+ `VITE_BANK_BRANCH`) trong `frontend-admin/.env` bằng số TK Vietcombank thật. Admin xác nhận đã nhận tiền qua `PUT /orders/:id { payment_status:'paid', status:'approved' }` (chưa có UI admin — đối soát thủ công/Postman).
+
+---
+
+
+## v61 — 2026-10-06
+
+**Yêu cầu:** trang cá nhân — cho phép xem danh sách đơn hàng và chi tiết đơn hàng
+**Prototype tham chiếu:** customer/dashboard.html (Recent Orders table → card list theo style ProfilePage)
+
+**Files tạo/cập nhật:**
+- [+] frontend-admin/src/utils/orderStatus.js — map nhãn+màu dùng chung: `ORDER_STATUS_LABEL` (pending…cancelled, kèm dot), `PAYMENT_STATUS_LABEL` (unpaid/paid/refunded), `PAYMENT_METHOD_LABEL`
+- [~] pages/customer/ProfilePage.jsx — **bật tab "Đơn hàng"** (bỏ disabled, đưa lên vị trí 2); fetch `GET /orders` trong Promise.all lúc mount; list đơn dạng card (thumbnail chồng tối đa 3 + "+N", mã `DH######`, badge trạng thái + thanh toán, tên sản phẩm tóm tắt, ngày + số lượng, tổng tiền, nút "Xem chi tiết" → `/dat-hang/:id`); empty state; thêm stat tile **Đơn hàng** (bấm được → mở tab); đọc `location.state.tab` để mở đúng tab khi quay lại từ trang chi tiết
+- [~] pages/customer/OrderSuccessPage.jsx — tái dùng làm **trang chi tiết đơn**: banner adaptive (`justPlaced` → "Đặt hàng thành công!", ngược lại → "Chi tiết đơn hàng" + icon receipt_long); thêm breadcrumb Trang chủ / Đơn hàng / mã đơn (link về `/tai-khoan` state tab=orders); dùng chung `orderStatus.js`
+- [~] pages/customer/CheckoutPage.jsx — navigate kèm `state.justPlaced = true` để phân biệt vừa đặt vs xem lại
+
+**API endpoints sử dụng:**
+- GET /orders — danh sách đơn của user hiện tại (API_LOG v25)
+- GET /orders/:id — chi tiết đơn (qua OrderSuccessPage, mở trực tiếp khi không có state)
+
+---
+
+
+## v62 — 2026-10-07
+
+**Yêu cầu:** áp dụng css 2 ô lọc sản phẩm trang cửa hàng (giống trang tra cứu) — CHỈ style, giữ nguyên cấu trúc
+**Prototype tham chiếu:** EncyclopediaPage (/tra-cuu) — block "label đậm + control", không khung bo viền
+
+**Files tạo/cập nhật:**
+- [~] pages/customer/CatalogPage.jsx — 2 ô lọc sidebar ("Danh mục sản phẩm" + "Khoảng giá") đổi vỏ ngoài từ `<details>` bo viền + mũi tên sang block gọn `flex flex-col gap-2` + `<p>` label đậm (giống tra cứu). **GIỮ NGUYÊN** checkbox đa chọn, state `catFilters`/`priceFilters`, bộ đếm sản phẩm, nút "Đặt lại" — không đổi cấu trúc/hành vi lọc. Polish CSS: icon `tune` ở tiêu đề "Bộ lọc"; hàng option bo góc + hover nền `#f3faf2`/`white/5`; chữ chuyển xanh đậm `#2E7D32` khi tích; số đếm danh mục thành pill `bg-[#e9f3e7]` bo tròn
+
+**API endpoints sử dụng:**
+- (không đổi) GET /products
+
+**Lưu ý:** chỉ thay đổi CSS/vỏ container; logic lọc đa chọn giữ nguyên. Lỗi lint `react-hooks/set-state-in-effect` ở effect fetch là có sẵn, không liên quan.
+
+---
+
+
+## v63 — 2026-10-07
+
+**Yêu cầu:** trang cá nhân — danh sách đơn hàng: bỏ nút "Xem chi tiết", click vào tên/mã đơn sang trang chi tiết, thêm hiệu ứng hover item
+
+**Files tạo/cập nhật:**
+- [~] pages/customer/ProfilePage.jsx (tab Đơn hàng) — bỏ nút "Xem chi tiết"; **cả card đơn hàng clickable** (`role=button` + `tabIndex` + `onClick`/`onKeyDown` Enter → `/dat-hang/:id`); mã đơn `o.code` đổi xanh `#2E7D32` khi hover (không gạch chân); hover item: chỉ `shadow-md` (không viền xanh), mũi tên `chevron_right` trượt `translate-x-1` (thay cho nút cũ)
+- [~] pages/customer/ProfilePage.jsx (tab Bài viết của tôi) — đồng bộ cùng kiểu: **cả card clickable** → `/dien-dan/:slug` (tiêu đề đổi từ `<Link>` sang `<span>` group-hover xanh, không gạch chân); hover item chỉ `shadow-md`; nút sửa giữ nguyên nhưng `onClick stopPropagation` để bấm sửa không kích hoạt điều hướng card
+- [~] pages/customer/OrderSuccessPage.jsx — ảnh QR chuyển khoản bấm được (`cursor-zoom-in` + hint "Bấm để phóng to") → mở **lightbox** `fixed inset-0 z-[100] bg-black/90` phóng to QR (tối đa 420px) + thông tin TK/số tiền/nội dung; bấm nền hoặc nút X để đóng (mẫu giống lightbox EncyclopediaDetailPage). Bỏ viền xanh ô "Chuyển khoản"; sửa icon `info` dòng lưu ý về inline `align-middle`
+- [~] pages/customer/OrderSuccessPage.jsx — nút **"Hủy đơn hàng"** (đỏ, trong card tóm tắt): **enabled khi `status==='pending'`**, disabled các trạng thái khác (kèm title giải thích); bấm → modal xác nhận → `cancelOrder(id)` (PUT /orders/:id/cancel, API_LOG v26) → cập nhật `order` + toast. Service: `orderService.cancelOrder`
+
+**API endpoints sử dụng:**
+- (không đổi) GET /orders · GET /orders/:id
+
+---
+
+
+## v64 — 2026-10-07
+
+**Yêu cầu:** thống nhất 1 tỉ lệ hiển thị ảnh sản phẩm + validate tỉ lệ ảnh ở trang tạo sản phẩm
+
+**Files tạo/cập nhật:**
+- [~] components/common/ImageUploader.jsx — thêm prop `aspectRatio` (w/h) + `aspectTolerance` (mặc định 0.15); `addFiles` chuyển async: đọc kích thước ảnh (`readRatio`), **từ chối ảnh sai tỉ lệ** (ngoài ±tolerance) + báo toast (kèm WxH); đồng thời thêm toast cho lỗi định dạng/dung lượng (trước đây im lặng). Không đặt `aspectRatio` → giữ nguyên hành vi (các uploader khác như tra cứu không bị ảnh hưởng)
+- [~] pages/admin/ProductFormPage.jsx — `ImageUploader aspectRatio={1}` (ép **vuông 1:1**) + dòng gợi ý "ảnh vuông 800×800px, sai tỉ lệ sẽ bị từ chối"
+- [~] pages/customer/CatalogPage.jsx — card sản phẩm đổi `aspect-[4/3]` → **`aspect-square`** (đồng bộ với thumbnail admin + preview uploader đều vuông)
+
+**Ghi chú:** chọn chuẩn hiển thị **1:1** vì thumbnail admin (`size-10`) và preview uploader (`aspect-square`) vốn đã vuông. Hiển thị dùng `object-cover` nên không méo. 2 lỗi lint `set-state-in-effect` (CatalogPage) và `refs-during-render` (ImageUploader `getDisplayUrl`) là **có sẵn**, không liên quan.
+
+---
+
+
+## v65 — 2026-10-07
+
+**Yêu cầu:** xóa hết data mock trang dashboard admin (OverviewPage), hiển thị dữ liệu thật
+
+**Files tạo/cập nhật:**
+- [+] frontend-admin/src/services/userService.js — `getAllUsers`, `getUserById` (GET /users, admin)
+- [~] pages/admin/OverviewPage.jsx — **bỏ toàn bộ mock** (STATS_DATA, RECENT_ORDERS, RECENT_POSTS, NOTIFICATIONS, genRevenue/genOrders + YEAR_BASE/deltas). Nạp thật qua Promise.all: `getMyOrders` + `getAllProducts` + `getPosts` + `getAllUsers` (limit 100). Tính client-side:
+  - **Stat cards** theo kỳ (tháng/tuần/quý/năm) + % so kỳ trước: doanh thu (Σ total đơn không huỷ), tổng đơn, thành viên mới (user role customer), hoạt động diễn đàn (số bài)
+  - **Chart doanh thu** (Σ total theo tháng, triệu đồng) + **chart đơn & thành viên** (đếm theo tháng), lọc theo năm chọn; năm hiện tại hiển thị đến tháng hiện tại
+  - **Giao dịch gần đây** = 5 đơn mới nhất (mã, người nhận `address.full_name`, tổng, badge trạng thái dùng `ORDER_STATUS_LABEL`)
+  - **Bài viết mới nhất** = 3 post mới nhất (tiêu đề, tác giả, thời gian tương đối, comment/view count)
+  - **Thông báo** suy ra từ dữ liệu thật: đơn mới · sản phẩm sắp hết hàng (stock≤5) · thành viên mới nhất (đọc/đã đọc quản lý bằng state local)
+  - LoadingOverlay theo `loading`; empty state cho bảng/khối khi chưa có dữ liệu
+  - Chụp mốc thời gian 1 lần (`nowTs`) để tránh gọi `Date.now()` khi render
+
+**API endpoints sử dụng:** GET /orders · GET /products · GET /posts · GET /users (tất cả admin)
+
+**Giới hạn:** API giới hạn `limit` tối đa 100 → dashboard tổng hợp trên tối đa 100 bản ghi mỗi loại (đủ cho quy mô đồ án). Muốn chính xác tuyệt đối khi dữ liệu lớn nên làm endpoint `/stats` tổng hợp phía backend. Notifications chưa có API riêng → suy ra từ dữ liệu thật.
+
+---
+
+
+## v66 — 2026-10-07
+
+**Yêu cầu:** xóa mock trang quản lý đơn hàng admin (OrdersPage), hiển thị dữ liệu thật
+
+**Files tạo/cập nhật:**
+- [~] pages/admin/OrdersPage.jsx — **bỏ MOCK_ORDERS + STATS mock + chip ngày giả + nút "Tải báo cáo" chết**. Nạp thật `getMyOrders({limit:100})` (admin thấy tất cả đơn); stat cards tính thật (Tổng đơn / Chờ xử lý `pending` / Đang giao `delivering` / Hoàn thành `delivered|completed`); bảng: mã `code`, khách `address.full_name` (+avatar initials), tổng `fmtVnd`, trạng thái dùng `ORDER_STATUS_LABEL` (dot+label), thanh toán `payment_method` + badge Đã/Chưa TT, ngày `created_at`; filter theo trạng thái (enum thật) + search mã/khách (client-side); phân trang client; nút refresh = reload API; LoadingOverlay theo `loading`; row click → `/admin/edit-order/:id`
+
+**API endpoints sử dụng:** GET /orders (admin)
+
+**Còn lại:** trang **sửa đơn** `/admin/edit-order/:id` (EditOrderPage) có thể vẫn dùng mock — nếu cần wire tiếp (xem/đổi trạng thái qua `PUT /orders/:id`) thì làm sau.
+
+---
+
+
+## v67 — 2026-10-08
+
+**Yêu cầu:** api cập nhật đơn hàng không dùng được bên admin (trang sửa đơn) — xử lý dữ liệu thật
+
+**Files tạo/cập nhật:**
+- [~] services/orderService.js — thêm `updateOrder(id, data)` → `PUT /orders/:id` (+ localTime)
+- [~] pages/admin/EditOrderPage.jsx — **bỏ MOCK_ORDER + `handleSubmit` giả (`setTimeout`)**. Fetch thật `getOrderById(id)`; hiển thị read-only: người nhận/SĐT/địa chỉ (`address`), ngày đặt, ghi chú khách, bảng sản phẩm thật (ảnh/tên/đơn vị/giá/SL/thành tiền), tóm tắt tiền. Admin đổi **trạng thái đơn** + **trạng thái thanh toán** (Select, enum thật) + lý do huỷ (khi chọn Đã huỷ) → `updateOrder` (PUT /orders/:id). Nút Lưu disable khi chưa đổi gì (`dirty`); LoadingOverlay theo loading/saving. (PUT chỉ cho sửa status/payment_status/cancel_reason — nên khách/địa chỉ/sản phẩm để chỉ đọc đúng khả năng API)
+
+**API endpoints sử dụng:** GET /orders/:id · PUT /orders/:id (admin)
+
+**Verify:** `PUT /orders/4` (token admin, ghi lại trạng thái hiện tại) → `200 ECN002` — API cập nhật hoạt động; lỗi trước do UI mock không gọi API.
+
+---
+
+
+## v68 — 2026-10-08
+
+**Yêu cầu:** thông báo phải nhanh — realtime SSE, cả admin + customer
+
+**Files tạo/cập nhật:**
+- [+] services/notificationService.js — API (get/markRead/markAllRead) + `openNotificationStream()` (EventSource với token qua query)
+- [+] store/useNotificationStore.js — zustand: `init` (fetch 30 cái + mở SSE), `items`/`unread`, `markRead`/`markAllRead`, `reset`; EventSource ở module-level (sống qua điều hướng), nghe `event: notification` → prepend + tăng unread
+- [+] components/common/NotificationBell.jsx — chuông dropdown realtime dùng chung; prop `scope` (admin/customer) để điều hướng chi tiết đúng (order→edit-order/dat-hang, product→edit-product, post→kiem-duyet), `viewAllTo`, `triggerClassName`
+- [~] components/admin/AdminLayout.jsx — init store khi vào admin; reset khi logout; bỏ prop `title` thừa
+- [~] components/customer/CustomerLayout.jsx — init store + thêm **chuông cho khách đã đăng nhập**
+- [~] pages/customer/ProfilePage.jsx — logout reset notif store
+- [~] pages/admin/OverviewPage.jsx — thay chuông "suy ra từ data" bằng `NotificationBell` realtime; bỏ state/useMemo/products thừa
+- [~] pages/admin/NotificationsPage.jsx — **bỏ mock**, dùng store: filter (tất cả/chưa đọc/đơn hàng/tồn kho/diễn đàn) + search + click đọc & đi chi tiết + đánh dấu tất cả
+
+**API:** GET /notifications · GET /notifications/stream (SSE) · PUT /notifications/:id/read · PUT /notifications/read-all (API_LOG v27)
+
+**Ghi chú:** độ trễ ~tức thì (SSE push). Khách chủ yếu nhận thông báo "đơn của tôi đổi trạng thái"; admin/mod nhận đơn mới / sắp hết hàng / bài chờ duyệt. Đã verify push realtime.
+
+---
+
+## v69 — 2026-10-08
+
+**Yêu cầu:** Trang khách "Chẩn đoán bệnh cây bằng AI" — upload ảnh lá → kết quả bệnh + thuốc điều trị
+
+**Files tạo/cập nhật:**
+- [+] pages/customer/DiagnosisPage.jsx — khung upload kéo-thả + preview ảnh, gọi `/diagnosis`; render 3 trạng thái: **matched** (badge mức độ + độ tin cậy + triệu chứng + biện pháp xử lý + link cẩm nang), **healthy** (cây khỏe mạnh), **unmatched** (fallback: top-3 dự đoán + CTA "Hỏi cộng đồng"/"Tra cứu"); mục "Thuốc điều trị khuyến nghị" với nút thêm vào giỏ (`useCartStore`)
+- [+] services/diagnosisService.js — `diagnose(file)` (multipart) + `getDiagnosisHistory()`
+- [~] router/index.jsx — route public `/chan-doan`
+- [~] components/customer/CustomerLayout.jsx — nav "Chẩn đoán AI" → `/chan-doan` (thay placeholder "Công nghệ")
+
+**API:** POST /diagnosis · GET /diagnosis/history (API_LOG v28). **ML engine:** `ml-service/` (FastAPI + MobileNetV2/PlantVillage).
+
+**Ghi chú:** ảnh giới hạn 5MB (khớp backend); thanh độ tin cậy đổi màu theo % (≥80 xanh, ≥60 vàng, <60 cam). Có ghi chú "kết quả AI chỉ mang tính tham khảo". Khách chưa đăng nhập vẫn chẩn đoán được.
+
+---
+
+## v70 — 2026-10-12
+
+**Yêu cầu:** (1) Trang chi tiết Tra cứu — gộp Triệu chứng/Điều kiện/Biện pháp thành 1 khối bên phải ảnh; (2) Chẩn đoán AI — thêm chụp camera.
+
+**Files tạo/cập nhật:**
+- [~] pages/customer/EncyclopediaDetailPage.jsx — **bỏ tabs**, gộp Triệu chứng + Điều kiện phát sinh + Biện pháp xử lý thành **1 khối** (card có `divide-y`) ở cột phải; ảnh trái **sticky** khi cuộn; meta gọn (badge mức độ + chip cây trồng) thay cụm 3 ô thống kê cũ. Giữ gallery/lightbox/sản phẩm khuyến nghị/mục liên quan.
+- [+] components/customer/CameraCapture.jsx — overlay camera trực tiếp (`getUserMedia`): live preview, nút chụp (canvas→File jpeg), đổi camera trước/sau (`facingMode`), xử lý lỗi quyền/không có camera/không HTTPS, dừng stream khi đóng.
+- [~] pages/customer/DiagnosisPage.jsx — nút "Chụp từ camera" (ô trống + hàng nút khi đã có ảnh); render `<CameraCapture>`; ảnh chụp đi vào đúng luồng `pickFile` → `/diagnosis`.
+
+**Ghi chú:** camera cần HTTPS hoặc localhost (dev `localhost:5173` OK). Test LAN qua IP http sẽ bị chặn → dùng nút tải ảnh. Không đổi API.
+
+---
 
 > Tự động cập nhật khi chạy `/ui`.
 > Không sửa tay trực tiếp.

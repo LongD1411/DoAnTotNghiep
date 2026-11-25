@@ -124,23 +124,25 @@ const CheckoutPage = () => {
 
     setPlacing(true);
     try {
-      await createOrder({
+      // snake_case khớp CreateOrderSchema; backend tự tính giá/phí ship từ giỏ server-side.
+      const res = await createOrder({
         address: {
-          fullName: form.fullName.trim(),
+          full_name: form.fullName.trim(),
           phone: form.phone.trim(),
           street: form.street.trim(),
-          ward: form.ward.trim() || null,
+          ward: form.ward.trim() || undefined,
           district: form.district.trim(),
           city: form.city.trim(),
         },
-        paymentMethod: payment,
-        note: form.note.trim() || null,
-        shippingFee,
+        payment_method: payment,
+        note: form.note.trim() || undefined,
       });
-      // Đơn đã tạo & giỏ server đã bị xoá phía backend → đồng bộ giỏ client về rỗng
+      const order = res.data.data;
+      // Backend đã xoá giỏ server → đồng bộ giỏ client về rỗng
       useCartStore.setState({ items: [] });
-      toastService.success('Đặt hàng thành công! Cảm ơn bạn đã mua sắm.');
-      navigate('/trang-chu');
+      toastService.success('Đặt hàng thành công!');
+      // Chuyển sang màn xác nhận: bank_transfer sẽ hiện QR chuyển khoản, COD hiện hướng dẫn
+      navigate(`/dat-hang/${order.id}`, { state: { order, justPlaced: true } });
     } catch (err) {
       toastService.error(errMsg(err));
     } finally {

@@ -7,6 +7,7 @@ import RegisterPage      from '../pages/auth/RegisterPage';
 import HomePage          from '../pages/customer/HomePage';
 import EncyclopediaPage       from '../pages/customer/EncyclopediaPage';
 import EncyclopediaDetailPage from '../pages/customer/EncyclopediaDetailPage';
+import DiagnosisPage          from '../pages/customer/DiagnosisPage';
 import AdminOverviewPage  from '../pages/admin/OverviewPage';
 import AdminProductsPage  from '../pages/admin/ProductsPage';
 import AdminOrdersPage    from '../pages/admin/OrdersPage';
@@ -22,6 +23,7 @@ import ProductDetailPage  from '../pages/customer/ProductDetailPage';
 import CartPage           from '../pages/customer/CartPage';
 import ProfilePage        from '../pages/customer/ProfilePage';
 import CheckoutPage       from '../pages/customer/CheckoutPage';
+import OrderSuccessPage   from '../pages/customer/OrderSuccessPage';
 // import DashboardPage      from '../pages/customer/DashboardPage';
 import ForumPage          from '../pages/customer/ForumPage';
 import ForumPostPage      from '../pages/customer/ForumPostPage';
@@ -52,6 +54,7 @@ const AppRouter = () => (
     <Route path="/trang-chu"  element={<HomePage />} />
     <Route path="/tra-cuu"           element={<EncyclopediaPage />} />
     <Route path="/tra-cuu/:slug"       element={<EncyclopediaDetailPage />} />
+    <Route path="/chan-doan"         element={<DiagnosisPage />} />
     <Route path="/san-pham"   element={<CatalogPage />} />
     
     {/* ── Admin (chỉ role admin) ── */}
@@ -74,6 +77,7 @@ const AppRouter = () => (
     <Route path="/gio-hang"  element={<CartPage />} />
     <Route path="/tai-khoan" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
     <Route path="/checkout"  element={<PrivateRoute><CheckoutPage /></PrivateRoute>} />
+    <Route path="/dat-hang/:id" element={<PrivateRoute><OrderSuccessPage /></PrivateRoute>} />
     <Route path="/dashboard" element={<PrivateRoute><div>Dashboard — coming soon</div></PrivateRoute>} />
     <Route path="/gioi-thieu"           element={<AboutPage />} />
     <Route path="/dien-dan"            element={<ForumPage />} />

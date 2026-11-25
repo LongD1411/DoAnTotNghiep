@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Toast from '../common/Toast';
+import { useNotificationStore } from '../../store/useNotificationStore';
 
 const NAV_ITEMS = [
   { label: 'Dashboard',  icon: 'dashboard',    path: '/admin/overview'  },
@@ -10,11 +12,15 @@ const NAV_ITEMS = [
   { label: 'Cài đặt',    icon: 'settings',      path: '/admin/settings'              },
 ];
 
-const AdminLayout = ({ children, title = 'AgroAdmin' }) => {
+const AdminLayout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const initNotif = useNotificationStore(s => s.init);
+
+  useEffect(() => { initNotif(); }, [initNotif]);
 
   const handleLogout = () => {
+    useNotificationStore.getState().reset();
     localStorage.removeItem('access_token');
     sessionStorage.removeItem('access_token');
     navigate('/dang-nhap');

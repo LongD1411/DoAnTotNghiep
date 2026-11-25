@@ -61,6 +61,14 @@ export const ERR = {
 
   // Cart business
   OUT_OF_STOCK: { code: 'ER501', message: 'Sản phẩm đã hết hàng hoặc không còn kinh doanh' },
+
+  // Order business
+  CART_EMPTY:            { code: 'ER601', message: 'Giỏ hàng trống, không thể đặt hàng' },
+  ORDER_NOT_CANCELABLE:  { code: 'ER602', message: 'Chỉ có thể hủy đơn hàng đang chờ xử lý' },
+
+  // AI diagnosis
+  AI_NOT_READY:    { code: 'ER701', message: 'Mô hình AI chưa sẵn sàng, vui lòng thử lại sau' },
+  AI_UNAVAILABLE:  { code: 'ER702', message: 'Không kết nối được dịch vụ AI, vui lòng thử lại sau' },
 };
 
 // ─── RESPONSE HELPERS ─────────────────────────────────────────────────────────
