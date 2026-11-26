@@ -1,0 +1,77 @@
+@startuml
+left to right direction
+hide circle
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+  ArrowColor #A80036
+  AttributeFontColor #000000
+}
+
+class "DatHangUI" as B <<boundary>> {
+  + nhapDiaChi()
+  + chonThanhToan()
+  + datHang()
+}
+
+class "OrderController" as C <<control>> {
+  + createOrder()
+  + cancelOrder()
+}
+
+class "Cart" as E1 <<entity>> {
+  + id
+  + userId
+  + getCart()
+  + clearCart()
+}
+
+class "Order" as E2 <<entity>> {
+  + id
+  + userId
+  + status
+  + total
+  + paymentMethod
+  + getOrder()
+  + createOrder()
+  + cancelOrder()
+}
+
+class "OrderItem" as E3 <<entity>> {
+  + id
+  + orderId
+  + productId
+  + quantity
+  + price
+  + createOrderItem()
+}
+
+class "Address" as E4 <<entity>> {
+  + id
+  + userId
+  + fullName
+  + phone
+  + street
+  + district
+  + city
+  + createAddress()
+}
+
+class "Product" as E5 <<entity>> {
+  + id
+  + name
+  + price
+  + stock
+  + getProduct()
+  + updateProduct()
+}
+
+B -- C
+C -- E1
+C -- E2
+C -- E4
+E2 "1" -- "*" E3
+E3 -- E5
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+left to right direction
+skinparam defaultFontName Times New Roman
+skinparam usecase {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+}
+skinparam actorBackgroundColor #FEFECE
+skinparam actorBorderColor #A80036
+skinparam ArrowColor #A80036
+skinparam rectangleBorderColor #A80036
+
+actor "Khách hàng" as Cust
+
+rectangle " " {
+  usecase "Đánh giá sản phẩm" as P
+  usecase "Đăng nhập" as DN
+  usecase "Chọn sản phẩm đã mua" as U1
+  usecase "Viết nhận xét & chấm sao" as U2
+  usecase "Sửa / xóa đánh giá" as E2
+}
+
+Cust --> P
+
+P ..> DN : <<include>>
+P ..> U1 : <<include>>
+P ..> U2 : <<include>>
+E2 ..> P : <<extend>>
+@enduml

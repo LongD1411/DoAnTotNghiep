@@ -14,6 +14,7 @@ actor "Quản trị viên" as Admin
 
 rectangle " " {
   usecase "Quản lý người dùng" as P
+  usecase "Đăng nhập" as DN
   usecase "Xem danh sách người dùng" as U1
   usecase "Xem chi tiết người dùng" as U2
   usecase "Khóa / Mở khóa tài khoản" as E1
@@ -22,6 +23,7 @@ rectangle " " {
 
 Admin --> P
 
+P ..> DN : <<include>>
 P ..> U1 : <<include>>
 P ..> U2 : <<include>>
 E1 ..> P : <<extend>>

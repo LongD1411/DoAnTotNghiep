@@ -1,0 +1,40 @@
+@startuml
+hide footbox
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam sequence {
+  ParticipantBackgroundColor #FEFECE
+  ParticipantBorderColor #A80036
+  ActorBackgroundColor #FEFECE
+  ActorBorderColor #A80036
+  LifeLineBorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam boundaryBackgroundColor #FEFECE
+skinparam boundaryBorderColor #A80036
+skinparam controlBackgroundColor #FEFECE
+skinparam controlBorderColor #A80036
+skinparam entityBackgroundColor #FEFECE
+skinparam entityBorderColor #A80036
+
+actor "Khách" as U
+boundary "DangNhapUI" as UI
+control "AuthController" as C
+entity "User" as E1
+entity "RefreshToken" as E2
+
+U -> UI : Nhập email, mật khẩu
+UI -> C : Lấy thông tin đăng nhập từ màn hình
+activate C
+C -> E1 : getUser(email)
+activate E1
+E1 --> C : return Object
+deactivate E1
+C -> E2 : createRefreshToken()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả (token, user)
+deactivate C
+UI --> U : Đăng nhập thành công
+@enduml

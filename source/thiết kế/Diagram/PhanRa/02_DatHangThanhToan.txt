@@ -14,16 +14,16 @@ actor "Khách hàng" as Cust
 
 rectangle " " {
   usecase "Đặt hàng & thanh toán" as P
-  usecase "Kiểm tra giỏ hàng" as U1
-  usecase "Chọn phương thức thanh toán" as U3
-  usecase "Xác nhận đơn hàng" as U4
-  usecase "Áp dụng mã giảm giá" as E1
+  usecase "Đăng nhập" as DN
+  usecase "Xem giỏ hàng" as U1
+  usecase "Xác nhận đơn hàng" as U3
+  usecase "Thanh toán" as U4
 }
 
 Cust --> P
 
+P ..> DN : <<include>>
 P ..> U1 : <<include>>
 P ..> U3 : <<include>>
 P ..> U4 : <<include>>
-E1 ..> P : <<extend>>
 @enduml

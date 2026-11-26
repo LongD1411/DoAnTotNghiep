@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+hide circle
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+  ArrowColor #A80036
+  AttributeFontColor #000000
+}
+
+class "QuanLyNguoiDungUI" as B <<boundary>> {
+  + xemDanhSach()
+  + doiVaiTro()
+  + khoaTaiKhoan()
+}
+
+class "UsersController" as C <<control>> {
+  + getUsers()
+  + updateRole()
+  + deleteUser()
+}
+
+class "User" as E1 <<entity>> {
+  + id
+  + email
+  + name
+  + phone
+  + role
+  + isActive
+  + getUser()
+  + updateUser()
+  + deleteUser()
+}
+
+B -- C
+C -- E1
+@enduml

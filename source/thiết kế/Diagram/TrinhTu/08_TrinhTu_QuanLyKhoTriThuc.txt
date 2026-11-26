@@ -1,0 +1,73 @@
+@startuml
+hide footbox
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam sequence {
+  ParticipantBackgroundColor #FEFECE
+  ParticipantBorderColor #A80036
+  ActorBackgroundColor #FEFECE
+  ActorBorderColor #A80036
+  LifeLineBorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam boundaryBackgroundColor #FEFECE
+skinparam boundaryBorderColor #A80036
+skinparam controlBackgroundColor #FEFECE
+skinparam controlBorderColor #A80036
+skinparam entityBackgroundColor #FEFECE
+skinparam entityBorderColor #A80036
+
+actor "Quản trị viên" as U
+boundary "QuanLyKhoTriThucUI" as UI
+control "PestEntryController" as C
+entity "Product" as E1
+entity "PestEntry" as E2
+
+U -> UI : Chọn xem danh sách dị hại
+UI -> C : Lấy yêu cầu từ màn hình
+activate C
+C -> E2 : getPestEntries()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả
+deactivate C
+UI --> U : Hiển thị danh sách dị hại
+
+U -> UI : Nhập thông tin dị hại và gắn thuốc
+UI -> C : Lấy thông tin dị hại từ màn hình
+activate C
+C -> E1 : getProduct()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C -> E2 : createPestEntry()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo thêm thành công
+
+U -> UI : Chỉnh sửa thông tin dị hại
+UI -> C : Lấy thông tin dị hại từ màn hình
+activate C
+C -> E2 : updatePestEntry()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo cập nhật thành công
+
+U -> UI : Chọn dị hại cần xóa
+UI -> C : Lấy yêu cầu xóa từ màn hình
+activate C
+C -> E2 : deletePestEntry()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo xóa thành công
+@enduml

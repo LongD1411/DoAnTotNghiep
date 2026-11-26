@@ -1,0 +1,40 @@
+@startuml
+hide footbox
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam sequence {
+  ParticipantBackgroundColor #FEFECE
+  ParticipantBorderColor #A80036
+  ActorBackgroundColor #FEFECE
+  ActorBorderColor #A80036
+  LifeLineBorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam boundaryBackgroundColor #FEFECE
+skinparam boundaryBorderColor #A80036
+skinparam controlBackgroundColor #FEFECE
+skinparam controlBorderColor #A80036
+skinparam entityBackgroundColor #FEFECE
+skinparam entityBorderColor #A80036
+
+actor "Khách" as U
+boundary "SanPhamUI" as UI
+control "ProductController" as C
+entity "Category" as E1
+entity "Product" as E2
+
+U -> UI : Nhập từ khóa / lọc danh mục
+UI -> C : Lấy từ khóa tìm kiếm từ màn hình
+activate C
+C -> E1 : getCategory()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C -> E2 : getProduct()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả
+deactivate C
+UI --> U : Hiển thị danh sách sản phẩm
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+left to right direction
+hide circle
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+  ArrowColor #A80036
+  AttributeFontColor #000000
+}
+
+class "TaiKhoanUI" as B <<boundary>> {
+  + xemThongTin()
+  + capNhatThongTin()
+  + doiMatKhau()
+}
+
+class "AuthController" as C <<control>> {
+  + getProfile()
+  + updateProfile()
+  + changePassword()
+}
+
+class "User" as E1 <<entity>> {
+  + id
+  + email
+  + name
+  + phone
+  + avatar
+  + getUser()
+  + updateUser()
+}
+
+class "Address" as E2 <<entity>> {
+  + id
+  + userId
+  + fullName
+  + phone
+  + street
+  + district
+  + city
+  + getAddress()
+  + createAddress()
+  + updateAddress()
+  + deleteAddress()
+}
+
+B -- C
+C -- E1
+E1 "1" -- "*" E2
+@enduml

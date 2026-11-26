@@ -1,0 +1,35 @@
+@startuml
+hide footbox
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam sequence {
+  ParticipantBackgroundColor #FEFECE
+  ParticipantBorderColor #A80036
+  ActorBackgroundColor #FEFECE
+  ActorBorderColor #A80036
+  LifeLineBorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam boundaryBackgroundColor #FEFECE
+skinparam boundaryBorderColor #A80036
+skinparam controlBackgroundColor #FEFECE
+skinparam controlBorderColor #A80036
+skinparam entityBackgroundColor #FEFECE
+skinparam entityBorderColor #A80036
+
+actor "Khách" as U
+boundary "DangKyUI" as UI
+control "AuthController" as C
+entity "User" as E1
+
+U -> UI : Nhập thông tin đăng ký
+UI -> C : Lấy thông tin người dùng từ màn hình
+activate C
+C -> E1 : createUser()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C --> UI : return kết quả
+deactivate C
+UI --> U : Chuyển sang màn hình đăng nhập
+@enduml

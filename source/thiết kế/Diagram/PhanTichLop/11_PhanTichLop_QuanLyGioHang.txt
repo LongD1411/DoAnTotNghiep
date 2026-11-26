@@ -1,0 +1,55 @@
+@startuml
+left to right direction
+hide circle
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+  ArrowColor #A80036
+  AttributeFontColor #000000
+}
+
+class "GioHangUI" as B <<boundary>> {
+  + themVaoGio()
+  + capNhatSoLuong()
+  + xoaSanPham()
+}
+
+class "CartController" as C <<control>> {
+  + getCart()
+  + addItem()
+  + updateItem()
+  + removeItem()
+}
+
+class "Cart" as E1 <<entity>> {
+  + id
+  + userId
+  + getCart()
+  + clearCart()
+}
+
+class "CartItem" as E2 <<entity>> {
+  + id
+  + cartId
+  + productId
+  + quantity
+  + createCartItem()
+  + updateCartItem()
+  + deleteCartItem()
+}
+
+class "Product" as E3 <<entity>> {
+  + id
+  + name
+  + price
+  + stock
+  + getProduct()
+}
+
+B -- C
+C -- E1
+E1 "1" -- "*" E2
+E2 -- E3
+@enduml

@@ -14,6 +14,7 @@ actor "Quản trị viên" as Admin
 
 rectangle " " {
   usecase "Quản lý kho tri thức bệnh - thuốc" as P
+  usecase "Đăng nhập" as DN
   usecase "Xem danh sách bệnh" as U1
   usecase "Thêm bệnh" as U2
   usecase "Sửa thông tin bệnh" as U3
@@ -22,6 +23,7 @@ rectangle " " {
 
 Admin --> P
 
+P ..> DN : <<include>>
 P ..> U1 : <<include>>
 P ..> U2 : <<include>>
 P ..> U3 : <<include>>

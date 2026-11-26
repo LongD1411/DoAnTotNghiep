@@ -1,0 +1,53 @@
+@startuml
+left to right direction
+hide circle
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+  ArrowColor #A80036
+  AttributeFontColor #000000
+}
+
+class "DanhGiaUI" as B <<boundary>> {
+  + chonSanPham()
+  + chamSao()
+  + guiDanhGia()
+}
+
+class "ReviewController" as C <<control>> {
+  + getReviews()
+  + createReview()
+}
+
+class "Review" as E1 <<entity>> {
+  + id
+  + productId
+  + userId
+  + orderItemId
+  + rating
+  + comment
+  + getReview()
+  + createReview()
+}
+
+class "OrderItem" as E2 <<entity>> {
+  + id
+  + orderId
+  + productId
+  + quantity
+  + getOrderItem()
+}
+
+class "Product" as E3 <<entity>> {
+  + id
+  + name
+  + getProduct()
+}
+
+B -- C
+C -- E1
+E1 -- E2
+E1 -- E3
+@enduml

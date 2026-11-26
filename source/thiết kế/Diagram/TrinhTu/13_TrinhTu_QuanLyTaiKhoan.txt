@@ -1,0 +1,69 @@
+@startuml
+hide footbox
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam sequence {
+  ParticipantBackgroundColor #FEFECE
+  ParticipantBorderColor #A80036
+  ActorBackgroundColor #FEFECE
+  ActorBorderColor #A80036
+  LifeLineBorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam boundaryBackgroundColor #FEFECE
+skinparam boundaryBorderColor #A80036
+skinparam controlBackgroundColor #FEFECE
+skinparam controlBorderColor #A80036
+skinparam entityBackgroundColor #FEFECE
+skinparam entityBorderColor #A80036
+
+actor "Khách hàng" as U
+boundary "TaiKhoanUI" as UI
+control "AuthController" as C
+entity "User" as E1
+entity "Address" as E2
+
+U -> UI : Sửa thông tin cá nhân
+UI -> C : Lấy thông tin cá nhân từ màn hình
+activate C
+C -> E1 : updateUser()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo cập nhật thành công
+
+U -> UI : Nhập mật khẩu cũ và mới
+UI -> C : Lấy thông tin mật khẩu từ màn hình
+activate C
+C -> E1 : updateUser()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo đổi mật khẩu thành công
+
+U -> UI : Nhập địa chỉ mới
+UI -> C : Lấy thông tin địa chỉ từ màn hình
+activate C
+C -> E2 : createAddress()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo thêm địa chỉ thành công
+
+U -> UI : Chọn địa chỉ cần xóa
+UI -> C : Lấy yêu cầu xóa từ màn hình
+activate C
+C -> E2 : deleteAddress()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo xóa địa chỉ thành công
+@enduml

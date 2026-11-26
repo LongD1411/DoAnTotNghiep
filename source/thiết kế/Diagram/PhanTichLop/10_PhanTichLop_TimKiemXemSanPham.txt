@@ -1,0 +1,44 @@
+@startuml
+left to right direction
+hide circle
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+  ArrowColor #A80036
+  AttributeFontColor #000000
+}
+
+class "SanPhamUI" as B <<boundary>> {
+  + nhapTuKhoa()
+  + locDanhMuc()
+  + xemChiTiet()
+}
+
+class "ProductController" as C <<control>> {
+  + getProducts()
+  + getProduct()
+}
+
+class "Product" as E1 <<entity>> {
+  + id
+  + name
+  + slug
+  + price
+  + imageUrl
+  + categoryId
+  + getProduct()
+}
+
+class "Category" as E2 <<entity>> {
+  + id
+  + name
+  + slug
+  + getCategory()
+}
+
+B -- C
+C -- E1
+E2 "1" -- "*" E1
+@enduml

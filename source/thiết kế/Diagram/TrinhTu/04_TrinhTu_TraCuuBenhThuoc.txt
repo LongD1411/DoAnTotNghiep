@@ -1,0 +1,40 @@
+@startuml
+hide footbox
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam sequence {
+  ParticipantBackgroundColor #FEFECE
+  ParticipantBorderColor #A80036
+  ActorBackgroundColor #FEFECE
+  ActorBorderColor #A80036
+  LifeLineBorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam boundaryBackgroundColor #FEFECE
+skinparam boundaryBorderColor #A80036
+skinparam controlBackgroundColor #FEFECE
+skinparam controlBorderColor #A80036
+skinparam entityBackgroundColor #FEFECE
+skinparam entityBorderColor #A80036
+
+actor "Khách" as U
+boundary "TraCuuUI" as UI
+control "PestEntryController" as C
+entity "PestEntry" as E1
+entity "Product" as E2
+
+U -> UI : Nhập từ khóa / chọn danh mục
+UI -> C : Lấy từ khóa tra cứu từ màn hình
+activate C
+C -> E1 : getPestEntry()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C -> E2 : getProduct()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả
+deactivate C
+UI --> U : Hiển thị thông tin bệnh và thuốc
+@enduml

@@ -1,0 +1,68 @@
+@startuml
+hide footbox
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam sequence {
+  ParticipantBackgroundColor #FEFECE
+  ParticipantBorderColor #A80036
+  ActorBackgroundColor #FEFECE
+  ActorBorderColor #A80036
+  LifeLineBorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam boundaryBackgroundColor #FEFECE
+skinparam boundaryBorderColor #A80036
+skinparam controlBackgroundColor #FEFECE
+skinparam controlBorderColor #A80036
+skinparam entityBackgroundColor #FEFECE
+skinparam entityBorderColor #A80036
+
+actor "Quản trị viên" as U
+boundary "QuanLyNguoiDungUI" as UI
+control "UsersController" as C
+entity "User" as E1
+
+U -> UI : Chọn xem danh sách người dùng
+UI -> C : Lấy yêu cầu từ màn hình
+activate C
+C -> E1 : getUsers()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C --> UI : return kết quả
+deactivate C
+UI --> U : Hiển thị danh sách người dùng
+
+U -> UI : Chọn người dùng và đổi vai trò
+UI -> C : Lấy thông tin phân quyền từ màn hình
+activate C
+C -> E1 : updateUser()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo cập nhật thành công
+
+U -> UI : Chọn khóa hoặc mở khóa tài khoản
+UI -> C : Lấy yêu cầu từ màn hình
+activate C
+C -> E1 : updateUser()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo cập nhật thành công
+
+U -> UI : Chọn người dùng cần xóa
+UI -> C : Lấy yêu cầu xóa từ màn hình
+activate C
+C -> E1 : deleteUser()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo xóa thành công
+@enduml

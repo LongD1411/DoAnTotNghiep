@@ -1,0 +1,56 @@
+@startuml
+left to right direction
+hide circle
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+  ArrowColor #A80036
+  AttributeFontColor #000000
+}
+
+class "QuanLyKhoTriThucUI" as B <<boundary>> {
+  + nhapThongTin()
+  + ganThuoc()
+  + luuDiHai()
+}
+
+class "PestEntryController" as C <<control>> {
+  + getPestEntries()
+  + createPestEntry()
+  + updatePestEntry()
+  + deletePestEntry()
+}
+
+class "PestEntry" as E1 <<entity>> {
+  + id
+  + name
+  + category
+  + severity
+  + modelLabel
+  + getPestEntry()
+  + createPestEntry()
+  + updatePestEntry()
+  + deletePestEntry()
+}
+
+class "PestTreatment" as E2 <<entity>> {
+  + id
+  + pestId
+  + content
+  + createPestTreatment()
+}
+
+class "Product" as E3 <<entity>> {
+  + id
+  + name
+  + price
+  + getProduct()
+}
+
+B -- C
+C -- E1
+E1 "1" -- "*" E2
+E1 "1" -- "*" E3
+@enduml

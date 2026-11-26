@@ -1,0 +1,60 @@
+@startuml
+left to right direction
+hide circle
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+  ArrowColor #A80036
+  AttributeFontColor #000000
+}
+
+class "ChanDoanUI" as B <<boundary>> {
+  + taiAnhLen()
+  + chanDoan()
+  + hienThiKetQua()
+}
+
+class "DiagnosisController" as C <<control>> {
+  + diagnose()
+  + getHistory()
+}
+
+class "MLService" as M <<control>> {
+  + predictDisease()
+}
+
+class "PestEntry" as E1 <<entity>> {
+  + id
+  + name
+  + category
+  + severity
+  + modelLabel
+  + getPestEntry()
+}
+
+class "Diagnosis" as E2 <<entity>> {
+  + id
+  + userId
+  + imageUrl
+  + predictedLabel
+  + confidence
+  + pestId
+  + getDiagnosis()
+  + createDiagnosis()
+}
+
+class "Product" as E3 <<entity>> {
+  + id
+  + name
+  + price
+  + getProduct()
+}
+
+B -- C
+C -- M
+C -- E1
+C -- E2
+E1 "1" -- "*" E3
+@enduml

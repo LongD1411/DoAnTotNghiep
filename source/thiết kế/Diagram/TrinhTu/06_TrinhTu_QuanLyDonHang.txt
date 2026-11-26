@@ -1,0 +1,73 @@
+@startuml
+hide footbox
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam sequence {
+  ParticipantBackgroundColor #FEFECE
+  ParticipantBorderColor #A80036
+  ActorBackgroundColor #FEFECE
+  ActorBorderColor #A80036
+  LifeLineBorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam boundaryBackgroundColor #FEFECE
+skinparam boundaryBorderColor #A80036
+skinparam controlBackgroundColor #FEFECE
+skinparam controlBorderColor #A80036
+skinparam entityBackgroundColor #FEFECE
+skinparam entityBorderColor #A80036
+
+actor "Quản trị viên" as U
+boundary "QuanLyDonHangUI" as UI
+control "OrderController" as C
+entity "Order" as E1
+entity "OrderItem" as E2
+
+U -> UI : Chọn xem danh sách đơn hàng
+UI -> C : Lấy yêu cầu từ màn hình
+activate C
+C -> E1 : getOrders()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C --> UI : return kết quả
+deactivate C
+UI --> U : Hiển thị danh sách đơn hàng
+
+U -> UI : Chọn một đơn hàng
+UI -> C : Lấy mã đơn từ màn hình
+activate C
+C -> E1 : getOrder()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C -> E2 : getOrderItem()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả
+deactivate C
+UI --> U : Hiển thị chi tiết đơn hàng
+
+U -> UI : Cập nhật trạng thái đơn
+UI -> C : Lấy trạng thái đơn từ màn hình
+activate C
+C -> E1 : updateOrder()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo cập nhật thành công
+
+U -> UI : Chọn hủy đơn hàng
+UI -> C : Lấy yêu cầu hủy từ màn hình
+activate C
+C -> E1 : cancelOrder()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo hủy đơn thành công
+@enduml

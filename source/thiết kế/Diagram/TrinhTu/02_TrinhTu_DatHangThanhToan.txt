@@ -1,0 +1,45 @@
+@startuml
+hide footbox
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam sequence {
+  ParticipantBackgroundColor #FEFECE
+  ParticipantBorderColor #A80036
+  ActorBackgroundColor #FEFECE
+  ActorBorderColor #A80036
+  LifeLineBorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam boundaryBackgroundColor #FEFECE
+skinparam boundaryBorderColor #A80036
+skinparam controlBackgroundColor #FEFECE
+skinparam controlBorderColor #A80036
+skinparam entityBackgroundColor #FEFECE
+skinparam entityBorderColor #A80036
+
+actor "Khách hàng" as U
+boundary "DatHangUI" as UI
+control "OrderController" as C
+entity "Cart" as E1
+entity "Order" as E2
+entity "Product" as E3
+
+U -> UI : Nhập địa chỉ, chọn thanh toán và đặt hàng
+UI -> C : Lấy thông tin đơn hàng từ màn hình
+activate C
+C -> E1 : getCart()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C -> E2 : createOrder()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C -> E3 : updateProduct()
+activate E3
+E3 --> C : return Object
+deactivate E3
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo đặt hàng thành công
+@enduml

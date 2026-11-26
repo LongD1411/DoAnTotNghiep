@@ -1,0 +1,58 @@
+@startuml
+left to right direction
+hide circle
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+  ArrowColor #A80036
+  AttributeFontColor #000000
+}
+
+class "DangKyUI" as B1 <<boundary>> {
+  + nhapThongTin()
+  + dangKy()
+  + hienThiLoi()
+}
+
+class "DangNhapUI" as B2 <<boundary>> {
+  + nhapThongTin()
+  + dangNhap()
+  + hienThiLoi()
+}
+
+class "AuthController" as C <<control>> {
+  + register()
+  + login()
+}
+
+class "User" as E1 <<entity>> {
+  + id
+  + email
+  + password
+  + name
+  + phone
+  + role
+  + getUser()
+  + createUser()
+  + updateUser()
+  + deleteUser()
+}
+
+class "RefreshToken" as E2 <<entity>> {
+  + id
+  + token
+  + userId
+  + expiresAt
+  + getRefreshToken()
+  + createRefreshToken()
+  + deleteRefreshToken()
+}
+
+B1 -- C
+B2 -- C
+C -- E1
+C -- E2
+E1 "1" -- "*" E2
+@enduml

@@ -1,0 +1,43 @@
+@startuml
+left to right direction
+hide circle
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+  ArrowColor #A80036
+  AttributeFontColor #000000
+}
+
+class "TraCuuUI" as B <<boundary>> {
+  + nhapTuKhoa()
+  + xemChiTiet()
+  + hienThiKetQua()
+}
+
+class "PestEntryController" as C <<control>> {
+  + getPestEntries()
+  + getPestEntry()
+}
+
+class "PestEntry" as E1 <<entity>> {
+  + id
+  + name
+  + latinName
+  + category
+  + severity
+  + getPestEntry()
+}
+
+class "Product" as E2 <<entity>> {
+  + id
+  + name
+  + price
+  + getProduct()
+}
+
+B -- C
+C -- E1
+E1 "1" -- "*" E2
+@enduml

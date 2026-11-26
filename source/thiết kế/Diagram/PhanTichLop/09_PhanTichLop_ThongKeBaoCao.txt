@@ -1,0 +1,51 @@
+@startuml
+left to right direction
+hide circle
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+  ArrowColor #A80036
+  AttributeFontColor #000000
+}
+
+class "ThongKeUI" as B <<boundary>> {
+  + chonThoiGian()
+  + xemThongKe()
+  + xuatBaoCao()
+}
+
+class "StatsController" as C <<control>> {
+  + getRevenue()
+  + getBestSellers()
+  + exportReport()
+}
+
+class "Order" as E1 <<entity>> {
+  + id
+  + status
+  + total
+  + createdAt
+  + getOrder()
+}
+
+class "Product" as E2 <<entity>> {
+  + id
+  + name
+  + sold
+  + getProduct()
+}
+
+class "User" as E3 <<entity>> {
+  + id
+  + name
+  + createdAt
+  + getUser()
+}
+
+B -- C
+C -- E1
+C -- E2
+C -- E3
+@enduml

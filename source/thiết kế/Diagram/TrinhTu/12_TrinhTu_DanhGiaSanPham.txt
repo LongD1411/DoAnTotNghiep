@@ -1,0 +1,40 @@
+@startuml
+hide footbox
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam sequence {
+  ParticipantBackgroundColor #FEFECE
+  ParticipantBorderColor #A80036
+  ActorBackgroundColor #FEFECE
+  ActorBorderColor #A80036
+  LifeLineBorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam boundaryBackgroundColor #FEFECE
+skinparam boundaryBorderColor #A80036
+skinparam controlBackgroundColor #FEFECE
+skinparam controlBorderColor #A80036
+skinparam entityBackgroundColor #FEFECE
+skinparam entityBorderColor #A80036
+
+actor "Khách hàng" as U
+boundary "DanhGiaUI" as UI
+control "ReviewController" as C
+entity "OrderItem" as E1
+entity "Review" as E2
+
+U -> UI : Chấm sao và viết nhận xét
+UI -> C : Lấy nội dung đánh giá từ màn hình
+activate C
+C -> E1 : getOrderItem()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C -> E2 : createReview()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo đánh giá thành công
+@enduml

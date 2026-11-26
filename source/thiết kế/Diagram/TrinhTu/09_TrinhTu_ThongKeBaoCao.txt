@@ -1,0 +1,45 @@
+@startuml
+hide footbox
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam sequence {
+  ParticipantBackgroundColor #FEFECE
+  ParticipantBorderColor #A80036
+  ActorBackgroundColor #FEFECE
+  ActorBorderColor #A80036
+  LifeLineBorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam boundaryBackgroundColor #FEFECE
+skinparam boundaryBorderColor #A80036
+skinparam controlBackgroundColor #FEFECE
+skinparam controlBorderColor #A80036
+skinparam entityBackgroundColor #FEFECE
+skinparam entityBorderColor #A80036
+
+actor "Quản trị viên" as U
+boundary "ThongKeUI" as UI
+control "StatsController" as C
+entity "Order" as E1
+entity "Product" as E2
+entity "User" as E3
+
+U -> UI : Chọn khoảng thời gian thống kê
+UI -> C : Lấy tiêu chí thống kê từ màn hình
+activate C
+C -> E1 : getOrder()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C -> E2 : getProduct()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C -> E3 : getUser()
+activate E3
+E3 --> C : return Object
+deactivate E3
+C --> UI : return kết quả thống kê
+deactivate C
+UI --> U : Hiển thị biểu đồ và báo cáo
+@enduml

@@ -1,0 +1,45 @@
+@startuml
+hide footbox
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam sequence {
+  ParticipantBackgroundColor #FEFECE
+  ParticipantBorderColor #A80036
+  ActorBackgroundColor #FEFECE
+  ActorBorderColor #A80036
+  LifeLineBorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam boundaryBackgroundColor #FEFECE
+skinparam boundaryBorderColor #A80036
+skinparam controlBackgroundColor #FEFECE
+skinparam controlBorderColor #A80036
+skinparam entityBackgroundColor #FEFECE
+skinparam entityBorderColor #A80036
+
+actor "Khách" as U
+boundary "ChanDoanUI" as UI
+control "DiagnosisController" as C
+control "MLService" as M
+entity "PestEntry" as E1
+entity "Diagnosis" as E2
+
+U -> UI : Tải ảnh cây trồng lên
+UI -> C : Lấy ảnh chẩn đoán từ màn hình
+activate C
+C -> M : predictDisease()
+activate M
+M --> C : return Object
+deactivate M
+C -> E1 : getPestEntry()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C -> E2 : createDiagnosis()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả (bệnh + thuốc)
+deactivate C
+UI --> U : Hiển thị kết quả chẩn đoán
+@enduml

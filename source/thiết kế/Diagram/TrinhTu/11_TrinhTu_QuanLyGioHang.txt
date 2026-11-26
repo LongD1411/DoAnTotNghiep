@@ -1,0 +1,74 @@
+@startuml
+hide footbox
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam sequence {
+  ParticipantBackgroundColor #FEFECE
+  ParticipantBorderColor #A80036
+  ActorBackgroundColor #FEFECE
+  ActorBorderColor #A80036
+  LifeLineBorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam boundaryBackgroundColor #FEFECE
+skinparam boundaryBorderColor #A80036
+skinparam controlBackgroundColor #FEFECE
+skinparam controlBorderColor #A80036
+skinparam entityBackgroundColor #FEFECE
+skinparam entityBorderColor #A80036
+
+actor "Khách hàng" as U
+boundary "GioHangUI" as UI
+control "CartController" as C
+entity "Product" as E1
+entity "Cart" as E2
+entity "CartItem" as E3
+
+U -> UI : Mở giỏ hàng
+UI -> C : Lấy yêu cầu từ màn hình
+activate C
+C -> E2 : getCart()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả
+deactivate C
+UI --> U : Hiển thị giỏ hàng
+
+U -> UI : Chọn sản phẩm và thêm vào giỏ
+UI -> C : Lấy thông tin sản phẩm từ màn hình
+activate C
+C -> E1 : getProduct()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C -> E3 : createCartItem()
+activate E3
+E3 --> C : return Object
+deactivate E3
+C --> UI : return kết quả
+deactivate C
+UI --> U : Cập nhật giỏ hàng
+
+U -> UI : Thay đổi số lượng sản phẩm
+UI -> C : Lấy số lượng từ màn hình
+activate C
+C -> E3 : updateCartItem()
+activate E3
+E3 --> C : return Object
+deactivate E3
+C --> UI : return kết quả
+deactivate C
+UI --> U : Cập nhật giỏ hàng
+
+U -> UI : Chọn sản phẩm cần xóa
+UI -> C : Lấy yêu cầu xóa từ màn hình
+activate C
+C -> E3 : deleteCartItem()
+activate E3
+E3 --> C : return Object
+deactivate E3
+C --> UI : return kết quả
+deactivate C
+UI --> U : Cập nhật giỏ hàng
+@enduml

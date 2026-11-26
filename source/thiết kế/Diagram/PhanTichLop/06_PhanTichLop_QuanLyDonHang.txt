@@ -1,0 +1,48 @@
+@startuml
+left to right direction
+hide circle
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+  ArrowColor #A80036
+  AttributeFontColor #000000
+}
+
+class "QuanLyDonHangUI" as B <<boundary>> {
+  + xemDanhSach()
+  + capNhatTrangThai()
+  + xemChiTiet()
+}
+
+class "OrderController" as C <<control>> {
+  + getOrders()
+  + updateOrder()
+  + cancelOrder()
+}
+
+class "Order" as E1 <<entity>> {
+  + id
+  + userId
+  + status
+  + paymentStatus
+  + total
+  + getOrder()
+  + updateOrder()
+  + cancelOrder()
+}
+
+class "OrderItem" as E2 <<entity>> {
+  + id
+  + orderId
+  + productId
+  + quantity
+  + price
+  + getOrderItem()
+}
+
+B -- C
+C -- E1
+E1 "1" -- "*" E2
+@enduml

@@ -1,0 +1,73 @@
+@startuml
+hide footbox
+skinparam defaultFontName Times New Roman
+skinparam shadowing false
+skinparam sequence {
+  ParticipantBackgroundColor #FEFECE
+  ParticipantBorderColor #A80036
+  ActorBackgroundColor #FEFECE
+  ActorBorderColor #A80036
+  LifeLineBorderColor #A80036
+  ArrowColor #A80036
+}
+skinparam boundaryBackgroundColor #FEFECE
+skinparam boundaryBorderColor #A80036
+skinparam controlBackgroundColor #FEFECE
+skinparam controlBorderColor #A80036
+skinparam entityBackgroundColor #FEFECE
+skinparam entityBorderColor #A80036
+
+actor "Quản trị viên" as U
+boundary "QuanLySanPhamUI" as UI
+control "ProductController" as C
+entity "Category" as E1
+entity "Product" as E2
+
+U -> UI : Chọn xem danh sách sản phẩm
+UI -> C : Lấy yêu cầu từ màn hình
+activate C
+C -> E2 : getProducts()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả
+deactivate C
+UI --> U : Hiển thị danh sách sản phẩm
+
+U -> UI : Nhập thông tin sản phẩm mới
+UI -> C : Lấy thông tin sản phẩm từ màn hình
+activate C
+C -> E1 : getCategory()
+activate E1
+E1 --> C : return Object
+deactivate E1
+C -> E2 : createProduct()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo thêm thành công
+
+U -> UI : Chỉnh sửa thông tin sản phẩm
+UI -> C : Lấy thông tin sản phẩm từ màn hình
+activate C
+C -> E2 : updateProduct()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo cập nhật thành công
+
+U -> UI : Chọn sản phẩm cần xóa
+UI -> C : Lấy yêu cầu xóa từ màn hình
+activate C
+C -> E2 : deleteProduct()
+activate E2
+E2 --> C : return Object
+deactivate E2
+C --> UI : return kết quả
+deactivate C
+UI --> U : Thông báo xóa thành công
+@enduml
